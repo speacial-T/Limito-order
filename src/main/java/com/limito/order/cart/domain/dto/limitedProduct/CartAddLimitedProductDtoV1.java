@@ -8,7 +8,7 @@ import java.util.UUID;
 
 @Getter
 @Setter
-public class CartAddLimitedProductReqDtoV1 {
+public class CartAddLimitedProductDtoV1 {
     private UUID optionId;
     private String productName;
     private String productColor;
