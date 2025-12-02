@@ -12,3 +12,9 @@ spring:
     url: jdbc:postgresql://localhost:5432/limito-db
     username: postgres
     password: postgres
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect

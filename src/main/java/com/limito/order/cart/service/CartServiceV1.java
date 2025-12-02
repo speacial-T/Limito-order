@@ -1,16 +1,20 @@
 package com.limito.order.cart.service;
 
+import com.limito.common.exception.AppException;
 import com.limito.order.cart.domain.dto.limitedProduct.AddCartLimitedRequestV1;
 import com.limito.order.cart.domain.dto.limitedProduct.AddCartLimitedResponseV1;
 import com.limito.order.cart.domain.dto.resellProduct.AddCartResellRequestV1;
 import com.limito.order.cart.domain.dto.resellProduct.AddCartResellResponseV1;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CartServiceV1 {
 
     private static final String LIMITED_KEY = "cart:limited:%d";
@@ -80,19 +84,20 @@ public class CartServiceV1 {
 
         AddCartResellRequestV1 merged = addResellProductReqDto;
 
+        // Todo : 예외처리가 안잡힘 -> common레포 수정 끝나면 다시 확인하기
         // 동일 옵션의 상품은 추가 할 수 없음
         if (existing != null) {
             //예외 던지기
-
+            AppException.of(HttpStatus.BAD_REQUEST, "동일 옵션의 상품은 추가할 수 없습니다.");
+            log.error("동일 옵션 상품 추가 불가능");
         }
 
         hashOps.put(key, field, merged);
+        log.info("리셀 상품 추가 성공");
 
         AddCartResellRequestV1 saved = (AddCartResellRequestV1) hashOps.get(key, field);
 
         AddCartResellResponseV1 result = AddCartResellResponseV1.toResDto(saved);
         return result;
     }
-
-
 }

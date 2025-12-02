@@ -38,7 +38,7 @@ public class AddCartResellRequestV1 {
     @NotNull(message = "판매자 아이디는 필수입니다.")
     private Long sellerId;
 
-    @NotBlank(message = "상품 타입은 필수입니다.")
+    @NotNull(message = "상품 타입은 필수입니다.")
     private ProductType productType;
 
     private int productAmount = 1;
