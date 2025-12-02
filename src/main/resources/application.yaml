@@ -12,7 +12,3 @@ spring:
     url: jdbc:postgresql://localhost:5432/limito-db
     username: postgres
     password: postgres
-  # 도커 컴포즈의 실행 여부를 어플리케이션 시작/종료 시점에 맞추는 설정
-  docker:
-    compose:
-      lifecycle-management: start_and_stop

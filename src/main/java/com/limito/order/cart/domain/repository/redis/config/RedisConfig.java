@@ -1,7 +1,5 @@
-package com.limito.order.cart.repository.redis.config;
+package com.limito.order.cart.domain.repository.redis.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -45,7 +43,7 @@ public class RedisConfig {
                 .serializeValuesWith(
                         SerializationPair.fromSerializer(RedisSerializer.java())
                 );
-                
+
         return RedisCacheManager
                 .builder(redisConnectionFactory)
                 .cacheDefaults(configuration)
