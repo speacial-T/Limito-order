@@ -15,5 +15,4 @@ spring:
   # 도커 컴포즈의 실행 여부를 어플리케이션 시작/종료 시점에 맞추는 설정
   docker:
     compose:
-      file: ./docker-compose.yml        # 위치 지정 (생략 가능)
       lifecycle-management: start_and_stop

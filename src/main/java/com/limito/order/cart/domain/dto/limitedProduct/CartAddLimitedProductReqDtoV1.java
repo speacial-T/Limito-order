@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @Getter
 @Setter
-public class CartAddLimitedProductDtoV1 {
+public class CartAddLimitedProductReqDtoV1 {
     @NotBlank(message = "옵션 아이디는 필수입니다.")
     private UUID optionId;
 

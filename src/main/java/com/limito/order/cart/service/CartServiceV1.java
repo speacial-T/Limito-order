@@ -1,9 +1,11 @@
 package com.limito.order.cart.service;
 
-import com.limito.order.cart.domain.dto.limitedProduct.CartAddLimitedProductDtoV1;
+import com.limito.order.cart.domain.dto.limitedProduct.CartAddLimitedProductReqDtoV1;
+import com.limito.order.cart.domain.dto.limitedProduct.CartAddLimitedProductResDtoV1;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 /**
@@ -30,15 +32,15 @@ public class CartServiceV1 {
      * - 장바구니 생성 로직 없이 첫 상품을 담으면 장바구니가 생성됨
      * - 최대 구매 가능 수량 이내의 수량만 담을 수 있음
      */
-    public CartAddLimitedProductDtoV1 addLimitedItem(Long userId, CartAddLimitedProductDtoV1 addLimitedProductReqDto) {
+    public ResponseEntity<CartAddLimitedProductResDtoV1> addLimitedItem(Long userId, CartAddLimitedProductReqDtoV1 addLimitedProductReqDto) {
         String key = LIMITED_KEY.formatted(userId);
         String field = addLimitedProductReqDto.getOptionId().toString();
 
         HashOperations<String, String, Object> hashOps = hashOps();
-        CartAddLimitedProductDtoV1 existing =
-                (CartAddLimitedProductDtoV1) hashOps.get(key, field);
+        CartAddLimitedProductReqDtoV1 existing =
+                (CartAddLimitedProductReqDtoV1) hashOps.get(key, field);
 
-        CartAddLimitedProductDtoV1 merged = addLimitedProductReqDto;
+        CartAddLimitedProductReqDtoV1 merged = addLimitedProductReqDto;
 
         /**
          * 해당 상품이 이미 장바구니에 있는 경우 -> 기존 수량 + 새로 추가 한 수량
@@ -52,10 +54,33 @@ public class CartServiceV1 {
 
         hashOps.put(key, field, merged);
 
-        CartAddLimitedProductDtoV1 saved = (CartAddLimitedProductDtoV1) hashOps.get(key, field);
+        /**
+         * 응답용으로 ReqDto → ResDto 변환
+         *  레디서스 저장 시 CartAddLimitedProductReqDtoV1 객체가 저장됨
+         *  이 상테에서 조회 시 CartAddLimitedProductResDtoV1로 강제 캐스팅 하면 안됨
+         *  ReqDto → ResDto로 변환해서 리턴 해야됨
+         */
+        CartAddLimitedProductResDtoV1 saved = toResDto(merged);
 
-        return saved;
+        return ResponseEntity.ok(saved);
     }
+
+    private CartAddLimitedProductResDtoV1 toResDto(CartAddLimitedProductReqDtoV1 req) {
+        CartAddLimitedProductResDtoV1 res = new CartAddLimitedProductResDtoV1();
+        res.setOptionId(req.getOptionId());
+        res.setProductName(req.getProductName());
+        res.setProductColor(req.getProductColor());
+        res.setProductSize(req.getProductSize());
+        res.setProductPrice(req.getProductPrice());
+        res.setBrandName(req.getBrandName());
+        res.setThumbnailUrl(req.getThumbnailUrl());
+        res.setSellerId(req.getSellerId());
+        res.setProductStatus(req.getProductStatus());
+        res.setProductType(req.getProductType());
+        res.setProductAmount(req.getProductAmount());
+        return res;
+    }
+
 
 
 }
