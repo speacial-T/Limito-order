@@ -11,10 +11,10 @@ import java.util.UUID;
 @Getter
 @Setter
 public class AddCartResellRequestV1 {
-    @NotBlank(message = "옵션 아이디는 필수입니다.")
+    @NotNull(message = "옵션 아이디는 필수입니다.")
     private UUID optionId;
 
-    @NotBlank(message = "재고 아이디는 필수입니다.")
+    @NotNull(message = "재고 아이디는 필수입니다.")
     private UUID stockId;
 
     @NotBlank(message = "상품 이름은 필수입니다.")
@@ -26,7 +26,7 @@ public class AddCartResellRequestV1 {
     @NotBlank(message = "상품 사이즈는 필수입니다.")
     private String productSize;
 
-    @NotBlank(message = "상품 가격은 필수입니다.")
+    @NotNull(message = "상품 가격은 필수입니다.")
     private int productPrice;
 
     @NotBlank(message = "브랜드먕은 필수입니다.")
