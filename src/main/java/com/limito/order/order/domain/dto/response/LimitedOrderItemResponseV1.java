@@ -23,7 +23,7 @@ public class LimitedOrderItemResponseV1 {
 
 	private String productColor;
 	private String productSize;
-	
+
 	private int productPrice;
 	private int productAmount;
 
