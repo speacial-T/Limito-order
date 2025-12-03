@@ -26,6 +26,6 @@ public class LimitedOrderResponseV1 {
 	private LocalDateTime successedAt;
 	private String itemSummary;
 	// private String cancelReason;
-	
+
 	private List<LimitedOrderItemRequestV1> items;
 }
