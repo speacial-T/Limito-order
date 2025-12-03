@@ -7,13 +7,15 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
 @Table(name = "p_orders")
 @NoArgsConstructor
 @AllArgsConstructor
-public class order extends BaseEntity {
+public class Order extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "order_id", columnDefinition = "uuid")
@@ -46,4 +48,12 @@ public class order extends BaseEntity {
 
     @Column(name = "item_summary", nullable = false, length = 100)
     private String itemSummary;
+
+    // ✅ 주문아이템 컬렉션
+    @OneToMany(
+            mappedBy = "order",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<OrderItem> orderItems = new ArrayList<>();
 }

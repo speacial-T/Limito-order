@@ -18,8 +18,16 @@ public class OrderItem extends BaseEntity {
     @Column(name = "order_item_id", columnDefinition = "uuid")
     private UUID id;
 
+    // ✅ 연관관계의 주인
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id", nullable = false)
+    private Order order;
+
     @Column(name = "product_option_id", nullable = false)
     private UUID optionId;
+
+    @Column(name = "product_id")
+    private UUID productId;
 
     @Column(name = "product_stock_id")
     private UUID stockId;
