@@ -13,8 +13,7 @@ public class LimitedOrderItemResponseV1 {
 	private UUID orderItemId;
 
 	private UUID optionId;
-	private UUID pItemId;
-	private UUID stockId;
+	private UUID itemId;
 
 	private ProductType productType;
 	private String productName;
