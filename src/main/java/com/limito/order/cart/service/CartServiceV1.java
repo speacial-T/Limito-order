@@ -38,8 +38,9 @@ public class CartServiceV1 {
      */
     public AddCartLimitedResponseV1 addLimitedItem(Long userId, AddCartLimitedRequestV1 addLimitedProductReqDto) {
         String key = LIMITED_KEY.formatted(userId);
-        // Todo : 필드를 리셀은 옵션아이디, 한정판매는 재고아이디로 수정
-        String field = addLimitedProductReqDto.getOptionId().toString();
+        // 필드 : 리셀은 옵션아이디, 한정판매는 재고아이디
+        String field = addLimitedProductReqDto.getStockId().toString();
+
 
         // 기존 장바구니에 있는 상품과 동일한 상품을 추가하는 경우
         // - 수량 추가
@@ -88,9 +89,8 @@ public class CartServiceV1 {
         // Todo : 예외처리가 안잡힘 -> common레포 수정 끝나면 다시 확인하기
         // 동일 옵션의 상품은 추가 할 수 없음
         if (existing != null) {
-            //예외 던지기
-            AppException.of(HttpStatus.BAD_REQUEST, "동일 옵션의 상품은 추가할 수 없습니다.");
             log.error("동일 옵션 상품 추가 불가능");
+            throw AppException.of(HttpStatus.BAD_REQUEST, "동일 옵션의 상품은 추가할 수 없습니다.");
         }
 
         hashOps.put(key, field, merged);

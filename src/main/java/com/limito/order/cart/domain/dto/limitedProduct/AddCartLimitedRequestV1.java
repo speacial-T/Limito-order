@@ -27,7 +27,7 @@ public class AddCartLimitedRequestV1 {
     @NotBlank(message = "상품 사이즈는 필수입니다.")
     private String productSize;
 
-    @NotBlank(message = "상품 가격은 필수입니다.")
+    @NotNull(message = "상품 가격은 필수입니다.")
     private int productPrice;
 
     @NotBlank(message = "브랜드명은 필수입니다.")
