@@ -38,6 +38,7 @@ public class CartServiceV1 {
      */
     public AddCartLimitedResponseV1 addLimitedItem(Long userId, AddCartLimitedRequestV1 addLimitedProductReqDto) {
         String key = LIMITED_KEY.formatted(userId);
+        // Todo : 필드를 리셀은 옵션아이디, 한정판매는 재고아이디로 수정
         String field = addLimitedProductReqDto.getOptionId().toString();
 
         // 기존 장바구니에 있는 상품과 동일한 상품을 추가하는 경우
