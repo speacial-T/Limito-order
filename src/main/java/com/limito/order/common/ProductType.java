@@ -6,8 +6,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum ProductType {
-    LIMITED("한정판매"),
-    RESELL("리셀");
+	LIMITED("한정판매"), RESELL("리셀");
 
-    private final String type;
+	private final String type;
 }
