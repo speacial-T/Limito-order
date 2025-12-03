@@ -1,4 +1,4 @@
-package com.limito.order.order.domain.dto;
+package com.limito.order.order.domain.dto.request;
 
 import com.limito.order.common.ProductType;
 import jakarta.validation.constraints.NotBlank;

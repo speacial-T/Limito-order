@@ -1,4 +1,4 @@
-package com.limito.order.order.domain.dto;
+package com.limito.order.order.domain.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
