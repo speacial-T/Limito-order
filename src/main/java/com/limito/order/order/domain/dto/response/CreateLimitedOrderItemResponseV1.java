@@ -9,7 +9,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class LimitedOrderItemResponseV1 {
+public class CreateLimitedOrderItemResponseV1 {
 	private UUID orderItemId;
 
 	private UUID optionId;

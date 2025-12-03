@@ -27,5 +27,5 @@ public class CreateLimitedOrderResquestV1 {
 	private Long totalPrice;
 
 	@Size(min = 1, message = "주문 상품은 최소 1개 이상이어야 합니다.")
-	private List<LimitedOrderItemRequestV1> items;
+	private List<CreateLimitedOrderItemRequestV1> items;
 }
