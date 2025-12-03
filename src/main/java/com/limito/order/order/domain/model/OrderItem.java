@@ -35,8 +35,8 @@ public class OrderItem extends BaseEntity {
 	@Column(name = "product_option_id", nullable = false)
 	private UUID optionId;
 
-	@Column(name = "product_id")
-	private UUID productId;
+	@Column(name = "product_item_id")
+	private UUID pItemId;
 
 	@Column(name = "product_stock_id")
 	private UUID stockId;
