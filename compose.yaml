@@ -1,5 +1,19 @@
+version: '3.8'
 services:
-  redis:
-    image: 'redis:latest'
+
+  postgres:
+    image: postgres:17
+    container_name: postgresql
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: limito-db
     ports:
-      - '6379'
+      - 5432:5432
+
+  redis:
+    image: redis/redis-stack:latest
+    container_name: redis
+    ports:
+      - 6379:6379
