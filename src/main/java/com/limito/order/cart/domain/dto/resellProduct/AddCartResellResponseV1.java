@@ -20,7 +20,6 @@ public class AddCartResellResponseV1 {
 	private String thumbnailUrl;
 	private Long sellerId;
 	private ProductType productType;
-	private int productAmount = 1;
 
 	public static AddCartResellResponseV1 toResDto(AddCartResellRequestV1 req) {
 		AddCartResellResponseV1 res = new AddCartResellResponseV1();
@@ -34,7 +33,6 @@ public class AddCartResellResponseV1 {
 		res.setThumbnailUrl(req.getThumbnailUrl());
 		res.setSellerId(req.getSellerId());
 		res.setProductType(req.getProductType());
-		res.setProductAmount(req.getProductAmount());
 		return res;
 	}
 }

@@ -6,6 +6,7 @@ import com.limito.order.common.ProductType;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -28,9 +29,10 @@ public class AddCartResellRequestV1 {
 	private String productSize;
 
 	@NotNull(message = "상품 가격은 필수입니다.")
+	@Positive
 	private int productPrice;
 
-	@NotBlank(message = "브랜드먕은 필수입니다.")
+	@NotBlank(message = "브랜드명은 필수입니다.")
 	private String brandName;
 
 	@NotBlank(message = "대표 이미지 url은 필수입니다.")
@@ -41,6 +43,4 @@ public class AddCartResellRequestV1 {
 
 	@NotNull(message = "상품 타입은 필수입니다.")
 	private ProductType productType;
-
-	private int productAmount = 1;
 }
