@@ -1,9 +1,10 @@
 package com.limito.order.order.domain.repository;
 
-import com.limito.order.order.domain.model.Order;
+import java.util.UUID;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.UUID;
+import com.limito.order.order.domain.model.Order;
 
 public interface OrderServiceRepositoryV1 extends JpaRepository<Order, UUID> {
 }
