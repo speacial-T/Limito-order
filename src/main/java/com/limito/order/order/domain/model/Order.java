@@ -65,19 +65,16 @@ public class Order extends BaseEntity {
 	@OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<OrderItem> orderItems = new ArrayList<>();
 
-	public static Order toEntity(CreateLimitedOrderResquestV1 req) {
-		return Order.builder()
-			.userId(req.getUserId())
-			.receiverName(req.getReceiverName())
-			.phoneNumber(req.getPhoneNumber())
-			.deliveryAddress(req.getDeliveryAddress())
-			.totalPrice(req.getTotalPrice())
-			.orderStatus(com.limito.order.common.OrderStatus.ORDER_FINISH)
-			.successedAt(LocalDateTime.now())
-			.build();
+	public void attachOrderItems(List<OrderItem> orderItems) {
+		orderItems.forEach(orderItem -> {
+			this.orderItems.add(orderItem);
+			orderItem.attachOrder(this);
+		});
 	}
 
-	public void add(List<OrderItem> orderItems) {
-		this.orderItems = orderItems;
+	public void attachSummary(CreateLimitedOrderResquestV1 req) {
+		int itemCount = req.getItems().size() - 1;
+		String firstProductName = req.getItems().get(0).getProductName();
+		this.itemSummary = firstProductName + " 외 " + itemCount + "건";
 	}
 }

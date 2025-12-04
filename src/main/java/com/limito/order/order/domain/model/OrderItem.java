@@ -1,12 +1,9 @@
 package com.limito.order.order.domain.model;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 import com.limito.common.entity.BaseEntity;
 import com.limito.order.common.ProductType;
-import com.limito.order.order.domain.dto.request.CreateLimitedOrderResquestV1;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -32,7 +29,7 @@ public class OrderItem extends BaseEntity {
 	@Column(name = "order_item_id", columnDefinition = "uuid")
 	private UUID id;
 
-	// ✅ 연관관계의 주인
+	// 연관관계의 주인
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "order_id", nullable = false)
 	private Order order;
@@ -73,27 +70,7 @@ public class OrderItem extends BaseEntity {
 	@Column(name = "total_product_price", nullable = false)
 	private Long totalProductPrice;
 
-	public static List<OrderItem> toEntity(CreateLimitedOrderResquestV1 req) {
-		List<OrderItem> orderItems = new ArrayList<>();
-
-		req.getItems().forEach(itemReq -> {
-			OrderItem orderItem = OrderItem.builder()
-				.optionId(itemReq.getOptionId())
-				.itemId(itemReq.getItemId())
-				.productType(itemReq.getProductType())
-				.productName(itemReq.getProductName())
-				.brandName(itemReq.getBrandName())
-				.sellerId(itemReq.getSellerId())
-				.productColor(itemReq.getProductColor())
-				.productSize(itemReq.getProductSize())
-				.productPrice(itemReq.getProductPrice())
-				.productAmount(itemReq.getProductAmount())
-				.totalProductPrice(itemReq.getTotalProductPrice())
-				.build();
-
-			orderItems.add(orderItem);
-		});
-
-		return orderItems;
+	public void attachOrder(Order order) {
+		this.order = order;
 	}
 }
