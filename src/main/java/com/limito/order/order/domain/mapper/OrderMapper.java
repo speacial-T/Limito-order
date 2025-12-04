@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
-import com.limito.order.order.domain.dto.request.CreateLimitedOrderResquestV1;
+import com.limito.order.order.domain.dto.request.CreateLimitedOrderRequestV1;
 import com.limito.order.order.domain.dto.response.CreateLimitedOrderItemResponseV1;
 import com.limito.order.order.domain.dto.response.CreateLimitedOrderResponseV1;
 import com.limito.order.order.domain.model.Order;
@@ -15,7 +15,7 @@ import com.limito.order.order.domain.model.OrderItem;
 @Component
 public class OrderMapper {
 
-	public Order toOrderEntity(Long userId, CreateLimitedOrderResquestV1 req) {
+	public Order toOrderEntity(Long userId, CreateLimitedOrderRequestV1 req) {
 		return Order.builder()
 			.userId(userId)
 			.receiverName(req.getReceiverName())
@@ -27,7 +27,7 @@ public class OrderMapper {
 			.build();
 	}
 
-	public List<OrderItem> toOrderItemEntity(CreateLimitedOrderResquestV1 req) {
+	public List<OrderItem> toOrderItemEntity(CreateLimitedOrderRequestV1 req) {
 		List<OrderItem> orderItems = new ArrayList<>();
 
 		req.getItems().forEach(itemReq -> {

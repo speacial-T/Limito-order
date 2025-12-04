@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.limito.order.order.domain.model.Order;
 
-public interface OrderServiceRepositoryV1 extends JpaRepository<Order, UUID> {
+public interface OrderRepositoryV1 extends JpaRepository<Order, UUID> {
 }

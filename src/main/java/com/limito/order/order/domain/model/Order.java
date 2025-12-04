@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.limito.order.common.OrderStatus;
-import com.limito.order.order.domain.dto.request.CreateLimitedOrderResquestV1;
+import com.limito.order.order.domain.dto.request.CreateLimitedOrderRequestV1;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -74,7 +74,7 @@ public class Order {
 		});
 	}
 
-	public void attachSummary(CreateLimitedOrderResquestV1 req) {
+	public void attachSummary(CreateLimitedOrderRequestV1 req) {
 		int itemCount = req.getItems().size() - 1;
 		String firstProductName = req.getItems().get(0).getProductName();
 		this.itemSummary = firstProductName + " 외 " + itemCount + "건";
