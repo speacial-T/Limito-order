@@ -3,6 +3,7 @@ package com.limito.order.order.service;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.limito.order.order.domain.dto.request.CreateLimitedOrderRequestV1;
 import com.limito.order.order.domain.dto.response.CreateLimitedOrderResponseV1;
@@ -19,6 +20,7 @@ public class OrderServiceV1 {
 	private final OrderRepositoryV1 orderRepository;
 	private final OrderMapper orderMapper;
 
+	@Transactional
 	public CreateLimitedOrderResponseV1 createDirectLimitedOrder(Long userId,
 		CreateLimitedOrderRequestV1 createLimitedOrderRequest) {
 
