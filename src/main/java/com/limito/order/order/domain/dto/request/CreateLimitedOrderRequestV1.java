@@ -27,7 +27,7 @@ public class CreateLimitedOrderRequestV1 {
 	private String deliveryAddress;
 
 	@NotNull(message = "전체가격은 필수입니다.")
-	@Positive
+	@Positive(message = "가격은 양수이어야 합니다.")
 	private Long totalPrice;
 
 	@Size(min = 1, message = "주문 상품은 최소 1개 이상이어야 합니다.")

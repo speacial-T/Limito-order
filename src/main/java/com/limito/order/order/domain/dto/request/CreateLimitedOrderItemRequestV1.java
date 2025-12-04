@@ -38,7 +38,7 @@ public class CreateLimitedOrderItemRequestV1 {
 	private String productSize;
 
 	@NotBlank(message = "상품 가격은 필수입니다.")
-	@Positive
+	@Positive(message = "가격은 양수이어야 합니다.")
 	private int productPrice;
 
 	@Positive(message = "상품 수량은 1개 이상이어야 합니다.")
