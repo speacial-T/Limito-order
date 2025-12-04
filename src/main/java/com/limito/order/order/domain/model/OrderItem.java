@@ -2,7 +2,6 @@ package com.limito.order.order.domain.model;
 
 import java.util.UUID;
 
-import com.limito.common.entity.BaseEntity;
 import com.limito.order.common.ProductType;
 
 import jakarta.persistence.Column;
@@ -16,14 +15,16 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "p_order_items")
+@Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class OrderItem extends BaseEntity {
+public class OrderItem {
 	@Id
 	@GeneratedValue(strategy = GenerationType.UUID)
 	@Column(name = "order_item_id", columnDefinition = "uuid")

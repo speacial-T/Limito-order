@@ -7,15 +7,17 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 import com.limito.order.order.domain.dto.request.CreateLimitedOrderResquestV1;
+import com.limito.order.order.domain.dto.response.CreateLimitedOrderItemResponseV1;
+import com.limito.order.order.domain.dto.response.CreateLimitedOrderResponseV1;
 import com.limito.order.order.domain.model.Order;
 import com.limito.order.order.domain.model.OrderItem;
 
 @Component
 public class OrderMapper {
 
-	public Order toOrderEntity(CreateLimitedOrderResquestV1 req) {
+	public Order toOrderEntity(Long userId, CreateLimitedOrderResquestV1 req) {
 		return Order.builder()
-			.userId(req.getUserId())
+			.userId(userId)
 			.receiverName(req.getReceiverName())
 			.phoneNumber(req.getPhoneNumber())
 			.deliveryAddress(req.getDeliveryAddress())
@@ -48,4 +50,49 @@ public class OrderMapper {
 
 		return orderItems;
 	}
+
+	public CreateLimitedOrderResponseV1 toLimitedOrderResponse(Order order) {
+		// List<OrderItem> orderItems = order.getOrderItems();
+		List<CreateLimitedOrderItemResponseV1> limitedOrderItemResponses = toLimitedOrderItemResponse(order);
+
+		return CreateLimitedOrderResponseV1.builder()
+			.orderId(order.getId())
+			.userId(order.getUserId())
+			.receiverName(order.getReceiverName())
+			.phoneNumber(order.getPhoneNumber())
+			.deliveryAddress(order.getDeliveryAddress())
+			.totalPrice(order.getTotalPrice())
+			.orderStatus(order.getOrderStatus())
+			.successedAt(order.getSuccessedAt())
+			.itemSummary(order.getItemSummary())
+			.items(limitedOrderItemResponses)
+			.build();
+	}
+
+	public List<CreateLimitedOrderItemResponseV1> toLimitedOrderItemResponse(Order order) {
+		List<OrderItem> orderItems = order.deliverOrderItems(order);
+		List<CreateLimitedOrderItemResponseV1> responses = new ArrayList<>();
+
+		orderItems.forEach(orderItem -> {
+			CreateLimitedOrderItemResponseV1 res = CreateLimitedOrderItemResponseV1.builder()
+				.orderItemId(orderItem.getId())
+				.optionId(orderItem.getOptionId())
+				.itemId(orderItem.getItemId())
+				.productType(orderItem.getProductType())
+				.productName(orderItem.getProductName())
+				.brandName(orderItem.getBrandName())
+				.sellerId(orderItem.getSellerId())
+				.productColor(orderItem.getProductColor())
+				.productSize(orderItem.getProductSize())
+				.productPrice(orderItem.getProductPrice())
+				.productAmount(orderItem.getProductAmount())
+				.totalProductPrice(orderItem.getTotalProductPrice())
+				.build();
+
+			responses.add(res);
+		});
+
+		return responses;
+	}
+
 }

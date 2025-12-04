@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import com.limito.common.entity.BaseEntity;
 import com.limito.order.common.OrderStatus;
 import com.limito.order.order.domain.dto.request.CreateLimitedOrderResquestV1;
 
@@ -21,14 +20,16 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "p_orders")
+@Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Order extends BaseEntity {
+public class Order {
 	@Id
 	@GeneratedValue(strategy = GenerationType.UUID)
 	@Column(name = "order_id", columnDefinition = "uuid")
@@ -63,6 +64,7 @@ public class Order extends BaseEntity {
 	private String itemSummary;
 
 	@OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+	@Builder.Default
 	private List<OrderItem> orderItems = new ArrayList<>();
 
 	public void attachOrderItems(List<OrderItem> orderItems) {
@@ -76,5 +78,9 @@ public class Order extends BaseEntity {
 		int itemCount = req.getItems().size() - 1;
 		String firstProductName = req.getItems().get(0).getProductName();
 		this.itemSummary = firstProductName + " 외 " + itemCount + "건";
+	}
+
+	public List<OrderItem> deliverOrderItems(Order order) {
+		return order.getOrderItems();
 	}
 }
