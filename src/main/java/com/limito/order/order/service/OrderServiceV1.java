@@ -22,6 +22,8 @@ public class OrderServiceV1 {
 	public CreateLimitedOrderResponseV1 createDirectLimitedOrder(Long userId,
 		CreateLimitedOrderResquestV1 createLimitedOrderResquest) {
 
+		// Todo. 합산 가격 검증 (더블 체크)
+
 		// requestDto -> entity 매핑해서 주문 엔티티 생성
 		Order order = orderMapper.toOrderEntity(userId, createLimitedOrderResquest);
 
