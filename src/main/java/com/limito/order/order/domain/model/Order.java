@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import com.limito.common.entity.BaseEntity;
 import com.limito.order.common.OrderStatus;
+import com.limito.order.order.domain.dto.request.CreateLimitedOrderResquestV1;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -19,10 +20,12 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "p_orders")
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Order extends BaseEntity {
@@ -48,7 +51,7 @@ public class Order extends BaseEntity {
 
 	@Column(name = "order_status", nullable = false)
 	@Enumerated(EnumType.STRING)
-	private OrderStatus OrderStatus;
+	private OrderStatus orderStatus;
 
 	@Column(name = "cancel_reason")
 	private String cancelReason;
@@ -59,11 +62,22 @@ public class Order extends BaseEntity {
 	@Column(name = "item_summary", nullable = false, length = 100)
 	private String itemSummary;
 
-	// ✅ 주문아이템 컬렉션
-	@OneToMany(
-		mappedBy = "order",
-		cascade = CascadeType.ALL,
-		orphanRemoval = true
-	)
+	@OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<OrderItem> orderItems = new ArrayList<>();
+
+	public static Order toEntity(CreateLimitedOrderResquestV1 req) {
+		return Order.builder()
+			.userId(req.getUserId())
+			.receiverName(req.getReceiverName())
+			.phoneNumber(req.getPhoneNumber())
+			.deliveryAddress(req.getDeliveryAddress())
+			.totalPrice(req.getTotalPrice())
+			.orderStatus(com.limito.order.common.OrderStatus.ORDER_FINISH)
+			.successedAt(LocalDateTime.now())
+			.build();
+	}
+
+	public void add(List<OrderItem> orderItems) {
+		this.orderItems = orderItems;
+	}
 }
