@@ -11,9 +11,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class CreateLimitedOrderResquestV1 {
-	@NotNull(message = "주문자 아이디는 필수입니다.")
-	private Long userId;
-
 	@NotBlank(message = "수령인은 필수입니다.")
 	private String receiverName;
 
