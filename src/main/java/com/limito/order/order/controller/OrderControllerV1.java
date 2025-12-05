@@ -19,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 public class OrderControllerV1 {
 	private final OrderServiceV1 orderService;
 
-	@PostMapping("/limited/direct")
+	@PostMapping("/limited")
 	public ResponseEntity<CreateLimitedOrderResponseV1> createDirectLimitedOrder(
 		@Valid @RequestBody CreateLimitedOrderRequestV1 createLimitedOrderRequest) {
 		// Todo. userId 헤더에서 빼오기, 권한검증
