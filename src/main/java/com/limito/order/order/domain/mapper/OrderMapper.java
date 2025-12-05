@@ -33,7 +33,7 @@ public class OrderMapper {
 		req.getItems().forEach(itemReq -> {
 			OrderItem orderItem = OrderItem.builder()
 				.optionId(itemReq.getOptionId())
-				.itemId(itemReq.getItemId())
+				.productItemId(itemReq.getProductItemId())
 				.productType(itemReq.getProductType())
 				.productName(itemReq.getProductName())
 				.brandName(itemReq.getBrandName())
@@ -77,7 +77,7 @@ public class OrderMapper {
 			CreateLimitedOrderItemResponseV1 res = CreateLimitedOrderItemResponseV1.builder()
 				.orderItemId(orderItem.getId())
 				.optionId(orderItem.getOptionId())
-				.itemId(orderItem.getItemId())
+				.productItemId(orderItem.getProductItemId())
 				.productType(orderItem.getProductType())
 				.productName(orderItem.getProductName())
 				.brandName(orderItem.getBrandName())

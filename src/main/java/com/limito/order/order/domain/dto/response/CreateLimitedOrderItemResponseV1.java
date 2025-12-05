@@ -15,7 +15,7 @@ public class CreateLimitedOrderItemResponseV1 {
 	private UUID orderItemId;
 
 	private UUID optionId;
-	private UUID itemId;
+	private UUID productItemId;
 
 	private ProductType productType;
 	private String productName;

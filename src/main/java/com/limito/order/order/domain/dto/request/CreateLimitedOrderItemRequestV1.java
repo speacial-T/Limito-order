@@ -17,7 +17,7 @@ public class CreateLimitedOrderItemRequestV1 {
 	private UUID optionId;
 
 	@NotNull(message = "아이템 아이디는 필수입니다.")
-	private UUID itemId;
+	private UUID productItemId;
 
 	@NotNull(message = "상품 타입은 필수입니다.")
 	private ProductType productType;

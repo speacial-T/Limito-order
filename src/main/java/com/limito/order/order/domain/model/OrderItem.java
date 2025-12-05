@@ -39,10 +39,13 @@ public class OrderItem {
 	private UUID optionId;
 
 	@Column(name = "product_item_id")
-	private UUID itemId;
+	private UUID productItemId;
 
 	@Column(name = "product_stock_id")
 	private UUID stockId;
+
+	@Column(name = "product_id")
+	private UUID productId;
 
 	@Column(name = "product_type", nullable = false)
 	private ProductType productType;
