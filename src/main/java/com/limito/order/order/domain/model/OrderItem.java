@@ -71,7 +71,7 @@ public class OrderItem {
 	@Column(name = "product_amount", nullable = false)
 	private int productAmount;
 
-	@Column(name = "total_product_price", nullable = false)
+	@Column(name = "total_product_price")
 	private Long totalProductPrice;
 
 	public void attachOrder(Order order) {
