@@ -7,8 +7,11 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 import com.limito.order.order.domain.dto.request.CreateLimitedOrderRequestV1;
+import com.limito.order.order.domain.dto.request.CreateResellOrderRequestV1;
 import com.limito.order.order.domain.dto.response.CreateLimitedOrderItemResponseV1;
 import com.limito.order.order.domain.dto.response.CreateLimitedOrderResponseV1;
+import com.limito.order.order.domain.dto.response.CreateResellOrderItemResponseV1;
+import com.limito.order.order.domain.dto.response.CreateResellOrderResponseV1;
 import com.limito.order.order.domain.model.Order;
 import com.limito.order.order.domain.model.OrderItem;
 
@@ -16,6 +19,18 @@ import com.limito.order.order.domain.model.OrderItem;
 public class OrderMapper {
 
 	public Order toOrderEntity(Long userId, CreateLimitedOrderRequestV1 req) {
+		return Order.builder()
+			.userId(userId)
+			.receiverName(req.getReceiverName())
+			.phoneNumber(req.getPhoneNumber())
+			.deliveryAddress(req.getDeliveryAddress())
+			.totalPrice(req.getTotalPrice())
+			.orderStatus(com.limito.order.common.OrderStatus.ORDER_FINISH)
+			.successedAt(LocalDateTime.now())
+			.build();
+	}
+
+	public Order toOrderEntity(Long userId, CreateResellOrderRequestV1 req) {
 		return Order.builder()
 			.userId(userId)
 			.receiverName(req.getReceiverName())
@@ -43,6 +58,29 @@ public class OrderMapper {
 				.productPrice(itemReq.getProductPrice())
 				.productAmount(itemReq.getProductAmount())
 				.totalProductPrice(itemReq.getTotalProductPrice())
+				.build();
+
+			orderItems.add(orderItem);
+		});
+
+		return orderItems;
+	}
+
+	public List<OrderItem> toOrderItemEntity(CreateResellOrderRequestV1 req) {
+		List<OrderItem> orderItems = new ArrayList<>();
+
+		req.getItems().forEach(itemReq -> {
+			OrderItem orderItem = OrderItem.builder()
+				.optionId(itemReq.getOptionId())
+				.stockId(itemReq.getStockId())
+				.productId(itemReq.getProductId())
+				.productType(itemReq.getProductType())
+				.productName(itemReq.getProductName())
+				.brandName(itemReq.getBrandName())
+				.sellerId(itemReq.getSellerId())
+				.productColor(itemReq.getProductColor())
+				.productSize(itemReq.getProductSize())
+				.productPrice(itemReq.getProductPrice())
 				.build();
 
 			orderItems.add(orderItem);
@@ -87,6 +125,48 @@ public class OrderMapper {
 				.productPrice(orderItem.getProductPrice())
 				.productAmount(orderItem.getProductAmount())
 				.totalProductPrice(orderItem.getTotalProductPrice())
+				.build();
+
+			responses.add(res);
+		});
+
+		return responses;
+	}
+
+	public CreateResellOrderResponseV1 toResellOrderResponse(Order order) {
+		List<CreateResellOrderItemResponseV1> resellOrderItemResponses = toResellOrderItemResponse(order);
+
+		return CreateResellOrderResponseV1.builder()
+			.orderId(order.getId())
+			.userId(order.getUserId())
+			.receiverName(order.getReceiverName())
+			.phoneNumber(order.getPhoneNumber())
+			.deliveryAddress(order.getDeliveryAddress())
+			.totalPrice(order.getTotalPrice())
+			.orderStatus(order.getOrderStatus())
+			.successedAt(order.getSuccessedAt())
+			.itemSummary(order.getItemSummary())
+			.items(resellOrderItemResponses)
+			.build();
+	}
+
+	public List<CreateResellOrderItemResponseV1> toResellOrderItemResponse(Order order) {
+		List<OrderItem> orderItems = order.getOrderItems();
+		List<CreateResellOrderItemResponseV1> responses = new ArrayList<>();
+
+		orderItems.forEach(orderItem -> {
+			CreateResellOrderItemResponseV1 res = CreateResellOrderItemResponseV1.builder()
+				.orderItemId(orderItem.getId())
+				.optionId(orderItem.getOptionId())
+				.stockId(orderItem.getStockId())
+				.productId(orderItem.getProductId())
+				.productType(orderItem.getProductType())
+				.productName(orderItem.getProductName())
+				.brandName(orderItem.getBrandName())
+				.sellerId(orderItem.getSellerId())
+				.productColor(orderItem.getProductColor())
+				.productSize(orderItem.getProductSize())
+				.productPrice(orderItem.getProductPrice())
 				.build();
 
 			responses.add(res);
