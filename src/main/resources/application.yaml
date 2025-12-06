@@ -14,7 +14,16 @@ spring:
     password: postgres
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+
+eureka:
+  client:
+    service-url:
+      default-zone: http://localhost:19090/eureka
+
+feign:
+  resell-product-service:
+    url: http://localhost:19095
