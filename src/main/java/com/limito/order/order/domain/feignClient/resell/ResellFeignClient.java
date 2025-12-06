@@ -12,11 +12,11 @@ import com.limito.order.order.domain.feignClient.resell.dto.request.StockReduceR
 
 import jakarta.validation.Valid;
 
-@FeignClient(name = "resell-product-service")
+@FeignClient(name = "resell-product-service", url = "${feign.resell-product-service.url}")
 public interface ResellFeignClient {
 	// 임시 재고 예약
-	@PostMapping("/internal/v1/resell-products/stock/reserve")
-	ResponseEntity<Object> reserveStock(List<UUID> stockIds);
+	@PostMapping("internal/v1/resell-products/stock/reserve")
+	ResponseEntity<Object> reserveStock(@RequestBody List<UUID> stockIds);
 
 	// 재고 차감
 	@PostMapping("/internal/v1/resell-products/stock/reduce")

@@ -1,6 +1,8 @@
 package com.limito.order.order.service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,6 +11,8 @@ import com.limito.order.order.domain.dto.request.CreateLimitedOrderRequestV1;
 import com.limito.order.order.domain.dto.request.CreateResellOrderRequestV1;
 import com.limito.order.order.domain.dto.response.CreateLimitedOrderResponseV1;
 import com.limito.order.order.domain.dto.response.CreateResellOrderResponseV1;
+import com.limito.order.order.domain.feignClient.resell.ResellFeignClient;
+import com.limito.order.order.domain.feignClient.resell.dto.request.StockReduceRequest;
 import com.limito.order.order.domain.mapper.OrderMapper;
 import com.limito.order.order.domain.model.Order;
 import com.limito.order.order.domain.model.OrderItem;
@@ -21,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 public class OrderServiceV1 {
 	private final OrderRepositoryV1 orderRepository;
 	private final OrderMapper orderMapper;
+	private final ResellFeignClient resellFeignClient;
 
 	// 한정판매 주문 생성
 	@Transactional
@@ -58,6 +63,13 @@ public class OrderServiceV1 {
 	}
 
 	// 리셀 주문 생성
+
+	/** Todo :
+	 * 1. 상품 feign : 임시 재고 예약
+	 * 2. 결제 feign : 결제 요청
+	 * 3. 상품 feign: 재고 차감 요청
+	 * 4. 주문 상품 장바구니에서 차감
+	 */
 	@Transactional
 	public CreateResellOrderResponseV1 createResellOrder(Long userId,
 		CreateResellOrderRequestV1 createResellOrderRequest) {
@@ -70,19 +82,37 @@ public class OrderServiceV1 {
 
 		order.attachSummary(createResellOrderRequest);
 
+		// 상품 feign : 임시 재고 예약
+		// Todo. 예외처리
+		List<UUID> stockIds = getStockIds(orderItems);
+		resellFeignClient.reserveStock(stockIds);
+
+		// 상품 feign: 재고 차감 요청
+		// Todo. 예외처리
+		List<StockReduceRequest> reduceRequests = createStockReduceRequests(orderItems);
+		resellFeignClient.reduceStock(reduceRequests);
+
 		orderRepository.save(order);
 
-		/** Todo :
-		 * 1. 상품 feign : 임시 재고 예약 (최대 구매 가능 수량 포함)
-		 * 2. 결제 feign : 결제 요청
-		 * 3. 상품 feign: 재고 차감 요청
-		 * 4. 주문 상품 장바구니에서 차감
-		 */
-
-		// 엔티티 -> responseDto 변환해서 리턴
-		//		List<CreateLimitedOrderItemResponseV1> orderItemRes = orderMapper.toLimitedOrderItemResponse(order);
 		CreateResellOrderResponseV1 rsellOrderRes = orderMapper.toResellOrderResponse(order);
-
 		return rsellOrderRes;
+	}
+
+	private List<StockReduceRequest> createStockReduceRequests(List<OrderItem> orderItems) {
+		List<StockReduceRequest> requests = new ArrayList<>();
+		orderItems.forEach(orderItem -> {
+			StockReduceRequest req = new StockReduceRequest(orderItem.getProductId(), orderItem.getOptionId(),
+				orderItem.getStockId());
+			requests.add(req);
+		});
+		return requests;
+	}
+
+	private List<UUID> getStockIds(List<OrderItem> orderItems) {
+		List<UUID> stockIds = new ArrayList<>();
+		orderItems.forEach(orderItem -> {
+			stockIds.add(orderItem.getStockId());
+		});
+		return stockIds;
 	}
 }
