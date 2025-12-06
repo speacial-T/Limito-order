@@ -4,9 +4,16 @@ import java.util.UUID;
 
 import com.limito.order.common.ProductType;
 
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+@Builder
 public class LimitedCacheItem {
 	private UUID optionId;
-	private UUID itemId;
+	private UUID productItemId;
 	private String productName;
 	private String productColor;
 	private String productSize;
