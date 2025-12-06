@@ -93,4 +93,13 @@ public class Order {
 	public List<OrderItem> deliverOrderItems(Order order) {
 		return order.getOrderItems();
 	}
+
+	public static List<UUID> getStockIds(Order order) {
+		List<OrderItem> orderItems = order.getOrderItems();
+		List<UUID> stockIds = new ArrayList<>();
+		orderItems.forEach(orderItem -> {
+			stockIds.add(orderItem.getStockId());
+		});
+		return stockIds;
+	}
 }

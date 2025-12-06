@@ -84,7 +84,7 @@ public class OrderServiceV1 {
 
 		// 상품 feign : 임시 재고 예약
 		// Todo. 예외처리
-		List<UUID> stockIds = getStockIds(orderItems);
+		List<UUID> stockIds = Order.getStockIds(order);
 		resellFeignClient.reserveStock(stockIds);
 
 		// 상품 feign: 재고 차감 요청
@@ -101,18 +101,9 @@ public class OrderServiceV1 {
 	private List<StockReduceRequest> createStockReduceRequests(List<OrderItem> orderItems) {
 		List<StockReduceRequest> requests = new ArrayList<>();
 		orderItems.forEach(orderItem -> {
-			StockReduceRequest req = new StockReduceRequest(orderItem.getProductId(), orderItem.getOptionId(),
-				orderItem.getStockId());
+			StockReduceRequest req = StockReduceRequest.createRequest(orderItem);
 			requests.add(req);
 		});
 		return requests;
-	}
-
-	private List<UUID> getStockIds(List<OrderItem> orderItems) {
-		List<UUID> stockIds = new ArrayList<>();
-		orderItems.forEach(orderItem -> {
-			stockIds.add(orderItem.getStockId());
-		});
-		return stockIds;
 	}
 }
