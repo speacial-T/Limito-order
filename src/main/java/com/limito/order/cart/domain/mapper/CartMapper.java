@@ -43,7 +43,7 @@ public class CartMapper {
 			.build();
 	}
 
-	public ResellCacheItem toDomain(AddCartResellRequestV1 req) {
+	public static ResellCacheItem toDomain(AddCartResellRequestV1 req) {
 		return ResellCacheItem.builder()
 			.optionId(req.getOptionId())
 			.stockId(req.getStockId())

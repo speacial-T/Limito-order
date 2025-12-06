@@ -12,6 +12,7 @@ import com.limito.order.cart.domain.dto.resellProduct.AddCartResellRequestV1;
 import com.limito.order.cart.domain.dto.resellProduct.AddCartResellResponseV1;
 import com.limito.order.cart.domain.mapper.CartMapper;
 import com.limito.order.cart.domain.model.LimitedCacheItem;
+import com.limito.order.cart.domain.model.ResellCacheItem;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -61,6 +62,7 @@ public class CartServiceV1 {
 
 		// 레디스 캐싱
 		hashOps.put(key, field, merged);
+		log.info("한정판매 상품 추가 성공");
 
 		// 캐싱 된 데이터 조회 후 반환
 		LimitedCacheItem saved = (LimitedCacheItem)hashOps.get(key, field);
@@ -78,22 +80,23 @@ public class CartServiceV1 {
 		String field = addResellProductReqDto.getOptionId().toString();
 
 		HashOperations<String, String, Object> hashOps = hashOps();
-		AddCartResellRequestV1 existing =
-			(AddCartResellRequestV1)hashOps.get(key, field);
-
-		AddCartResellRequestV1 merged = addResellProductReqDto;
+		ResellCacheItem existing =
+			(ResellCacheItem)hashOps.get(key, field);
 
 		// 동일 옵션의 상품은 추가 할 수 없음
 		if (existing != null) {
 			throw AppException.of(HttpStatus.BAD_REQUEST, "동일 옵션의 상품은 추가할 수 없습니다.");
 		}
 
+		ResellCacheItem merged = CartMapper.toDomain(addResellProductReqDto);
 		hashOps.put(key, field, merged);
 		log.info("리셀 상품 추가 성공");
 
-		AddCartResellRequestV1 saved = (AddCartResellRequestV1)hashOps.get(key, field);
+		ResellCacheItem saved = (ResellCacheItem)hashOps.get(key, field);
+		if (saved == null) {
+			throw AppException.of(HttpStatus.NO_CONTENT, "캐싱된 리셀 상품 조회에 실패하였습니다.");
+		}
 
-		AddCartResellResponseV1 result = AddCartResellResponseV1.toResDto(saved);
-		return result;
+		return CartMapper.toResponse(saved);
 	}
 }
