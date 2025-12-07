@@ -1,5 +1,6 @@
 package com.limito.order.cart.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -62,16 +63,11 @@ public class CartServiceV1 {
 
 		LimitedCacheItem merged = CartMapper.toDomain(addLimitedProductReqDto);
 
-		// 해당 상품이 이미 장바구니에 있는 경우
-		if (existing != null) {
-			// 기존 수량 + 새 수량
-			existing.setProductAmount(existing.getProductAmount() + addLimitedProductReqDto.getProductAmount());
-			merged = existing;
-		}
+		// 최대 구매 가능 수량 확인 요청
+		List<UUID> itemIdList = new ArrayList<>();
+		itemIdList.add(addLimitedProductReqDto.getProductItemId());
+		GetPurchaseAmountLimitRequestV1 req = GetPurchaseAmountLimitRequestV1.create(itemIdList);
 
-		// 신규 상품 추가 시 최대 구매 가능 요청
-		GetPurchaseAmountLimitRequestV1 req = new GetPurchaseAmountLimitRequestV1(
-			addLimitedProductReqDto.getProductItemId());
 		ResponseEntity<GetPurchaseAmountLimitResponseV1> feignRes = limitedFeignClient.getPurchaseAmountLimits(req);
 
 		if (!feignRes.getStatusCode().equals(HttpStatus.OK)) {
@@ -80,6 +76,7 @@ public class CartServiceV1 {
 
 		// 구매 가능 수량 검증
 		List<GetPurchaseAmountLimitResponseV1.PurchaseAmountLimit> items = feignRes.getBody().getItems();
+		log.info("페인 클라이언트 내용 :" + items);
 
 		UUID limitedProductItemId = null;
 		int purchaseAmountLimitCnt = 0;
@@ -87,8 +84,21 @@ public class CartServiceV1 {
 			GetPurchaseAmountLimitResponseV1.PurchaseAmountLimit purchaseAmountLimit = items.get(0);
 			limitedProductItemId = purchaseAmountLimit.getLimitedProductItemId();
 			purchaseAmountLimitCnt = purchaseAmountLimit.getPurchaseAmountLimit();
+			log.info("최대 구매 가능 수량 : " + purchaseAmountLimitCnt);
 		}
-		if (limitedProductItemId == addLimitedProductReqDto.getProductItemId()
+
+		// 해당 상품이 이미 장바구니에 있는 경우
+		if (existing != null) {
+			// 기존 수량 + 새 수량
+			existing.setProductAmount(existing.getProductAmount() + addLimitedProductReqDto.getProductAmount());
+			if (existing.getProductAmount() > purchaseAmountLimitCnt) {
+				throw AppException.of(HttpStatus.BAD_REQUEST,
+					"최대 구매 가능한 수량을 초과하였습니다. 최대 구매 가능 수량 : " + purchaseAmountLimitCnt + "개");
+			}
+			merged = existing;
+		}
+
+		if (limitedProductItemId.equals(addLimitedProductReqDto.getProductItemId())
 			&& addLimitedProductReqDto.getProductAmount() <= purchaseAmountLimitCnt) {
 			// 레디스 캐싱
 			hashOps.put(key, field, merged);

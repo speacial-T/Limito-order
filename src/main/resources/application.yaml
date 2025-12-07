@@ -15,7 +15,7 @@ spring:
     password: postgres
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
@@ -29,4 +29,4 @@ feign:
   resell-product-service:
     url: http://localhost:19095
   limited-product-service:
-    url: http://localhost:19095
+    url: http://localhost:19094
