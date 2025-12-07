@@ -54,50 +54,27 @@ public class CartServiceV1 {
 		// 필드 : 한정판매는 판매 아이템 아이디, 리셀은 옵션아이디
 		String field = addLimitedProductReqDto.getProductItemId().toString();
 
-		// 기존 장바구니에 있는 상품과 동일한 상품을 추가하는 경우
-		// - 수량 추가
-		// - 신규 상품 추가
+		// 기존 장바구니에 있는 상품과 동일한 상품을 추가하는 경우 - 수량 추가
 		HashOperations<String, String, Object> hashOps = hashOps();
-		LimitedCacheItem existing =
-			(LimitedCacheItem)hashOps.get(key, field);
+		LimitedCacheItem existing = (LimitedCacheItem)hashOps.get(key, field);
 
 		LimitedCacheItem merged = CartMapper.toDomain(addLimitedProductReqDto);
 
-		// 최대 구매 가능 수량 확인 요청
-		List<UUID> itemIdList = new ArrayList<>();
-		itemIdList.add(addLimitedProductReqDto.getProductItemId());
-		GetPurchaseAmountLimitRequestV1 req = GetPurchaseAmountLimitRequestV1.create(itemIdList);
+		// 한정판매 feign client 요청 - 최대 구매 가능 수량
+		ResponseEntity<GetPurchaseAmountLimitResponseV1> feignRes = getFeignResponse(addLimitedProductReqDto);
 
-		ResponseEntity<GetPurchaseAmountLimitResponseV1> feignRes = limitedFeignClient.getPurchaseAmountLimits(req);
+		// 장바구니 추가는 단건만 가능
+		GetPurchaseAmountLimitResponseV1.PurchaseAmountLimit purchaseAmountLimit = getPurchaseAmountLimit(feignRes);
+		UUID limitedProductItemId = purchaseAmountLimit.getLimitedProductItemId();
+		int purchaseAmountLimitCnt = purchaseAmountLimit.getPurchaseAmountLimit();
+		log.info("최대 구매 가능 수량 : {}", purchaseAmountLimitCnt);
 
-		if (!feignRes.getStatusCode().equals(HttpStatus.OK)) {
-			throw AppException.of(HttpStatus.BAD_REQUEST, "최대 구매 가능 수량 확인헤 실패하였습니다.");
-		}
-
-		// 구매 가능 수량 검증
-		List<GetPurchaseAmountLimitResponseV1.PurchaseAmountLimit> items = feignRes.getBody().getItems();
-		log.info("페인 클라이언트 내용 :" + items);
-
-		UUID limitedProductItemId = null;
-		int purchaseAmountLimitCnt = 0;
-		if (items.size() == 1) {
-			GetPurchaseAmountLimitResponseV1.PurchaseAmountLimit purchaseAmountLimit = items.get(0);
-			limitedProductItemId = purchaseAmountLimit.getLimitedProductItemId();
-			purchaseAmountLimitCnt = purchaseAmountLimit.getPurchaseAmountLimit();
-			log.info("최대 구매 가능 수량 : " + purchaseAmountLimitCnt);
-		}
-
-		// 해당 상품이 이미 장바구니에 있는 경우
+		// 수량 추가
 		if (existing != null) {
-			// 기존 수량 + 새 수량
-			existing.setProductAmount(existing.getProductAmount() + addLimitedProductReqDto.getProductAmount());
-			if (existing.getProductAmount() > purchaseAmountLimitCnt) {
-				throw AppException.of(HttpStatus.BAD_REQUEST,
-					"최대 구매 가능한 수량을 초과하였습니다. 최대 구매 가능 수량 : " + purchaseAmountLimitCnt + "개");
-			}
-			merged = existing;
+			merged = validateincreaseAmount(existing, addLimitedProductReqDto, purchaseAmountLimitCnt);
 		}
 
+		// 신규 상품 추가
 		if (limitedProductItemId.equals(addLimitedProductReqDto.getProductItemId())
 			&& addLimitedProductReqDto.getProductAmount() <= purchaseAmountLimitCnt) {
 			// 레디스 캐싱
@@ -139,5 +116,39 @@ public class CartServiceV1 {
 		}
 
 		return CartMapper.toResponse(saved);
+	}
+
+	private ResponseEntity<GetPurchaseAmountLimitResponseV1> getFeignResponse(
+		AddCartLimitedRequestV1 addLimitedProductReqDto) {
+		List<UUID> itemIdList = new ArrayList<>();
+		itemIdList.add(addLimitedProductReqDto.getProductItemId());
+		GetPurchaseAmountLimitRequestV1 req = GetPurchaseAmountLimitRequestV1.create(itemIdList);
+
+		ResponseEntity<GetPurchaseAmountLimitResponseV1> feignRes = limitedFeignClient.getPurchaseAmountLimits(req);
+		if (!feignRes.getStatusCode().equals(HttpStatus.OK)) {
+			throw AppException.of(HttpStatus.BAD_REQUEST, "최대 구매 가능 수량 확인에 실패하였습니다.");
+		}
+
+		return feignRes;
+	}
+
+	private GetPurchaseAmountLimitResponseV1.PurchaseAmountLimit getPurchaseAmountLimit(
+		ResponseEntity<GetPurchaseAmountLimitResponseV1> feignRes) {
+		if (feignRes.getBody().getItems() == null) {
+			throw AppException.of(HttpStatus.NO_CONTENT, "limited feign client 응답 body가 비어있습니다.");
+		}
+		return feignRes.getBody().getItems().get(0);
+	}
+
+	// 기존 장바구니에 있는 상품과 동일한 상품을 추가하는 경우의 수량 추가 메서드
+	private LimitedCacheItem validateincreaseAmount(LimitedCacheItem existing,
+		AddCartLimitedRequestV1 addLimitedProductReqDto, int purchaseAmountLimitCnt) {
+		// 기존 수량 + 새 수량
+		existing.setProductAmount(existing.getProductAmount() + addLimitedProductReqDto.getProductAmount());
+		if (existing.getProductAmount() > purchaseAmountLimitCnt) {
+			throw AppException.of(HttpStatus.BAD_REQUEST,
+				"최대 구매 가능한 수량을 초과하였습니다. 최대 구매 가능 수량 : " + purchaseAmountLimitCnt + "개");
+		}
+		return existing;
 	}
 }
