@@ -17,7 +17,7 @@ public class AddCartLimitedRequestV1 {
 	private UUID optionId;
 
 	@NotNull(message = "판매 아이템 아이디는 필수입니다.")
-	private UUID itemId;
+	private UUID productItemId;
 
 	@NotBlank(message = "상품 이름은 필수입니다.")
 	private String productName;

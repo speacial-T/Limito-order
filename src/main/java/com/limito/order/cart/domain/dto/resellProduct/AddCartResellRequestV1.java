@@ -19,6 +19,9 @@ public class AddCartResellRequestV1 {
 	@NotNull(message = "재고 아이디는 필수입니다.")
 	private UUID stockId;
 
+	@NotNull(message = "상품 아이디는 필수입니다.")
+	private UUID productId;
+
 	@NotBlank(message = "상품 이름은 필수입니다.")
 	private String productName;
 

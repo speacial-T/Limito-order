@@ -4,14 +4,17 @@ import java.util.UUID;
 
 import com.limito.order.common.ProductType;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
+@Builder
 public class AddCartResellResponseV1 {
 	private UUID optionId;
 	private UUID stockId;
+	private UUID productId;
 	private String productName;
 	private String productColor;
 	private String productSize;
@@ -20,19 +23,4 @@ public class AddCartResellResponseV1 {
 	private String thumbnailUrl;
 	private Long sellerId;
 	private ProductType productType;
-
-	public static AddCartResellResponseV1 toResDto(AddCartResellRequestV1 req) {
-		AddCartResellResponseV1 res = new AddCartResellResponseV1();
-		res.setOptionId(req.getOptionId());
-		res.setStockId(req.getStockId());
-		res.setProductName(req.getProductName());
-		res.setProductColor(req.getProductColor());
-		res.setProductSize(req.getProductSize());
-		res.setProductPrice(req.getProductPrice());
-		res.setBrandName(req.getBrandName());
-		res.setThumbnailUrl(req.getThumbnailUrl());
-		res.setSellerId(req.getSellerId());
-		res.setProductType(req.getProductType());
-		return res;
-	}
 }
