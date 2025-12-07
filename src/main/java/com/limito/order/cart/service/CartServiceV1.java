@@ -1,11 +1,17 @@
 package com.limito.order.cart.service;
 
+import java.util.List;
+import java.util.UUID;
+
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.limito.common.exception.AppException;
+import com.limito.order.cart.domain.dto.feignClient.GetPurchaseAmountLimitRequestV1;
+import com.limito.order.cart.domain.dto.feignClient.GetPurchaseAmountLimitResponseV1;
 import com.limito.order.cart.domain.dto.limitedProduct.AddCartLimitedRequestV1;
 import com.limito.order.cart.domain.dto.limitedProduct.AddCartLimitedResponseV1;
 import com.limito.order.cart.domain.dto.resellProduct.AddCartResellRequestV1;
@@ -13,6 +19,7 @@ import com.limito.order.cart.domain.dto.resellProduct.AddCartResellResponseV1;
 import com.limito.order.cart.domain.mapper.CartMapper;
 import com.limito.order.cart.domain.model.LimitedCacheItem;
 import com.limito.order.cart.domain.model.ResellCacheItem;
+import com.limito.order.common.feignClient.LimitedFeignClient;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +28,8 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class CartServiceV1 {
+
+	private final LimitedFeignClient limitedFeignClient;
 
 	private static final String LIMITED_KEY = "cart:limited:%d";
 	private static final String RESELL_KEY = "cart:resell:%d";
@@ -60,9 +69,31 @@ public class CartServiceV1 {
 			merged = existing;
 		}
 
-		// 레디스 캐싱
-		hashOps.put(key, field, merged);
-		log.info("한정판매 상품 추가 성공");
+		// 신규 상품 추가 시 최대 구매 가능 요청
+		GetPurchaseAmountLimitRequestV1 req = new GetPurchaseAmountLimitRequestV1(
+			addLimitedProductReqDto.getProductItemId());
+		ResponseEntity<GetPurchaseAmountLimitResponseV1> feignRes = limitedFeignClient.getPurchaseAmountLimits(req);
+
+		if (!feignRes.getStatusCode().equals(HttpStatus.OK)) {
+			throw AppException.of(HttpStatus.BAD_REQUEST, "최대 구매 가능 수량 확인헤 실패하였습니다.");
+		}
+
+		// 구매 가능 수량 검증
+		List<GetPurchaseAmountLimitResponseV1.PurchaseAmountLimit> items = feignRes.getBody().getItems();
+
+		UUID limitedProductItemId = null;
+		int purchaseAmountLimitCnt = 0;
+		if (items.size() == 1) {
+			GetPurchaseAmountLimitResponseV1.PurchaseAmountLimit purchaseAmountLimit = items.get(0);
+			limitedProductItemId = purchaseAmountLimit.getLimitedProductItemId();
+			purchaseAmountLimitCnt = purchaseAmountLimit.getPurchaseAmountLimit();
+		}
+		if (limitedProductItemId == addLimitedProductReqDto.getProductItemId()
+			&& addLimitedProductReqDto.getProductAmount() <= purchaseAmountLimitCnt) {
+			// 레디스 캐싱
+			hashOps.put(key, field, merged);
+			log.info("한정판매 상품 추가 성공");
+		}
 
 		// 캐싱 된 데이터 조회 후 반환
 		LimitedCacheItem saved = (LimitedCacheItem)hashOps.get(key, field);

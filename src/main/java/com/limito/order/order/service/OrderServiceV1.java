@@ -7,12 +7,12 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.limito.order.common.feignClient.ResellFeignClient;
+import com.limito.order.order.domain.dto.feignClient.resell.dto.request.StockReduceRequest;
 import com.limito.order.order.domain.dto.request.CreateLimitedOrderRequestV1;
 import com.limito.order.order.domain.dto.request.CreateResellOrderRequestV1;
 import com.limito.order.order.domain.dto.response.CreateLimitedOrderResponseV1;
 import com.limito.order.order.domain.dto.response.CreateResellOrderResponseV1;
-import com.limito.order.order.domain.feignClient.resell.ResellFeignClient;
-import com.limito.order.order.domain.feignClient.resell.dto.request.StockReduceRequest;
 import com.limito.order.order.domain.mapper.OrderMapper;
 import com.limito.order.order.domain.model.Order;
 import com.limito.order.order.domain.model.OrderItem;
