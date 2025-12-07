@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
+import com.limito.order.common.OrderStatus;
 import com.limito.order.order.domain.dto.request.CreateLimitedOrderRequestV1;
 import com.limito.order.order.domain.dto.request.CreateResellOrderRequestV1;
 import com.limito.order.order.domain.dto.response.CreateLimitedOrderItemResponseV1;
@@ -37,7 +38,7 @@ public class OrderMapper {
 			.phoneNumber(req.getPhoneNumber())
 			.deliveryAddress(req.getDeliveryAddress())
 			.totalPrice(req.getTotalPrice())
-			.orderStatus(com.limito.order.common.OrderStatus.ORDER_FINISH)
+			.orderStatus(OrderStatus.ORDER_FINISH)
 			.successedAt(LocalDateTime.now())
 			.build();
 	}

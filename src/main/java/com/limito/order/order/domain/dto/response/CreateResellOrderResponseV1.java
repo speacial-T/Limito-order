@@ -8,10 +8,8 @@ import com.limito.order.common.OrderStatus;
 
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
-@Setter
 @Builder
 public class CreateResellOrderResponseV1 {
 	private UUID orderId;

@@ -8,10 +8,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
-@Setter
 public class CreateResellOrderItemRequestV1 {
 	@NotNull(message = "옵션 아이디는 필수입니다.")
 	private UUID optionId;

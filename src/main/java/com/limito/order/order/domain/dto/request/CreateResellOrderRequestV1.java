@@ -8,10 +8,8 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
-@Setter
 public class CreateResellOrderRequestV1 {
 	@NotBlank(message = "수령인은 필수입니다.")
 	private String receiverName;
@@ -30,6 +28,7 @@ public class CreateResellOrderRequestV1 {
 	@Positive(message = "가격은 양수이어야 합니다.")
 	private Long totalPrice;
 
+	@NotNull(message = "주문 아이템은 필수입니다.")
 	@Size(min = 1, message = "주문 상품은 최소 1개 이상이어야 합니다.")
 	private List<CreateResellOrderItemRequestV1> items;
 }
