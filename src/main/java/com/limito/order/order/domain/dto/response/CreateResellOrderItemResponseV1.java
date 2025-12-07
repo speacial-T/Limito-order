@@ -9,11 +9,12 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class CreateLimitedOrderItemResponseV1 {
+public class CreateResellOrderItemResponseV1 {
 	private UUID orderItemId;
 
 	private UUID optionId;
-	private UUID productItemId;
+	private UUID stockId;
+	private UUID productId;
 
 	private ProductType productType;
 	private String productName;
@@ -24,7 +25,4 @@ public class CreateLimitedOrderItemResponseV1 {
 	private String productSize;
 
 	private int productPrice;
-	private int productAmount;
-
-	private Long totalProductPrice;
 }

@@ -10,7 +10,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 
 @Getter
-public class CreateLimitedOrderRequestV1 {
+public class CreateResellOrderRequestV1 {
 	@NotBlank(message = "수령인은 필수입니다.")
 	private String receiverName;
 
@@ -30,5 +30,5 @@ public class CreateLimitedOrderRequestV1 {
 
 	@NotNull(message = "주문 아이템은 필수입니다.")
 	@Size(min = 1, message = "주문 상품은 최소 1개 이상이어야 합니다.")
-	private List<CreateLimitedOrderItemRequestV1> items;
+	private List<CreateResellOrderItemRequestV1> items;
 }

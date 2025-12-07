@@ -11,7 +11,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class CreateLimitedOrderResponseV1 {
+public class CreateResellOrderResponseV1 {
 	private UUID orderId;
 
 	private Long userId;
@@ -26,5 +26,5 @@ public class CreateLimitedOrderResponseV1 {
 	private String itemSummary;
 	// private String cancelReason;
 
-	private List<CreateLimitedOrderItemResponseV1> items;
+	private List<CreateResellOrderItemResponseV1> items;
 }
