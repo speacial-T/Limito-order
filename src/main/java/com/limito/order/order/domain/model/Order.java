@@ -79,6 +79,9 @@ public class Order {
 		int itemCount = req.getItems().size() - 1;
 		String firstProductName = req.getItems().get(0).getProductName();
 		this.itemSummary = firstProductName + " 외 " + itemCount + "건";
+		if (itemCount == 0) {
+			this.itemSummary = firstProductName;
+		}
 	}
 
 	public void attachSummary(CreateResellOrderRequestV1 req) {

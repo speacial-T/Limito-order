@@ -4,10 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.limito.common.exception.AppException;
+import com.limito.order.common.feignClient.LimitedFeignClient;
 import com.limito.order.common.feignClient.ResellFeignClient;
+import com.limito.order.order.domain.dto.feignClient.limited.ReserveStockItemRequestV1;
+import com.limito.order.order.domain.dto.feignClient.limited.ReserveStockRequestV1;
 import com.limito.order.order.domain.dto.feignClient.resell.dto.request.StockReduceRequest;
 import com.limito.order.order.domain.dto.request.CreateLimitedOrderRequestV1;
 import com.limito.order.order.domain.dto.request.CreateResellOrderRequestV1;
@@ -26,10 +32,11 @@ public class OrderServiceV1 {
 	private final OrderRepositoryV1 orderRepository;
 	private final OrderMapper orderMapper;
 	private final ResellFeignClient resellFeignClient;
+	private final LimitedFeignClient limitedFeignClient;
 
 	// 한정판매 주문 생성
 	@Transactional
-	public CreateLimitedOrderResponseV1 createDirectLimitedOrder(Long userId,
+	public CreateLimitedOrderResponseV1 createLimitedOrder(Long userId,
 		CreateLimitedOrderRequestV1 createLimitedOrderRequest) {
 
 		// Todo. 합산 가격 검증 (더블 체크)
@@ -45,28 +52,50 @@ public class OrderServiceV1 {
 		// itemSummary set 하는 함수 추가하기
 		order.attachSummary(createLimitedOrderRequest);
 
+		// feign requestDto 생성
+		ReserveStockRequestV1 reserveStockRequest = new ReserveStockRequestV1();
+		List<ReserveStockItemRequestV1> reserveStockItemRequests = new ArrayList<>();
+
+		for (OrderItem orderItem : orderItems) {
+			UUID productItemId = orderItem.getProductItemId();
+			int amount = orderItem.getProductAmount();
+
+			ReserveStockItemRequestV1 reserveStockItemRequest = ReserveStockItemRequestV1.of(productItemId, amount);
+
+			reserveStockItemRequests.add(reserveStockItemRequest);
+		}
+
+		if (reserveStockItemRequests.isEmpty()) {
+			throw AppException.of(HttpStatus.NO_CONTENT, "reserveStockItemRequests 비어있습니다.");
+		}
+
+		reserveStockRequest.attachItems(reserveStockItemRequests);
+
+		// feign 요청
+		ResponseEntity<Void> reserveFeignResponse = limitedFeignClient.reserveStock(reserveStockRequest);
+		validateReserveFeign(reserveFeignResponse);
+
 		// 생성된 주문 엔티티 저장
 		orderRepository.save(order);
 
-		/** Todo :
-		 * 1. 상품 feign : 임시 재고 예약 (최대 구매 가능 수량 포함)
-		 * 2. 결제 feign : 결제 요청
-		 * 3. 상품 feign: 재고 차감 요청
-		 * 4. 주문 상품 장바구니에서 차감
-		 */
-
 		// 엔티티 -> responseDto 변환해서 리턴
-		//		List<CreateLimitedOrderItemResponseV1> orderItemRes = orderMapper.toLimitedOrderItemResponse(order);
 		CreateLimitedOrderResponseV1 limitedOrderRes = orderMapper.toLimitedOrderResponse(order);
 
 		return limitedOrderRes;
+	}
+
+	public void afterPayments(UUID orderId) {
+		// 상품 feign: 재고 차감 요청
+
+		// 주문 상태 변경
+
+		// 주문 상품 장바구니에서 차감
 	}
 
 	// 리셀 주문 생성
 
 	/** Todo :
 	 * 1. 상품 feign : 임시 재고 예약
-	 * 2. 결제 feign : 결제 요청
 	 * 3. 상품 feign: 재고 차감 요청
 	 * 4. 주문 상품 장바구니에서 차감
 	 */
@@ -105,5 +134,12 @@ public class OrderServiceV1 {
 			requests.add(req);
 		});
 		return requests;
+	}
+
+	private void validateReserveFeign(ResponseEntity<Void> reserveFeignResponse) {
+		if (!HttpStatus.OK.equals(reserveFeignResponse.getStatusCode())) {
+			throw AppException.of(HttpStatus.EXPECTATION_FAILED, "임시 재고 예약에 실패했습니다");
+			// Todo : 예외처리 강화 - feign 응답에 맞춰서
+		}
 	}
 }
