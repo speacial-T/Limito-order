@@ -10,8 +10,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.limito.common.exception.AppException;
+import com.limito.order.common.OrderStatus;
 import com.limito.order.common.feignClient.LimitedFeignClient;
 import com.limito.order.common.feignClient.ResellFeignClient;
+import com.limito.order.order.domain.dto.feignClient.limited.ReduceStockProductRequestV1;
+import com.limito.order.order.domain.dto.feignClient.limited.ReduceStockRequestV1;
 import com.limito.order.order.domain.dto.feignClient.limited.ReserveStockItemRequestV1;
 import com.limito.order.order.domain.dto.feignClient.limited.ReserveStockRequestV1;
 import com.limito.order.order.domain.dto.feignClient.resell.dto.request.StockReduceRequest;
@@ -25,9 +28,11 @@ import com.limito.order.order.domain.model.OrderItem;
 import com.limito.order.order.domain.repository.OrderRepositoryV1;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class OrderServiceV1 {
 	private final OrderRepositoryV1 orderRepository;
 	private final OrderMapper orderMapper;
@@ -78,18 +83,35 @@ public class OrderServiceV1 {
 		// 생성된 주문 엔티티 저장
 		orderRepository.save(order);
 
-		// 엔티티 -> responseDto 변환해서 리턴
-		CreateLimitedOrderResponseV1 limitedOrderRes = orderMapper.toLimitedOrderResponse(order);
-
-		return limitedOrderRes;
+		return orderMapper.toLimitedOrderResponse(order);
 	}
 
+	@Transactional
 	public void afterPayments(UUID orderId) {
+		Order order = orderRepository.findById(orderId)
+			.orElseThrow(() -> AppException.of(HttpStatus.NOT_FOUND, "주문을 찾을 수 없습니다."));
+
 		// 상품 feign: 재고 차감 요청
+		List<ReduceStockProductRequestV1> reduceProductRequests = new ArrayList<>();
+
+		List<OrderItem> orderItems = order.deliverOrderItems();
+		for (OrderItem orderItem : orderItems) {
+			ReduceStockProductRequestV1 req = new ReduceStockProductRequestV1(orderItem.getOptionId(),
+				orderItem.getProductItemId(), orderItem.getProductAmount());
+			reduceProductRequests.add(req);
+		}
+		ReduceStockRequestV1 reduceRequest = new ReduceStockRequestV1(reduceProductRequests);
+
+		ResponseEntity<Void> feinResponse = limitedFeignClient.reduceStock(reduceRequest);
+		if (!feinResponse.getStatusCode().equals(HttpStatus.OK)) {
+			throw AppException.of(HttpStatus.EXPECTATION_FAILED, "재고 차감 요청에 실패해습니다.");
+		}
 
 		// 주문 상태 변경
+		order.changeStatus(OrderStatus.ORDER_FINISH);
 
 		// 주문 상품 장바구니에서 차감
+		
 	}
 
 	// 리셀 주문 생성
@@ -113,7 +135,7 @@ public class OrderServiceV1 {
 
 		// 상품 feign : 임시 재고 예약
 		// Todo. 예외처리
-		List<UUID> stockIds = Order.getStockIds(order);
+		List<UUID> stockIds = order.getStockIds(order);
 		resellFeignClient.reserveStock(stockIds);
 
 		// 상품 feign: 재고 차감 요청

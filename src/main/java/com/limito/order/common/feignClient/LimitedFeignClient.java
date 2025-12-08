@@ -23,6 +23,6 @@ public interface LimitedFeignClient {
 	@PostMapping("/internal/v1/limited-products/stock/reserve")
 	ResponseEntity<Void> reserveStock(@Valid @RequestBody ReserveStockRequestV1 request);
 
-	@PostMapping("/stock/reduce")
+	@PostMapping("/internal/v1/limited-products/stock/reduce")
 	ResponseEntity<Void> reduceStock(@Valid @RequestBody ReduceStockRequestV1 request);
 }

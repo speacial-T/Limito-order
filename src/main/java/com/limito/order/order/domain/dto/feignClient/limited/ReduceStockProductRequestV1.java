@@ -4,7 +4,11 @@ import java.util.UUID;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
+@Getter
+@AllArgsConstructor
 public class ReduceStockProductRequestV1 {
 	@NotNull(message = "옵션 id는 null일 수 없습니다.")
 	UUID limitedProductOptionId;
