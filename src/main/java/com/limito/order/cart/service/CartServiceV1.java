@@ -1,5 +1,8 @@
 package com.limito.order.cart.service;
 
+import java.util.List;
+import java.util.UUID;
+
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
@@ -98,5 +101,31 @@ public class CartServiceV1 {
 		}
 
 		return CartMapper.toResponse(saved);
+	}
+
+	public void deleteLimitedOrderItem(Long userId, List<UUID> productItemIds) {
+		if (productItemIds == null || productItemIds.isEmpty()) {
+			throw AppException.of(HttpStatus.NO_CONTENT, "장바구니에서 삭제할 상품 아이디가 존재하지 않습니다.");
+		}
+
+		String key = LIMITED_KEY.formatted(userId);
+		HashOperations<String, String, Object> hashOps = hashOps();
+
+		// Redis에 실제로 존재하는 field만 모으기 (바로구매는 장바구니 거치지 않음)
+		List<String> existingFields = productItemIds.stream()
+			.map(UUID::toString)
+			.filter(field -> Boolean.TRUE.equals(hashOps.hasKey(key, field)))
+			.toList();
+
+		// 장바구니에는 하나도 없을 수도 있음 (예: 장바구니 거치지 않고 바로 주문한 경우)
+		if (existingFields.isEmpty()) {
+			log.info("삭제할 한정판매 장바구니 아이템이 없습니다. userId={}, productItemIds={}", userId, productItemIds);
+			return;
+		}
+
+		// 존재하는 field들만 삭제
+		// HDEL cart:limited:{userId} field1 field2 ...
+		hashOps.delete(key, existingFields.toArray(new Object[0]));
+		log.info("한정판매 장바구니 아이템 삭제 완료. userId={}, deletedItemIds={}", userId, existingFields);
 	}
 }
