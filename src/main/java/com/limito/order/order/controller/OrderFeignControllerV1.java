@@ -19,8 +19,8 @@ public class OrderFeignControllerV1 {
 	private final OrderServiceV1 orderService;
 
 	@PostMapping("/afterPayments/{orderId}")
-	public ResponseEntity<Void> afterPayments(@PathVariable UUID orderId) {
-		orderService.afterPayments(orderId);
+	public ResponseEntity<Void> afterPaymentsSuccessed(@PathVariable UUID orderId) {
+		orderService.afterPaymentsSuccessed(orderId);
 		return ResponseEntity.ok().body(null);
 	}
 }

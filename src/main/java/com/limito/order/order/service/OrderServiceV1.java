@@ -87,7 +87,7 @@ public class OrderServiceV1 {
 	}
 
 	@Transactional
-	public void afterPayments(UUID orderId) {
+	public void afterPaymentsSuccessed(UUID orderId) {
 		Order order = orderRepository.findById(orderId)
 			.orElseThrow(() -> AppException.of(HttpStatus.NOT_FOUND, "주문을 찾을 수 없습니다."));
 
@@ -111,7 +111,7 @@ public class OrderServiceV1 {
 		order.changeStatus(OrderStatus.ORDER_FINISH);
 
 		// 주문 상품 장바구니에서 차감
-		
+
 	}
 
 	// 리셀 주문 생성
