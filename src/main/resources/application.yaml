@@ -7,7 +7,7 @@ spring:
   data:
     redis:
       host: localhost
-      port: 16379
+      port: 6379
       database: 0
   datasource:
     url: jdbc:postgresql://localhost:5432/limito-db
