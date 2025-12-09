@@ -6,10 +6,9 @@ import java.util.UUID;
 import lombok.Builder;
 
 @Builder
-public record GetOrdersForCompanyResponseV1(
-	UUID orderId,
-	String itemSummary,
-	Long totalPrice,
-	LocalDateTime successAt
-) {
+public class GetOrdersForCompanyResponseV1 {
+	private UUID orderId;
+	private String itemSummary;
+	private Long totalPrice;
+	private LocalDateTime successAt;
 }
