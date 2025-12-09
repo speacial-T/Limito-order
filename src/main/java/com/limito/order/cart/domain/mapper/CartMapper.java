@@ -2,8 +2,10 @@ package com.limito.order.cart.domain.mapper;
 
 import com.limito.order.cart.domain.dto.limitedProduct.AddCartLimitedRequestV1;
 import com.limito.order.cart.domain.dto.limitedProduct.AddCartLimitedResponseV1;
+import com.limito.order.cart.domain.dto.limitedProduct.GetCartLimitedResponseV1;
 import com.limito.order.cart.domain.dto.resellProduct.AddCartResellRequestV1;
 import com.limito.order.cart.domain.dto.resellProduct.AddCartResellResponseV1;
+import com.limito.order.cart.domain.dto.resellProduct.GetCartResellResponseV1;
 import com.limito.order.cart.domain.model.LimitedCacheItem;
 import com.limito.order.cart.domain.model.ResellCacheItem;
 
@@ -26,8 +28,25 @@ public class CartMapper {
 			.build();
 	}
 
-	public static AddCartLimitedResponseV1 toResponse(LimitedCacheItem domain) {
+	public static AddCartLimitedResponseV1 toAddResponse(LimitedCacheItem domain) {
 		return AddCartLimitedResponseV1.builder()
+			.optionId(domain.getOptionId())
+			.productItemId(domain.getProductItemId())
+			.productName(domain.getProductName())
+			.productColor(domain.getProductColor())
+			.productSize(domain.getProductSize())
+			.productPrice(domain.getProductPrice())
+			.brandName(domain.getBrandName())
+			.thumbnailUrl(domain.getThumbnailUrl())
+			.sellerId(domain.getSellerId())
+			.productStatus(domain.getProductStatus())
+			.productType(domain.getProductType())
+			.productAmount(domain.getProductAmount())
+			.build();
+	}
+
+	public static GetCartLimitedResponseV1 toGetResponse(LimitedCacheItem domain) {
+		return GetCartLimitedResponseV1.builder()
 			.optionId(domain.getOptionId())
 			.productItemId(domain.getProductItemId())
 			.productName(domain.getProductName())
@@ -59,8 +78,24 @@ public class CartMapper {
 			.build();
 	}
 
-	public static AddCartResellResponseV1 toResponse(ResellCacheItem domain) {
-		return AddCartResellResponseV1.builder()
+	public static AddCartResellResponseV1 toAddResponse(ResellCacheItem domain) {
+		return com.limito.order.cart.domain.dto.resellProduct.AddCartResellResponseV1.builder()
+			.optionId(domain.getOptionId())
+			.stockId(domain.getStockId())
+			.productId(domain.getProductId())
+			.productName(domain.getProductName())
+			.productColor(domain.getProductColor())
+			.productSize(domain.getProductSize())
+			.productPrice(domain.getProductPrice())
+			.brandName(domain.getBrandName())
+			.thumbnailUrl(domain.getThumbnailUrl())
+			.sellerId(domain.getSellerId())
+			.productType(domain.getProductType())
+			.build();
+	}
+
+	public static GetCartResellResponseV1 toGetResponse(ResellCacheItem domain) {
+		return GetCartResellResponseV1.builder()
 			.optionId(domain.getOptionId())
 			.stockId(domain.getStockId())
 			.productId(domain.getProductId())

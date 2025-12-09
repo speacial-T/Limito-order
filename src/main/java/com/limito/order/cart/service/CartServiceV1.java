@@ -1,5 +1,6 @@
 package com.limito.order.cart.service;
 
+import java.util.Map;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -15,8 +16,10 @@ import com.limito.order.cart.domain.dto.feignClient.GetPurchaseAmountLimitReques
 import com.limito.order.cart.domain.dto.feignClient.GetPurchaseAmountLimitResponseV1;
 import com.limito.order.cart.domain.dto.limitedProduct.AddCartLimitedRequestV1;
 import com.limito.order.cart.domain.dto.limitedProduct.AddCartLimitedResponseV1;
+import com.limito.order.cart.domain.dto.limitedProduct.GetCartLimitedResponseV1;
 import com.limito.order.cart.domain.dto.resellProduct.AddCartResellRequestV1;
 import com.limito.order.cart.domain.dto.resellProduct.AddCartResellResponseV1;
+import com.limito.order.cart.domain.dto.resellProduct.GetCartResellResponseV1;
 import com.limito.order.cart.domain.mapper.CartMapper;
 import com.limito.order.cart.domain.model.LimitedCacheItem;
 import com.limito.order.cart.domain.model.ResellCacheItem;
@@ -87,7 +90,7 @@ public class CartServiceV1 {
 			throw AppException.of(HttpStatus.NO_CONTENT, "캐싱된 한정판매 상품 조회에 실패하였습니다.");
 		}
 
-		return CartMapper.toResponse(saved);
+		return CartMapper.toAddResponse(saved);
 	}
 
 	// 리셀 장바구니 추가
@@ -114,7 +117,37 @@ public class CartServiceV1 {
 			throw AppException.of(HttpStatus.NO_CONTENT, "캐싱된 리셀 상품 조회에 실패하였습니다.");
 		}
 
-		return CartMapper.toResponse(saved);
+		return CartMapper.toAddResponse(saved);
+	}
+
+	public List<GetCartLimitedResponseV1> getLimitedCart(Long userId) {
+		String key = LIMITED_KEY.formatted(userId);
+		HashOperations<String, String, Object> hashOps = hashOps();
+
+		// HGETALL cart:limited:{userId}
+		Map<String, Object> entries = hashOps.entries(key);
+
+		// 값(value)만 꺼내서 LimitedCacheItem → 응답 DTO로 변환
+		return entries.values().stream()
+			.map(value -> (LimitedCacheItem)value)
+			.map(CartMapper::toGetResponse)
+			.toList();
+
+	}
+
+	public List<GetCartResellResponseV1> getResellCart(Long userId) {
+		String key = RESELL_KEY.formatted(userId);
+		HashOperations<String, String, Object> hashOps = hashOps();
+
+		// HGETALL cart:resell:{userId}
+		Map<String, Object> entries = hashOps.entries(key);
+
+		// 값(value)만 꺼내서 LimitedCacheItem → 응답 DTO로 변환
+		return entries.values().stream()
+			.map(value -> (ResellCacheItem)value)
+			.map(CartMapper::toGetResponse)
+			.toList();
+
 	}
 
 	// 주문 완료된 한정판매 상품 장바구니 삭제

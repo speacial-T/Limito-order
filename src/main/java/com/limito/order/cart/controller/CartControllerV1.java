@@ -1,6 +1,9 @@
 package com.limito.order.cart.controller;
 
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -8,8 +11,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.limito.order.cart.domain.dto.limitedProduct.AddCartLimitedRequestV1;
 import com.limito.order.cart.domain.dto.limitedProduct.AddCartLimitedResponseV1;
+import com.limito.order.cart.domain.dto.limitedProduct.GetCartLimitedResponseV1;
 import com.limito.order.cart.domain.dto.resellProduct.AddCartResellRequestV1;
 import com.limito.order.cart.domain.dto.resellProduct.AddCartResellResponseV1;
+import com.limito.order.cart.domain.dto.resellProduct.GetCartResellResponseV1;
 import com.limito.order.cart.service.CartServiceV1;
 
 import jakarta.validation.Valid;
@@ -39,5 +44,23 @@ public class CartControllerV1 {
 		Long userId = 1111L;
 		AddCartResellResponseV1 result = cartService.addResellItem(userId, addResellProductReqDto);
 		return ResponseEntity.ok(result);
+	}
+
+	// 한정판매 장바구니 조회
+	@GetMapping("limited")
+	public ResponseEntity<List<GetCartLimitedResponseV1>> getLimitedCart() {
+		// Todo. userId 헤더에서 추출, 권한 검증
+		Long userId = 1111L;
+		List<GetCartLimitedResponseV1> results = cartService.getLimitedCart(userId);
+		return ResponseEntity.ok(results);
+	}
+
+	// 리셀 장바구니 조회
+	@GetMapping("resell")
+	public ResponseEntity<List<GetCartResellResponseV1>> getResellCart() {
+		// Todo. userId 헤더에서 추출, 권한 검증
+		Long userId = 1111L;
+		List<GetCartResellResponseV1> results = cartService.getResellCart(userId);
+		return ResponseEntity.ok(results);
 	}
 }
