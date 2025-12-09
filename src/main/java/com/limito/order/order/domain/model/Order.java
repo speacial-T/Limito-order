@@ -79,6 +79,9 @@ public class Order {
 		int itemCount = req.getItems().size() - 1;
 		String firstProductName = req.getItems().get(0).getProductName();
 		this.itemSummary = firstProductName + " 외 " + itemCount + "건";
+		if (itemCount == 0) {
+			this.itemSummary = firstProductName;
+		}
 	}
 
 	public void attachSummary(CreateResellOrderRequestV1 req) {
@@ -94,12 +97,21 @@ public class Order {
 		return order.getOrderItems();
 	}
 
-	public static List<UUID> getStockIds(Order order) {
+	public List<OrderItem> deliverOrderItems() {
+		return this.getOrderItems();
+	}
+
+	public List<UUID> getStockIds(Order order) {
 		List<OrderItem> orderItems = order.getOrderItems();
 		List<UUID> stockIds = new ArrayList<>();
 		orderItems.forEach(orderItem -> {
 			stockIds.add(orderItem.getStockId());
 		});
 		return stockIds;
+	}
+
+	public void changeStatus(OrderStatus status) {
+		this.orderStatus = status;
+		this.successedAt = LocalDateTime.now();
 	}
 }

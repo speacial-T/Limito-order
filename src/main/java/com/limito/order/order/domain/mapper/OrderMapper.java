@@ -26,7 +26,7 @@ public class OrderMapper {
 			.phoneNumber(req.getPhoneNumber())
 			.deliveryAddress(req.getDeliveryAddress())
 			.totalPrice(req.getTotalPrice())
-			.orderStatus(com.limito.order.common.OrderStatus.ORDER_FINISH)
+			.orderStatus(OrderStatus.ORDER_PENDING)
 			.successedAt(LocalDateTime.now())
 			.build();
 	}
@@ -38,7 +38,7 @@ public class OrderMapper {
 			.phoneNumber(req.getPhoneNumber())
 			.deliveryAddress(req.getDeliveryAddress())
 			.totalPrice(req.getTotalPrice())
-			.orderStatus(OrderStatus.ORDER_FINISH)
+			.orderStatus(OrderStatus.ORDER_PENDING)
 			.successedAt(LocalDateTime.now())
 			.build();
 	}
