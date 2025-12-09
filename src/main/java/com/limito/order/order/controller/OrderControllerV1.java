@@ -25,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 public class OrderControllerV1 {
 	private final OrderServiceV1 orderService;
 
+	// 한정판매 주문서 생성
 	@PostMapping("/limited")
 	public ResponseEntity<CreateLimitedOrderResponseV1> createLimitedOrder(
 		@Valid @RequestBody CreateLimitedOrderRequestV1 createLimitedOrderRequest) {
@@ -34,6 +35,16 @@ public class OrderControllerV1 {
 		return ResponseEntity.ok(result);
 	}
 
+	// 한정판매 주문자 정보 추가
+	@PostMapping("/limited/orderer-data/{orderId}")
+	public ResponseEntity<CreateLimitedOrderResponseV1> addLimitedOrdererData(@PathVariable UUID orderId,
+		@Valid @RequestBody AddOrdererRequestV1 ordererRequest) {
+		Long userId = 1111L;
+		CreateLimitedOrderResponseV1 result = orderService.addLimitedOrdererData(userId, orderId, ordererRequest);
+		return ResponseEntity.ok(result);
+	}
+
+	// 리셀 주문서 생성
 	@PostMapping("/resell/order-sheet")
 	public ResponseEntity<CreateResellOrderResponseV1> createResellOrderSheet(
 		@Valid @RequestBody CreateResellOrderRequestV1 createResellOrderRequest) {
@@ -43,11 +54,12 @@ public class OrderControllerV1 {
 		return ResponseEntity.ok(result);
 	}
 
+	// 리셀 주문자 정보 추가
 	@PostMapping("/resell/orderer-data/{orderId}")
-	public ResponseEntity<CreateResellOrderResponseV1> addOrderData(@PathVariable UUID orderId,
+	public ResponseEntity<CreateResellOrderResponseV1> addResellOrdererData(@PathVariable UUID orderId,
 		@Valid @RequestBody AddOrdererRequestV1 ordererRequest) {
 		Long userId = 1111L;
-		CreateResellOrderResponseV1 result = orderService.addOrderData(userId, orderId, ordererRequest);
+		CreateResellOrderResponseV1 result = orderService.addResellOrdererData(userId, orderId, ordererRequest);
 		return ResponseEntity.ok(result);
 	}
 }

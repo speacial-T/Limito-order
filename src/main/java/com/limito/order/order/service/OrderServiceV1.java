@@ -39,7 +39,7 @@ public class OrderServiceV1 {
 	private final LimitedFeignClient limitedFeignClient;
 	private final CartServiceV1 cartService;
 
-	// 한정판매 주문 생성
+	// 한정판매 주문서 생성
 	@Transactional
 	public CreateLimitedOrderResponseV1 createLimitedOrder(Long userId,
 		CreateLimitedOrderRequestV1 createLimitedOrderRequest) {
@@ -57,6 +57,23 @@ public class OrderServiceV1 {
 		// itemSummary set 하는 함수 추가하기
 		order.attachSummary(createLimitedOrderRequest);
 
+		// 생성된 주문 엔티티 저장
+		orderRepository.save(order);
+
+		return orderMapper.toLimitedOrderResponse(order);
+	}
+
+	// 한정판매 주문자 정보 추가
+	@Transactional
+	public CreateLimitedOrderResponseV1 addLimitedOrdererData(Long userId, UUID orderId,
+		AddOrdererRequestV1 ordererRequest) {
+		Order order = orderRepository.findById(orderId)
+			.orElseThrow(() -> AppException.of(HttpStatus.NOT_FOUND, "주문을 찾을 수 없습니다."));
+
+		order.attachOrderer(ordererRequest);
+		List<OrderItem> orderItems = order.deliverOrderItems();
+
+		// 재고 예약 요청
 		// feign requestDto 생성
 		ReserveStockRequestV1 reserveStockRequest = new ReserveStockRequestV1();
 		List<ReserveStockItemRequestV1> reserveStockItemRequests = new ArrayList<>();
@@ -80,17 +97,9 @@ public class OrderServiceV1 {
 		ResponseEntity<Void> reserveFeignResponse = limitedFeignClient.reserveStock(reserveStockRequest);
 		validateReserveFeign(reserveFeignResponse);
 
-		// 생성된 주문 엔티티 저장
-		orderRepository.save(order);
-
 		return orderMapper.toLimitedOrderResponse(order);
 	}
 
-	/** Todo :
-	 * 1. 상품 feign : 임시 재고 예약
-	 * 3. 상품 feign: 재고 차감 요청
-	 * 4. 주문 상품 장바구니에서 차감
-	 */
 	// 리셀 주문서 생성
 	@Transactional
 	public CreateResellOrderResponseV1 createResellOrderSheet(Long userId,
@@ -108,9 +117,9 @@ public class OrderServiceV1 {
 		return orderMapper.toResellOrderResponse(order);
 	}
 
-	// 리셀 주문서 주문자 정보 업데이트
+	// 리셀 주문자 정보 추가
 	@Transactional
-	public CreateResellOrderResponseV1 addOrderData(Long userId, UUID orderId,
+	public CreateResellOrderResponseV1 addResellOrdererData(Long userId, UUID orderId,
 		AddOrdererRequestV1 ordererRequest) {
 		Order order = orderRepository.findById(orderId)
 			.orElseThrow(() -> AppException.of(HttpStatus.NOT_FOUND, "주문을 찾을 수 없습니다."));

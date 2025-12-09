@@ -94,10 +94,6 @@ public class Order {
 		}
 	}
 
-	public List<OrderItem> deliverOrderItems(Order order) {
-		return order.getOrderItems();
-	}
-
 	public List<OrderItem> deliverOrderItems() {
 		return this.getOrderItems();
 	}
