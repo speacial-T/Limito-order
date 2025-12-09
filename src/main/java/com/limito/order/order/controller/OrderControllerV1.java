@@ -22,11 +22,11 @@ public class OrderControllerV1 {
 	private final OrderServiceV1 orderService;
 
 	@PostMapping("/limited")
-	public ResponseEntity<CreateLimitedOrderResponseV1> createDirectLimitedOrder(
+	public ResponseEntity<CreateLimitedOrderResponseV1> createLimitedOrder(
 		@Valid @RequestBody CreateLimitedOrderRequestV1 createLimitedOrderRequest) {
 		// Todo. userId 헤더에서 빼오기, 권한검증
 		Long userId = 1111L;
-		CreateLimitedOrderResponseV1 result = orderService.createDirectLimitedOrder(userId, createLimitedOrderRequest);
+		CreateLimitedOrderResponseV1 result = orderService.createLimitedOrder(userId, createLimitedOrderRequest);
 		return ResponseEntity.ok(result);
 	}
 
