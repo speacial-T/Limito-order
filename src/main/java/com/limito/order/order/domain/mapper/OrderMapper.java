@@ -183,7 +183,7 @@ public class OrderMapper {
 			.orderId(companyOrder.getOrderId())
 			.itemSummary(companyOrder.getItemSummary())
 			.totalPrice(companyOrder.getTotalPrice())
-			.successAt(companyOrder.getSuccessAt())
+			.successedAt(companyOrder.getSuccessAt())
 			.build();
 	}
 }

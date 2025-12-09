@@ -13,5 +13,5 @@ public class GetOrdersForCompanyResponseV1 {
 	private UUID orderId;
 	private String itemSummary;
 	private Long totalPrice;
-	private LocalDateTime successAt;
+	private LocalDateTime successedAt;
 }
