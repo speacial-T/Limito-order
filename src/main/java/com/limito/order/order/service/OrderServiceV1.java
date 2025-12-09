@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,7 @@ import com.limito.order.order.domain.dto.request.CreateLimitedOrderRequestV1;
 import com.limito.order.order.domain.dto.request.CreateResellOrderRequestV1;
 import com.limito.order.order.domain.dto.response.CreateLimitedOrderResponseV1;
 import com.limito.order.order.domain.dto.response.CreateResellOrderResponseV1;
+import com.limito.order.order.domain.dto.response.GetOrdersForUserResponseV1;
 import com.limito.order.order.domain.mapper.OrderMapper;
 import com.limito.order.order.domain.model.Order;
 import com.limito.order.order.domain.model.OrderItem;
@@ -156,6 +159,16 @@ public class OrderServiceV1 {
 			requests.add(req);
 		});
 		return requests;
+	}
+
+	public Slice<GetOrdersForUserResponseV1> getOrdersForUser(Long userId, String userRole, Pageable pageable) {
+		//TODO(은선): role validate 추가
+		Slice<Order> orders = orderRepository.findAllByUserIdAndOrderStatusNotOrderBySuccessedAt(
+			userId,
+			OrderStatus.ORDER_PENDING,
+			pageable
+		);
+		return orders.map(orderMapper::toGetOrdersResponse);
 	}
 
 	private void validateReserveFeign(ResponseEntity<Void> reserveFeignResponse) {
