@@ -11,7 +11,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class CartLimitedResponseV1 {
+public class AddCartLimitedResponseV1 {
 	private UUID optionId;
 	private UUID productItemId;
 	private String productName;

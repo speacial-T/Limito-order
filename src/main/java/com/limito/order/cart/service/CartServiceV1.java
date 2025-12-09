@@ -10,9 +10,11 @@ import org.springframework.stereotype.Service;
 
 import com.limito.common.exception.AppException;
 import com.limito.order.cart.domain.dto.limitedProduct.AddCartLimitedRequestV1;
-import com.limito.order.cart.domain.dto.limitedProduct.CartLimitedResponseV1;
+import com.limito.order.cart.domain.dto.limitedProduct.AddCartLimitedResponseV1;
+import com.limito.order.cart.domain.dto.limitedProduct.GetCartLimitedResponseV1;
 import com.limito.order.cart.domain.dto.resellProduct.AddCartResellRequestV1;
-import com.limito.order.cart.domain.dto.resellProduct.CartResellResponseV1;
+import com.limito.order.cart.domain.dto.resellProduct.AddCartResellResponseV1;
+import com.limito.order.cart.domain.dto.resellProduct.GetCartResellResponseV1;
 import com.limito.order.cart.domain.mapper.CartMapper;
 import com.limito.order.cart.domain.model.LimitedCacheItem;
 import com.limito.order.cart.domain.model.ResellCacheItem;
@@ -42,7 +44,7 @@ public class CartServiceV1 {
 	 * 3. 장바구니 추가
 	 * 4. 반환
 	 */
-	public CartLimitedResponseV1 addLimitedItem(Long userId, AddCartLimitedRequestV1 addLimitedProductReqDto) {
+	public AddCartLimitedResponseV1 addLimitedItem(Long userId, AddCartLimitedRequestV1 addLimitedProductReqDto) {
 		String key = LIMITED_KEY.formatted(userId);
 		// 필드 : 한정판매는 판매 아이템 아이디, 리셀은 옵션아이디
 		String field = addLimitedProductReqDto.getProductItemId().toString();
@@ -73,11 +75,11 @@ public class CartServiceV1 {
 			throw AppException.of(HttpStatus.NO_CONTENT, "캐싱된 한정판매 상품 조회에 실패하였습니다.");
 		}
 
-		return CartMapper.toResponse(saved);
+		return CartMapper.toAddResponse(saved);
 	}
 
 	// 리셀 장바구니 추가
-	public CartResellResponseV1 addResellItem(Long userId, AddCartResellRequestV1 addResellProductReqDto) {
+	public AddCartResellResponseV1 addResellItem(Long userId, AddCartResellRequestV1 addResellProductReqDto) {
 
 		String key = RESELL_KEY.formatted(userId);
 		String field = addResellProductReqDto.getOptionId().toString();
@@ -100,10 +102,10 @@ public class CartServiceV1 {
 			throw AppException.of(HttpStatus.NO_CONTENT, "캐싱된 리셀 상품 조회에 실패하였습니다.");
 		}
 
-		return CartMapper.toResponse(saved);
+		return CartMapper.toAddResponse(saved);
 	}
 
-	public List<CartLimitedResponseV1> getLimitedCart(Long userId) {
+	public List<GetCartLimitedResponseV1> getLimitedCart(Long userId) {
 		String key = LIMITED_KEY.formatted(userId);
 		HashOperations<String, String, Object> hashOps = hashOps();
 
@@ -113,12 +115,12 @@ public class CartServiceV1 {
 		// 값(value)만 꺼내서 LimitedCacheItem → 응답 DTO로 변환
 		return entries.values().stream()
 			.map(value -> (LimitedCacheItem)value)
-			.map(CartMapper::toResponse)
+			.map(CartMapper::toGetResponse)
 			.toList();
 
 	}
 
-	public List<CartResellResponseV1> getResellCart(Long userId) {
+	public List<GetCartResellResponseV1> getResellCart(Long userId) {
 		String key = RESELL_KEY.formatted(userId);
 		HashOperations<String, String, Object> hashOps = hashOps();
 
@@ -128,7 +130,7 @@ public class CartServiceV1 {
 		// 값(value)만 꺼내서 LimitedCacheItem → 응답 DTO로 변환
 		return entries.values().stream()
 			.map(value -> (ResellCacheItem)value)
-			.map(CartMapper::toResponse)
+			.map(CartMapper::toGetResponse)
 			.toList();
 
 	}
