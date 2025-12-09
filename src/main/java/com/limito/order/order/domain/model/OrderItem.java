@@ -6,6 +6,8 @@ import com.limito.order.common.ProductType;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -48,6 +50,7 @@ public class OrderItem {
 	private UUID productId;
 
 	@Column(name = "product_type", nullable = false)
+	@Enumerated(EnumType.STRING)
 	private ProductType productType;
 
 	@Column(name = "product_name", nullable = false, length = 100)

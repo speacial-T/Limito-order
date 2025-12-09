@@ -1,9 +1,12 @@
 package com.limito.order.order.service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -22,7 +25,9 @@ import com.limito.order.order.domain.dto.request.CreateLimitedOrderRequestV1;
 import com.limito.order.order.domain.dto.request.CreateResellOrderRequestV1;
 import com.limito.order.order.domain.dto.response.CreateLimitedOrderResponseV1;
 import com.limito.order.order.domain.dto.response.CreateResellOrderResponseV1;
+import com.limito.order.order.domain.dto.response.GetOrdersForCompanyResponseV1;
 import com.limito.order.order.domain.mapper.OrderMapper;
+import com.limito.order.order.domain.model.CompanyOrder;
 import com.limito.order.order.domain.model.Order;
 import com.limito.order.order.domain.model.OrderItem;
 import com.limito.order.order.domain.repository.OrderRepositoryV1;
@@ -158,10 +163,28 @@ public class OrderServiceV1 {
 		return requests;
 	}
 
+	public Slice<GetOrdersForCompanyResponseV1> getOrdersForCompany(Long userId, String userRole, Pageable pageable) {
+		validateRole(userRole, "COMPANY");
+
+		Slice<CompanyOrder> companyOrders =
+			orderRepository.findAllBySellerIdAndOrderStatusNot(userId, OrderStatus.ORDER_PENDING, pageable);
+
+		return companyOrders.map(orderMapper::toGetOrdersForCompanyResponse);
+	}
+
 	private void validateReserveFeign(ResponseEntity<Void> reserveFeignResponse) {
 		if (!HttpStatus.OK.equals(reserveFeignResponse.getStatusCode())) {
 			throw AppException.of(HttpStatus.EXPECTATION_FAILED, "임시 재고 예약에 실패했습니다");
 			// Todo : 예외처리 강화 - feign 응답에 맞춰서
+		}
+	}
+
+	private void validateRole(String userRole, String... roles) {
+		if (
+			!Arrays.asList(roles)
+				.contains(userRole)
+		) {
+			throw AppException.of(HttpStatus.FORBIDDEN, "조회 권한이 없습니다.");
 		}
 	}
 }

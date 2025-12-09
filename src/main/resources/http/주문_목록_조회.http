@@ -1,0 +1,3 @@
+GET http://localhost:19096/api/v1/orders/company?page=0&size=10
+X-User-Id: 1001
+X-User-Role: COMPANY
