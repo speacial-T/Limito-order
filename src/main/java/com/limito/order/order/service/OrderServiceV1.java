@@ -70,7 +70,9 @@ public class OrderServiceV1 {
 		Order order = orderRepository.findById(orderId)
 			.orElseThrow(() -> AppException.of(HttpStatus.NOT_FOUND, "주문을 찾을 수 없습니다."));
 
+		// 주문자 정보 추가
 		order.attachOrderer(ordererRequest);
+
 		List<OrderItem> orderItems = order.deliverOrderItems();
 
 		// 재고 예약 요청
@@ -124,6 +126,7 @@ public class OrderServiceV1 {
 		Order order = orderRepository.findById(orderId)
 			.orElseThrow(() -> AppException.of(HttpStatus.NOT_FOUND, "주문을 찾을 수 없습니다."));
 
+		// 주문자 정보 추가
 		order.attachOrderer(ordererRequest);
 
 		// 상품 feign : 임시 재고 예약
@@ -139,7 +142,6 @@ public class OrderServiceV1 {
 	private void validateReserveFeign(ResponseEntity<Void> reserveFeignResponse) {
 		if (!HttpStatus.OK.equals(reserveFeignResponse.getStatusCode())) {
 			throw AppException.of(HttpStatus.EXPECTATION_FAILED, "한정판매 임시 재고 예약에 실패했습니다");
-			// Todo : 예외처리 강화 - feign 응답에 맞춰서
 		}
 	}
 }
