@@ -15,12 +15,12 @@ public class CompanyOrder {
 	UUID orderId;
 	String itemSummary;
 	Long totalPrice;
-	LocalDateTime successAt;
+	LocalDateTime successedAt;
 
-	public CompanyOrder(UUID orderId, String itemSummary, Long totalPrice, LocalDateTime successAt) {
+	public CompanyOrder(UUID orderId, String itemSummary, Long totalPrice, LocalDateTime successedAt) {
 		this.orderId = orderId;
 		this.itemSummary = itemSummary;
 		this.totalPrice = totalPrice;
-		this.successAt = successAt;
+		this.successedAt = successedAt;
 	}
 }
