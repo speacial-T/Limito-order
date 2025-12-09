@@ -188,7 +188,7 @@ public class OrderMapper {
 					.name()
 			)
 			.totalPrice(order.getTotalPrice())
-			.successAt(order.getSuccessedAt())
+			.successedAt(order.getSuccessedAt())
 			.build();
 	}
 }

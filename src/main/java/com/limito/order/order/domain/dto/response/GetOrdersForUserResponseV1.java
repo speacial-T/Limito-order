@@ -14,5 +14,5 @@ public class GetOrdersForUserResponseV1 {
 	private String itemSummary;
 	private String productType;
 	private Long totalPrice;
-	private LocalDateTime successAt;
+	private LocalDateTime successedAt;
 }
