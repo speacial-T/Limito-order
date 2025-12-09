@@ -156,6 +156,7 @@ public class CartServiceV1 {
 		// HDEL cart:limited:{userId} field1 field2 ...
 		hashOps.delete(key, existingFields.toArray(new Object[0]));
 		log.info("주문 완료된 장바구니 아이템 삭제 완료");
+	}
 
 	private ResponseEntity<GetPurchaseAmountLimitResponseV1> getFeignResponse(
 		AddCartLimitedRequestV1 addLimitedProductReqDto) {
