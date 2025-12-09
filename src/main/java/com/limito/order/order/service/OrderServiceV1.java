@@ -10,14 +10,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.limito.common.exception.AppException;
-import com.limito.order.common.OrderStatus;
+import com.limito.order.cart.service.CartServiceV1;
 import com.limito.order.common.feignClient.LimitedFeignClient;
 import com.limito.order.common.feignClient.ResellFeignClient;
-import com.limito.order.order.domain.dto.feignClient.limited.ReduceStockProductRequestV1;
-import com.limito.order.order.domain.dto.feignClient.limited.ReduceStockRequestV1;
 import com.limito.order.order.domain.dto.feignClient.limited.ReserveStockItemRequestV1;
 import com.limito.order.order.domain.dto.feignClient.limited.ReserveStockRequestV1;
-import com.limito.order.order.domain.dto.feignClient.resell.dto.request.StockReduceRequest;
+import com.limito.order.order.domain.dto.feignClient.resell.dto.response.StockReserveResponseV1;
+import com.limito.order.order.domain.dto.request.AddOrdererRequestV1;
 import com.limito.order.order.domain.dto.request.CreateLimitedOrderRequestV1;
 import com.limito.order.order.domain.dto.request.CreateResellOrderRequestV1;
 import com.limito.order.order.domain.dto.response.CreateLimitedOrderResponseV1;
@@ -38,6 +37,7 @@ public class OrderServiceV1 {
 	private final OrderMapper orderMapper;
 	private final ResellFeignClient resellFeignClient;
 	private final LimitedFeignClient limitedFeignClient;
+	private final CartServiceV1 cartService;
 
 	// 한정판매 주문 생성
 	@Transactional
@@ -86,81 +86,50 @@ public class OrderServiceV1 {
 		return orderMapper.toLimitedOrderResponse(order);
 	}
 
-	@Transactional
-	public void afterPaymentsSuccessed(UUID orderId) {
-		Order order = orderRepository.findById(orderId)
-			.orElseThrow(() -> AppException.of(HttpStatus.NOT_FOUND, "주문을 찾을 수 없습니다."));
-
-		// 상품 feign: 재고 차감 요청
-		List<ReduceStockProductRequestV1> reduceProductRequests = new ArrayList<>();
-
-		List<OrderItem> orderItems = order.deliverOrderItems();
-		for (OrderItem orderItem : orderItems) {
-			ReduceStockProductRequestV1 req = new ReduceStockProductRequestV1(orderItem.getOptionId(),
-				orderItem.getProductItemId(), orderItem.getProductAmount());
-			reduceProductRequests.add(req);
-		}
-		ReduceStockRequestV1 reduceRequest = new ReduceStockRequestV1(reduceProductRequests);
-
-		ResponseEntity<Void> feinResponse = limitedFeignClient.reduceStock(reduceRequest);
-		if (!feinResponse.getStatusCode().equals(HttpStatus.OK)) {
-			throw AppException.of(HttpStatus.EXPECTATION_FAILED, "재고 차감 요청에 실패해습니다.");
-		}
-
-		// 주문 상태 변경
-		order.changeStatus(OrderStatus.ORDER_FINISH);
-
-		// 주문 상품 장바구니에서 차감
-
-	}
-
-	// 리셀 주문 생성
-
 	/** Todo :
 	 * 1. 상품 feign : 임시 재고 예약
 	 * 3. 상품 feign: 재고 차감 요청
 	 * 4. 주문 상품 장바구니에서 차감
 	 */
+	// 리셀 주문서 생성
 	@Transactional
-	public CreateResellOrderResponseV1 createResellOrder(Long userId,
+	public CreateResellOrderResponseV1 createResellOrderSheet(Long userId,
 		CreateResellOrderRequestV1 createResellOrderRequest) {
 
 		// Todo. 합산 가격 검증 (더블 체크)
-
 		Order order = orderMapper.toOrderEntity(userId, createResellOrderRequest);
+		order.attachSummary(createResellOrderRequest);
+
 		List<OrderItem> orderItems = orderMapper.toOrderItemEntity(createResellOrderRequest);
 		order.attachOrderItems(orderItems);
 
-		order.attachSummary(createResellOrderRequest);
-
-		// 상품 feign : 임시 재고 예약
-		// Todo. 예외처리
-		List<UUID> stockIds = order.getStockIds(order);
-		resellFeignClient.reserveStock(stockIds);
-
-		// 상품 feign: 재고 차감 요청
-		// Todo. 예외처리
-		List<StockReduceRequest> reduceRequests = createStockReduceRequests(orderItems);
-		resellFeignClient.reduceStock(reduceRequests);
-
 		orderRepository.save(order);
 
-		CreateResellOrderResponseV1 rsellOrderRes = orderMapper.toResellOrderResponse(order);
-		return rsellOrderRes;
+		return orderMapper.toResellOrderResponse(order);
 	}
 
-	private List<StockReduceRequest> createStockReduceRequests(List<OrderItem> orderItems) {
-		List<StockReduceRequest> requests = new ArrayList<>();
-		orderItems.forEach(orderItem -> {
-			StockReduceRequest req = StockReduceRequest.createRequest(orderItem);
-			requests.add(req);
-		});
-		return requests;
+	// 리셀 주문서 주문자 정보 업데이트
+	@Transactional
+	public CreateResellOrderResponseV1 addOrderData(Long userId, UUID orderId,
+		AddOrdererRequestV1 ordererRequest) {
+		Order order = orderRepository.findById(orderId)
+			.orElseThrow(() -> AppException.of(HttpStatus.NOT_FOUND, "주문을 찾을 수 없습니다."));
+
+		order.attachOrderer(ordererRequest);
+
+		// 상품 feign : 임시 재고 예약
+		List<UUID> stockIds = order.getStockIds(order);
+		ResponseEntity<StockReserveResponseV1> feignReponse = resellFeignClient.reserveStock(stockIds);
+		if (!feignReponse.getBody().getErrorCode().equals(HttpStatus.OK)) {
+			throw AppException.of(HttpStatus.EXPECTATION_FAILED, "리셀 임시 재고 예약에 실패했습니다.");
+		}
+
+		return orderMapper.toResellOrderResponse(order);
 	}
 
 	private void validateReserveFeign(ResponseEntity<Void> reserveFeignResponse) {
 		if (!HttpStatus.OK.equals(reserveFeignResponse.getStatusCode())) {
-			throw AppException.of(HttpStatus.EXPECTATION_FAILED, "임시 재고 예약에 실패했습니다");
+			throw AppException.of(HttpStatus.EXPECTATION_FAILED, "한정판매 임시 재고 예약에 실패했습니다");
 			// Todo : 예외처리 강화 - feign 응답에 맞춰서
 		}
 	}

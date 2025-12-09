@@ -34,12 +34,12 @@ public class OrderMapper {
 	public Order toOrderEntity(Long userId, CreateResellOrderRequestV1 req) {
 		return Order.builder()
 			.userId(userId)
-			.receiverName(req.getReceiverName())
-			.phoneNumber(req.getPhoneNumber())
-			.deliveryAddress(req.getDeliveryAddress())
+			// .receiverName(req.getReceiverName())
+			// .phoneNumber(req.getPhoneNumber())
+			// .deliveryAddress(req.getDeliveryAddress())
 			.totalPrice(req.getTotalPrice())
 			.orderStatus(OrderStatus.ORDER_PENDING)
-			.successedAt(LocalDateTime.now())
+			// .successedAt(LocalDateTime.now())
 			.build();
 	}
 
@@ -175,5 +175,4 @@ public class OrderMapper {
 
 		return responses;
 	}
-
 }

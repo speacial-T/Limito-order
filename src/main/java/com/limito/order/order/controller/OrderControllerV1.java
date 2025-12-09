@@ -1,11 +1,15 @@
 package com.limito.order.order.controller;
 
+import java.util.UUID;
+
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.limito.order.order.domain.dto.request.AddOrdererRequestV1;
 import com.limito.order.order.domain.dto.request.CreateLimitedOrderRequestV1;
 import com.limito.order.order.domain.dto.request.CreateResellOrderRequestV1;
 import com.limito.order.order.domain.dto.response.CreateLimitedOrderResponseV1;
@@ -30,12 +34,20 @@ public class OrderControllerV1 {
 		return ResponseEntity.ok(result);
 	}
 
-	@PostMapping("/resell")
-	public ResponseEntity<CreateResellOrderResponseV1> createResellOrder(
+	@PostMapping("/resell/order-sheet")
+	public ResponseEntity<CreateResellOrderResponseV1> createResellOrderSheet(
 		@Valid @RequestBody CreateResellOrderRequestV1 createResellOrderRequest) {
 		// Todo. userId 헤더에서 빼오기, 권한검증
 		Long userId = 1111L;
-		CreateResellOrderResponseV1 result = orderService.createResellOrder(userId, createResellOrderRequest);
+		CreateResellOrderResponseV1 result = orderService.createResellOrderSheet(userId, createResellOrderRequest);
+		return ResponseEntity.ok(result);
+	}
+
+	@PostMapping("/resell/orderer-data/{orderId}")
+	public ResponseEntity<CreateResellOrderResponseV1> addOrderData(@PathVariable UUID orderId,
+		@Valid @RequestBody AddOrdererRequestV1 ordererRequest) {
+		Long userId = 1111L;
+		CreateResellOrderResponseV1 result = orderService.addOrderData(userId, orderId, ordererRequest);
 		return ResponseEntity.ok(result);
 	}
 }

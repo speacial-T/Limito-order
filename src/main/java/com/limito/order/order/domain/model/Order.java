@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.limito.order.common.OrderStatus;
+import com.limito.order.order.domain.dto.request.AddOrdererRequestV1;
 import com.limito.order.order.domain.dto.request.CreateLimitedOrderRequestV1;
 import com.limito.order.order.domain.dto.request.CreateResellOrderRequestV1;
 
@@ -39,13 +40,13 @@ public class Order {
 	@Column(name = "user_id", nullable = false)
 	private Long userId;
 
-	@Column(name = "receiver_name", nullable = false, length = 10)
+	@Column(name = "receiver_name", length = 10)
 	private String receiverName;
 
-	@Column(name = "phone_number", nullable = false, length = 20)
+	@Column(name = "phone_number", length = 20)
 	private String phoneNumber;
 
-	@Column(name = "delivery_address", nullable = false)
+	@Column(name = "delivery_address")
 	private String deliveryAddress;
 
 	@Column(name = "total_price", nullable = false)
@@ -58,7 +59,7 @@ public class Order {
 	@Column(name = "cancel_reason")
 	private String cancelReason;
 
-	@Column(name = "successed_at", nullable = false)
+	@Column(name = "successed_at")
 	private LocalDateTime successedAt;
 
 	@Column(name = "item_summary", nullable = false, length = 100)
@@ -112,6 +113,16 @@ public class Order {
 
 	public void changeStatus(OrderStatus status) {
 		this.orderStatus = status;
+		this.successedAt = LocalDateTime.now();
+	}
+
+	public void attachOrderer(AddOrdererRequestV1 ordererRequest) {
+		this.receiverName = ordererRequest.getReceiverName();
+		this.phoneNumber = ordererRequest.getPhoneNumber();
+		this.deliveryAddress = ordererRequest.getDeliveryAddress();
+	}
+
+	public void attachSuccess() {
 		this.successedAt = LocalDateTime.now();
 	}
 }

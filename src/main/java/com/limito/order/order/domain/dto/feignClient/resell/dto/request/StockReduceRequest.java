@@ -6,7 +6,9 @@ import com.limito.order.order.domain.model.OrderItem;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 
+@Getter
 @AllArgsConstructor
 public class StockReduceRequest {
 	@NotNull
