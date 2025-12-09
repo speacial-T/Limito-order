@@ -9,6 +9,7 @@ import lombok.Getter;
 @Builder
 @Getter
 public class GetOrdersForCompanyResponseV1 {
+
 	private UUID orderId;
 	private String itemSummary;
 	private Long totalPrice;
