@@ -1,6 +1,5 @@
 package com.limito.order.order.domain.mapper;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,24 +24,16 @@ public class OrderMapper {
 	public Order toOrderEntity(Long userId, CreateLimitedOrderRequestV1 req) {
 		return Order.builder()
 			.userId(userId)
-			.receiverName(req.getReceiverName())
-			.phoneNumber(req.getPhoneNumber())
-			.deliveryAddress(req.getDeliveryAddress())
 			.totalPrice(req.getTotalPrice())
 			.orderStatus(OrderStatus.ORDER_PENDING)
-			.successedAt(LocalDateTime.now())
 			.build();
 	}
 
 	public Order toOrderEntity(Long userId, CreateResellOrderRequestV1 req) {
 		return Order.builder()
 			.userId(userId)
-			.receiverName(req.getReceiverName())
-			.phoneNumber(req.getPhoneNumber())
-			.deliveryAddress(req.getDeliveryAddress())
 			.totalPrice(req.getTotalPrice())
 			.orderStatus(OrderStatus.ORDER_PENDING)
-			.successedAt(LocalDateTime.now())
 			.build();
 	}
 
@@ -112,7 +103,7 @@ public class OrderMapper {
 	}
 
 	public List<CreateLimitedOrderItemResponseV1> toLimitedOrderItemResponse(Order order) {
-		List<OrderItem> orderItems = order.deliverOrderItems(order);
+		List<OrderItem> orderItems = order.deliverOrderItems();
 		List<CreateLimitedOrderItemResponseV1> responses = new ArrayList<>();
 
 		orderItems.forEach(orderItem -> {

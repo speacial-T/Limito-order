@@ -1,4 +1,4 @@
-package com.limito.order.order.domain.dto.feignClient.resell.dto.request;
+package com.limito.order.order.domain.dto.feignclient.resell.dto.request;
 
 import java.util.UUID;
 
@@ -6,7 +6,9 @@ import com.limito.order.order.domain.model.OrderItem;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 
+@Getter
 @AllArgsConstructor
 public class StockReduceRequest {
 	@NotNull

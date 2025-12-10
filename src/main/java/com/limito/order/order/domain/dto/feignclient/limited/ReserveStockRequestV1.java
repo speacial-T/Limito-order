@@ -1,4 +1,4 @@
-package com.limito.order.order.domain.dto.feignClient.limited;
+package com.limito.order.order.domain.dto.feignclient.limited;
 
 import java.util.List;
 
