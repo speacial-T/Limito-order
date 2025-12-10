@@ -168,21 +168,25 @@ public class CartServiceV1 {
 			throw AppException.of(HttpStatus.NO_CONTENT, "장바구니에서 삭제할 상품 아이디가 존재하지 않습니다.");
 		}
 
-		String key = LIMITED_KEY.formatted(userId);
+		String key = RESELL_KEY.formatted(userId);
 		deleteOrderItems(key, optionIds);
 	}
 
 	private void deleteOrderItems(String key, List<UUID> ids) {
 		HashOperations<String, String, Object> hashOps = hashOps();
 
-		// Redis에 실제로 존재하는 field만 모으기 (바로구매는 장바구니 거치지 않음)
-		List<String> idsToString = ids.stream()
+		String[] fields = ids.stream()
 			.map(UUID::toString)
-			.toList();
+			.toArray(String[]::new);
 
 		// HDEL cart:limited:{userId} field1 field2 ...
-		// hashOps.delete(key, idsToString.toArray(new Object[0]));
+		Long deletedCount = hashOps.delete(key, (Object[])fields);
 		log.info("주문 완료된 장바구니 아이템 삭제 완료");
+
+		if (deletedCount == 0L) {
+			throw AppException.of(HttpStatus.EXPECTATION_FAILED, "주문 완료 아이템 장바구니에서 삭제하기에 실패했습니다.");
+		}
+
 	}
 
 	private ResponseEntity<GetPurchaseAmountLimitResponseV1> getFeignResponse(
