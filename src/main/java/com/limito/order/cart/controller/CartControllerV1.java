@@ -9,12 +9,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.limito.order.cart.domain.dto.limitedProduct.AddCartLimitedRequestV1;
-import com.limito.order.cart.domain.dto.limitedProduct.AddCartLimitedResponseV1;
-import com.limito.order.cart.domain.dto.limitedProduct.GetCartLimitedResponseV1;
-import com.limito.order.cart.domain.dto.resellProduct.AddCartResellRequestV1;
-import com.limito.order.cart.domain.dto.resellProduct.AddCartResellResponseV1;
-import com.limito.order.cart.domain.dto.resellProduct.GetCartResellResponseV1;
+import com.limito.order.cart.domain.dto.limitedproduct.AddCartLimitedRequestV1;
+import com.limito.order.cart.domain.dto.limitedproduct.AddCartLimitedResponseV1;
+import com.limito.order.cart.domain.dto.limitedproduct.GetCartLimitedResponseV1;
+import com.limito.order.cart.domain.dto.resellproduct.AddCartResellRequestV1;
+import com.limito.order.cart.domain.dto.resellproduct.AddCartResellResponseV1;
+import com.limito.order.cart.domain.dto.resellproduct.GetCartResellResponseV1;
 import com.limito.order.cart.service.CartServiceV1;
 
 import jakarta.validation.Valid;

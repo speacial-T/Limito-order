@@ -1,4 +1,4 @@
-package com.limito.order.order.domain.dto.feignClient.resell.dto.response;
+package com.limito.order.order.domain.dto.feignclient.resell.dto.response;
 
 import java.util.List;
 import java.util.UUID;

@@ -1,4 +1,4 @@
-package com.limito.order.common.feignClient;
+package com.limito.order.common.feignclient;
 
 import java.util.List;
 import java.util.UUID;
@@ -8,8 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import com.limito.order.order.domain.dto.feignClient.resell.dto.request.StockReduceRequest;
-import com.limito.order.order.domain.dto.feignClient.resell.dto.response.InternalResponse;
+import com.limito.order.order.domain.dto.feignclient.resell.dto.request.StockReduceRequest;
+import com.limito.order.order.domain.dto.feignclient.resell.dto.response.InternalResponse;
 
 import jakarta.validation.Valid;
 

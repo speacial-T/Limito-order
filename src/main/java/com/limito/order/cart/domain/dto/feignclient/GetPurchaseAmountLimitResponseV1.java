@@ -1,4 +1,4 @@
-package com.limito.order.cart.domain.dto.feignClient;
+package com.limito.order.cart.domain.dto.feignclient;
 
 import java.util.List;
 import java.util.UUID;

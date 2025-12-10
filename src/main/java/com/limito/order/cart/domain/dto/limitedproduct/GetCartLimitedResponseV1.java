@@ -1,4 +1,4 @@
-package com.limito.order.cart.domain.dto.resellProduct;
+package com.limito.order.cart.domain.dto.limitedproduct;
 
 import java.util.UUID;
 
@@ -11,10 +11,9 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class AddCartResellResponseV1 {
+public class GetCartLimitedResponseV1 {
 	private UUID optionId;
-	private UUID stockId;
-	private UUID productId;
+	private UUID productItemId;
 	private String productName;
 	private String productColor;
 	private String productSize;
@@ -22,5 +21,7 @@ public class AddCartResellResponseV1 {
 	private String brandName;
 	private String thumbnailUrl;
 	private Long sellerId;
+	private String productStatus;
 	private ProductType productType;
+	private int productAmount;
 }

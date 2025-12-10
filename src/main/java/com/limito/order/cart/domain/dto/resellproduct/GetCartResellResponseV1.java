@@ -1,4 +1,4 @@
-package com.limito.order.cart.domain.dto.resellProduct;
+package com.limito.order.cart.domain.dto.resellproduct;
 
 import java.util.UUID;
 

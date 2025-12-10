@@ -1,11 +1,11 @@
 package com.limito.order.cart.domain.mapper;
 
-import com.limito.order.cart.domain.dto.limitedProduct.AddCartLimitedRequestV1;
-import com.limito.order.cart.domain.dto.limitedProduct.AddCartLimitedResponseV1;
-import com.limito.order.cart.domain.dto.limitedProduct.GetCartLimitedResponseV1;
-import com.limito.order.cart.domain.dto.resellProduct.AddCartResellRequestV1;
-import com.limito.order.cart.domain.dto.resellProduct.AddCartResellResponseV1;
-import com.limito.order.cart.domain.dto.resellProduct.GetCartResellResponseV1;
+import com.limito.order.cart.domain.dto.limitedproduct.AddCartLimitedRequestV1;
+import com.limito.order.cart.domain.dto.limitedproduct.AddCartLimitedResponseV1;
+import com.limito.order.cart.domain.dto.limitedproduct.GetCartLimitedResponseV1;
+import com.limito.order.cart.domain.dto.resellproduct.AddCartResellRequestV1;
+import com.limito.order.cart.domain.dto.resellproduct.AddCartResellResponseV1;
+import com.limito.order.cart.domain.dto.resellproduct.GetCartResellResponseV1;
 import com.limito.order.cart.domain.model.LimitedCacheItem;
 import com.limito.order.cart.domain.model.ResellCacheItem;
 
@@ -79,7 +79,7 @@ public class CartMapper {
 	}
 
 	public static AddCartResellResponseV1 toAddResponse(ResellCacheItem domain) {
-		return com.limito.order.cart.domain.dto.resellProduct.AddCartResellResponseV1.builder()
+		return com.limito.order.cart.domain.dto.resellproduct.AddCartResellResponseV1.builder()
 			.optionId(domain.getOptionId())
 			.stockId(domain.getStockId())
 			.productId(domain.getProductId())

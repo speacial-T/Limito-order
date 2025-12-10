@@ -1,14 +1,14 @@
-package com.limito.order.common.feignClient;
+package com.limito.order.common.feignclient;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import com.limito.order.cart.domain.dto.feignClient.GetPurchaseAmountLimitRequestV1;
-import com.limito.order.cart.domain.dto.feignClient.GetPurchaseAmountLimitResponseV1;
-import com.limito.order.order.domain.dto.feignClient.limited.ReduceStockRequestV1;
-import com.limito.order.order.domain.dto.feignClient.limited.ReserveStockRequestV1;
+import com.limito.order.cart.domain.dto.feignclient.GetPurchaseAmountLimitRequestV1;
+import com.limito.order.cart.domain.dto.feignclient.GetPurchaseAmountLimitResponseV1;
+import com.limito.order.order.domain.dto.feignclient.limited.ReduceStockRequestV1;
+import com.limito.order.order.domain.dto.feignclient.limited.ReserveStockRequestV1;
 
 import jakarta.validation.Valid;
 
