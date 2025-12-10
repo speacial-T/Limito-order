@@ -184,10 +184,11 @@ public class OrderMapper {
 			.orderId(order.getId())
 			.itemSummary(order.getItemSummary())
 			.productType(
-				order.getOrderItems()
-					.get(0)
-					.getProductType()
-					.name()
+				(order.getOrderItems().isEmpty()) ? null :
+					order.getOrderItems()
+						.get(0)
+						.getProductType()
+						.name()
 			)
 			.totalPrice(order.getTotalPrice())
 			.successedAt(order.getSuccessedAt())
