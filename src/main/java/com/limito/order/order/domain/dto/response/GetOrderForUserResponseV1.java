@@ -9,6 +9,6 @@ import lombok.Getter;
 @Getter
 public class GetOrderForUserResponseV1 {
 
-	OrderInfoResponse order;
-	List<OrderItemInfoResponse> orderItems;
+	private OrderInfoResponse order;
+	private List<OrderItemInfoResponse> orderItems;
 }
