@@ -1,5 +1,6 @@
 package com.limito.order.order.domain.repository;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.domain.Pageable;
@@ -37,4 +38,6 @@ public interface OrderRepositoryV1 extends JpaRepository<Order, UUID> {
 			ORDER BY o.successedAt DESC
 		""")
 	Slice<CompanyOrder> findAllBySellerIdAndOrderStatusNot(Long userId, OrderStatus orderStatus, Pageable pageable);
+
+	Optional<Order> findByIdAndUserId(UUID id, Long userId);
 }
