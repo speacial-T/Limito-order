@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.limito.common.exception.AppException;
 import com.limito.order.cart.service.CartServiceV1;
+import com.limito.order.common.OrderStatus;
 import com.limito.order.common.feignClient.LimitedFeignClient;
 import com.limito.order.common.feignClient.ResellFeignClient;
 import com.limito.order.order.domain.dto.feignClient.limited.ReserveStockItemRequestV1;
