@@ -182,8 +182,9 @@ public class OrderServiceV1 {
 	public GetOrderForCompanyResponseV1 getOrderForCompany(Long userId, String userRole, UUID orderId) {
 		validateRole(userRole, "COMPANY");
 
-		Order order = orderRepository.findByIdAndOrderItems_SellerId(orderId, userId).orElseThrow(() ->
-			AppException.of(HttpStatus.NOT_FOUND, "주문 정보를 찾을 수 없습니다."));
+		Order order = orderRepository
+			.findByIdAndOrderStatusNotAndOrderItems_SellerId(orderId, OrderStatus.ORDER_PENDING, userId)
+			.orElseThrow(() -> AppException.of(HttpStatus.NOT_FOUND, "주문 정보를 찾을 수 없습니다."));
 
 		return orderMapper.toGetOrderForCompanyResponse(order, userId);
 	}

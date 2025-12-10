@@ -41,5 +41,5 @@ public interface OrderRepositoryV1 extends JpaRepository<Order, UUID> {
 
 	Optional<Order> findByIdAndUserId(UUID id, Long userId);
 
-	Optional<Order> findByIdAndOrderItems_SellerId(UUID id, Long userId);
+	Optional<Order> findByIdAndOrderStatusNotAndOrderItems_SellerId(UUID id, OrderStatus orderStatus, Long userId);
 }
