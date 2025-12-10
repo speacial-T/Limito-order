@@ -183,7 +183,7 @@ public class CartServiceV1 {
 		Long deletedCount = hashOps.delete(key, (Object[])fields);
 		log.info("주문 완료된 장바구니 아이템 삭제 완료");
 
-		if (deletedCount == 0L) {
+		if (!deletedCount.equals((long)ids.size())) {
 			throw AppException.of(HttpStatus.EXPECTATION_FAILED, "주문 완료 아이템 장바구니에서 삭제하기에 실패했습니다.");
 		}
 
