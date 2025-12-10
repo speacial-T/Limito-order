@@ -156,6 +156,8 @@ public class OrderServiceV1 {
 	}
 
 	public Slice<GetOrdersForUserResponseV1> getOrdersForUser(Long userId, String userRole, Pageable pageable) {
+		validateRole(userRole, "USER");
+
 		Slice<Order> orders = orderRepository.findAllByUserIdAndOrderStatusNotOrderBySuccessedAt(
 			userId,
 			OrderStatus.ORDER_PENDING,
