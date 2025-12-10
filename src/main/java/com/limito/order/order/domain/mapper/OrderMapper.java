@@ -12,6 +12,8 @@ import com.limito.order.order.domain.dto.response.CreateLimitedOrderItemResponse
 import com.limito.order.order.domain.dto.response.CreateLimitedOrderResponseV1;
 import com.limito.order.order.domain.dto.response.CreateResellOrderItemResponseV1;
 import com.limito.order.order.domain.dto.response.CreateResellOrderResponseV1;
+import com.limito.order.order.domain.dto.response.GetOrdersForCompanyResponseV1;
+import com.limito.order.order.domain.model.CompanyOrder;
 import com.limito.order.order.domain.model.Order;
 import com.limito.order.order.domain.model.OrderItem;
 
@@ -165,5 +167,14 @@ public class OrderMapper {
 		});
 
 		return responses;
+	}
+
+	public GetOrdersForCompanyResponseV1 toGetOrdersForCompanyResponse(CompanyOrder companyOrder) {
+		return GetOrdersForCompanyResponseV1.builder()
+			.orderId(companyOrder.getOrderId())
+			.itemSummary(companyOrder.getItemSummary())
+			.totalPrice(companyOrder.getTotalPrice())
+			.successedAt(companyOrder.getSuccessedAt())
+			.build();
 	}
 }
