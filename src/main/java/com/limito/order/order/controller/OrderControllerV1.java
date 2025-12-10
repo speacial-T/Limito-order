@@ -32,7 +32,7 @@ public class OrderControllerV1 {
 	private final OrderServiceV1 orderService;
 
 	// 한정판매 주문서 생성
-	@PostMapping("/limited")
+	@PostMapping("/limited/order-sheet")
 	public ResponseEntity<CreateLimitedOrderResponseV1> createLimitedOrder(
 		@Valid @RequestBody CreateLimitedOrderRequestV1 createLimitedOrderRequest) {
 		// Todo. userId 헤더에서 빼오기, 권한검증
