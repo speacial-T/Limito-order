@@ -26,6 +26,7 @@ import com.limito.order.order.domain.dto.request.CreateResellOrderRequestV1;
 import com.limito.order.order.domain.dto.response.CreateLimitedOrderResponseV1;
 import com.limito.order.order.domain.dto.response.CreateResellOrderResponseV1;
 import com.limito.order.order.domain.dto.response.GetOrdersForCompanyResponseV1;
+import com.limito.order.order.domain.dto.response.GetOrdersForUserResponseV1;
 import com.limito.order.order.domain.mapper.OrderMapper;
 import com.limito.order.order.domain.model.CompanyOrder;
 import com.limito.order.order.domain.model.Order;
@@ -38,6 +39,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional(readOnly = true)
 public class OrderServiceV1 {
 	private final OrderRepositoryV1 orderRepository;
 	private final OrderMapper orderMapper;
@@ -154,13 +156,15 @@ public class OrderServiceV1 {
 		return rsellOrderRes;
 	}
 
-	private List<StockReduceRequest> createStockReduceRequests(List<OrderItem> orderItems) {
-		List<StockReduceRequest> requests = new ArrayList<>();
-		orderItems.forEach(orderItem -> {
-			StockReduceRequest req = StockReduceRequest.createRequest(orderItem);
-			requests.add(req);
-		});
-		return requests;
+	public Slice<GetOrdersForUserResponseV1> getOrdersForUser(Long userId, String userRole, Pageable pageable) {
+		validateRole(userRole, "USER");
+
+		Slice<Order> orders = orderRepository.findAllByUserIdAndOrderStatusNotOrderBySuccessedAtDesc(
+			userId,
+			OrderStatus.ORDER_PENDING,
+			pageable
+		);
+		return orders.map(orderMapper::toGetOrdersForUserResponse);
 	}
 
 	public Slice<GetOrdersForCompanyResponseV1> getOrdersForCompany(Long userId, String userRole, Pageable pageable) {
@@ -170,6 +174,15 @@ public class OrderServiceV1 {
 			orderRepository.findAllBySellerIdAndOrderStatusNot(userId, OrderStatus.ORDER_PENDING, pageable);
 
 		return companyOrders.map(orderMapper::toGetOrdersForCompanyResponse);
+	}
+
+	private List<StockReduceRequest> createStockReduceRequests(List<OrderItem> orderItems) {
+		List<StockReduceRequest> requests = new ArrayList<>();
+		orderItems.forEach(orderItem -> {
+			StockReduceRequest req = StockReduceRequest.createRequest(orderItem);
+			requests.add(req);
+		});
+		return requests;
 	}
 
 	private void validateReserveFeign(ResponseEntity<Void> reserveFeignResponse) {

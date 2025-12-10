@@ -13,6 +13,12 @@ import com.limito.order.order.domain.model.Order;
 
 public interface OrderRepositoryV1 extends JpaRepository<Order, UUID> {
 
+	Slice<Order> findAllByUserIdAndOrderStatusNotOrderBySuccessedAtDesc(
+		Long userId,
+		OrderStatus orderStatus,
+		Pageable pageable
+	);
+
 	@Query("""
 			SELECT new com.limito.order.order.domain.model.CompanyOrder(
 				o.id,
