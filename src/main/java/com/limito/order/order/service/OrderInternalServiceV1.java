@@ -18,7 +18,7 @@ import com.limito.order.common.feignClient.ResellFeignClient;
 import com.limito.order.order.domain.dto.feignClient.limited.ReduceStockProductRequestV1;
 import com.limito.order.order.domain.dto.feignClient.limited.ReduceStockRequestV1;
 import com.limito.order.order.domain.dto.feignClient.resell.dto.request.StockReduceRequest;
-import com.limito.order.order.domain.dto.feignClient.resell.dto.response.StockReduceResponseV1;
+import com.limito.order.order.domain.dto.feignClient.resell.dto.response.InternalResponse;
 import com.limito.order.order.domain.mapper.OrderMapper;
 import com.limito.order.order.domain.model.Order;
 import com.limito.order.order.domain.model.OrderItem;
@@ -77,8 +77,8 @@ public class OrderInternalServiceV1 {
 		// 상품 feign: 재고 차감 요청
 		// Todo. 예외처리
 		List<StockReduceRequest> reduceRequests = createStockReduceRequests(orderItems);
-		ResponseEntity<StockReduceResponseV1> feignReponse = resellFeignClient.reduceStock(reduceRequests);
-		if (!feignReponse.getBody().getErrorCode().equals(HttpStatus.OK)) {
+		ResponseEntity<InternalResponse> feignReponse = resellFeignClient.reduceStock(reduceRequests);
+		if (!feignReponse.getStatusCode().equals(HttpStatus.OK)) {
 			throw AppException.of(HttpStatus.EXPECTATION_FAILED, "리셀 재고 차감 요청에 실패했습니다.");
 		}
 
