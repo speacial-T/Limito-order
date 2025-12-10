@@ -251,7 +251,7 @@ public class OrderMapper {
 
 	public List<OrderItemInfoResponse> toOrderItemInfoResponseList(List<OrderItem> orderItems, Long userId) {
 		return orderItems.stream()
-			.filter(orderItem -> orderItem.getSellerId().equals(userId))
+			.filter(orderItem -> userId.equals(orderItem.getSellerId()))
 			.map(orderItem -> OrderItemInfoResponse.builder()
 				.id(orderItem.getId())
 				.optionId(orderItem.getOptionId())
