@@ -9,18 +9,17 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import com.limito.order.order.domain.dto.feignClient.resell.dto.request.StockReduceRequest;
-import com.limito.order.order.domain.dto.feignClient.resell.dto.response.StockReduceResponseV1;
-import com.limito.order.order.domain.dto.feignClient.resell.dto.response.StockReserveResponseV1;
+import com.limito.order.order.domain.dto.feignClient.resell.dto.response.InternalResponse;
 
 import jakarta.validation.Valid;
 
 @FeignClient(name = "resell-product-service", url = "${feign.resell-product-service.url}")
 public interface ResellFeignClient {
 	// 임시 재고 예약
-	@PostMapping("internal/v1/resell-products/stock/reserve")
-	ResponseEntity<StockReserveResponseV1> reserveStock(@RequestBody List<UUID> stockIds);
+	@PostMapping("/internal/v1/resell-products/stock/reserve")
+	ResponseEntity<InternalResponse> reserveStock(@RequestBody List<UUID> stockIds);
 
 	// 재고 차감
 	@PostMapping("/internal/v1/resell-products/stock/reduce")
-	ResponseEntity<StockReduceResponseV1> reduceStock(@Valid @RequestBody List<StockReduceRequest> request);
+	ResponseEntity<InternalResponse> reduceStock(@Valid @RequestBody List<StockReduceRequest> request);
 }
