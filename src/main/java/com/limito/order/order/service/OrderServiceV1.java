@@ -176,7 +176,7 @@ public class OrderServiceV1 {
 		Order order = orderRepository.findByIdAndUserId(orderId, userId).orElseThrow(() ->
 			AppException.of(HttpStatus.NOT_FOUND, "주문 정보를 찾을 수 없습니다."));
 
-		return orderMapper.toGetOrderForCompanyResponse(order);
+		return orderMapper.toGetOrderForUserResponse(order);
 	}
 
 	private List<StockReduceRequest> createStockReduceRequests(List<OrderItem> orderItems) {

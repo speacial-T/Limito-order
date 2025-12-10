@@ -198,7 +198,7 @@ public class OrderMapper {
 			.build();
 	}
 
-	public GetOrderForUserResponseV1 toGetOrderForCompanyResponse(Order order) {
+	public GetOrderForUserResponseV1 toGetOrderForUserResponse(Order order) {
 		return GetOrderForUserResponseV1.builder()
 			.order(toOrderInfoResponse(order))
 			.orderItems(toOrderItemInfoResponseList(order.getOrderItems()))
