@@ -19,6 +19,7 @@ import com.limito.order.common.feignclient.LimitedFeignClient;
 import com.limito.order.common.feignclient.ResellFeignClient;
 import com.limito.order.order.domain.dto.feignclient.limited.ReserveStockItemRequestV1;
 import com.limito.order.order.domain.dto.feignclient.limited.ReserveStockRequestV1;
+import com.limito.order.order.domain.dto.feignclient.resell.dto.request.StockReduceRequest;
 import com.limito.order.order.domain.dto.feignclient.resell.dto.response.InternalResponse;
 import com.limito.order.order.domain.dto.request.AddOrdererRequestV1;
 import com.limito.order.order.domain.dto.request.CreateLimitedOrderRequestV1;
@@ -145,8 +146,8 @@ public class OrderServiceV1 {
 		}
 
 		return orderMapper.toResellOrderResponse(order);
-  }
-  
+	}
+
 	public Slice<GetOrdersForUserResponseV1> getOrdersForUser(Long userId, String userRole, Pageable pageable) {
 		validateRole(userRole, "USER");
 
