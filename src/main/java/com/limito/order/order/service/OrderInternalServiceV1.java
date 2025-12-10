@@ -60,10 +60,16 @@ public class OrderInternalServiceV1 {
 		}
 
 		// 주문 상태 변경
+		order.attachSuccess();
 		order.changeStatus(OrderStatus.ORDER_FINISH);
 
 		// 주문 상품 장바구니에서 차감
+		List<UUID> productItemIds = orderItems.stream()
+			.map(OrderItem::getProductItemId)
+			.filter(Objects::nonNull)
+			.toList();
 
+		cartService.deleteResellOrderItem(order.getUserId(), productItemIds);
 	}
 
 	// 리셀 주문 완료
