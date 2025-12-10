@@ -23,7 +23,7 @@ spring:
 eureka:
   client:
     service-url:
-      default-zone: http://localhost:19090/eureka
+      defaultZone: http://localhost:19090/eureka
 
 feign:
   resell-product-service:
