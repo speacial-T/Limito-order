@@ -39,6 +39,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional(readOnly = true)
 public class OrderServiceV1 {
 	private final OrderRepositoryV1 orderRepository;
 	private final OrderMapper orderMapper;
