@@ -26,6 +26,7 @@ import com.limito.order.order.domain.dto.request.CreateLimitedOrderRequestV1;
 import com.limito.order.order.domain.dto.request.CreateResellOrderRequestV1;
 import com.limito.order.order.domain.dto.response.CreateLimitedOrderResponseV1;
 import com.limito.order.order.domain.dto.response.CreateResellOrderResponseV1;
+import com.limito.order.order.domain.dto.response.GetOrderForUserResponseV1;
 import com.limito.order.order.domain.dto.response.GetOrdersForCompanyResponseV1;
 import com.limito.order.order.domain.dto.response.GetOrdersForUserResponseV1;
 import com.limito.order.order.domain.mapper.OrderMapper;
@@ -166,6 +167,16 @@ public class OrderServiceV1 {
 			orderRepository.findAllBySellerIdAndOrderStatusNot(userId, OrderStatus.ORDER_PENDING, pageable);
 
 		return companyOrders.map(orderMapper::toGetOrdersForCompanyResponse);
+	}
+
+	@Transactional(readOnly = true)
+	public GetOrderForUserResponseV1 getOrderForUser(Long userId, String userRole, UUID orderId) {
+		validateRole(userRole, "USER");
+
+		Order order = orderRepository.findByIdAndUserIdAndOrderStatusNot(orderId, userId, OrderStatus.ORDER_PENDING)
+			.orElseThrow(() -> AppException.of(HttpStatus.NOT_FOUND, "주문 정보를 찾을 수 없습니다."));
+
+		return orderMapper.toGetOrderForUserResponse(order);
 	}
 
 	private List<StockReduceRequest> createStockReduceRequests(List<OrderItem> orderItems) {

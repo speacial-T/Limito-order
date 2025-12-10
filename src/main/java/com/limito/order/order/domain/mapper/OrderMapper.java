@@ -12,8 +12,11 @@ import com.limito.order.order.domain.dto.response.CreateLimitedOrderItemResponse
 import com.limito.order.order.domain.dto.response.CreateLimitedOrderResponseV1;
 import com.limito.order.order.domain.dto.response.CreateResellOrderItemResponseV1;
 import com.limito.order.order.domain.dto.response.CreateResellOrderResponseV1;
+import com.limito.order.order.domain.dto.response.GetOrderForUserResponseV1;
 import com.limito.order.order.domain.dto.response.GetOrdersForCompanyResponseV1;
 import com.limito.order.order.domain.dto.response.GetOrdersForUserResponseV1;
+import com.limito.order.order.domain.dto.response.OrderInfoResponse;
+import com.limito.order.order.domain.dto.response.OrderItemInfoResponse;
 import com.limito.order.order.domain.model.CompanyOrder;
 import com.limito.order.order.domain.model.Order;
 import com.limito.order.order.domain.model.OrderItem;
@@ -193,5 +196,48 @@ public class OrderMapper {
 			.totalPrice(companyOrder.getTotalPrice())
 			.successedAt(companyOrder.getSuccessedAt())
 			.build();
+	}
+
+	public GetOrderForUserResponseV1 toGetOrderForUserResponse(Order order) {
+		return GetOrderForUserResponseV1.builder()
+			.order(toOrderInfoResponse(order))
+			.orderItems(toOrderItemInfoResponseList(order.getOrderItems()))
+			.build();
+	}
+
+	public OrderInfoResponse toOrderInfoResponse(Order order) {
+		return OrderInfoResponse.builder()
+			.orderId(order.getId())
+			.userId(order.getUserId())
+			.receiverName(order.getReceiverName())
+			.phoneNumber(order.getPhoneNumber())
+			.deliveryAddress(order.getDeliveryAddress())
+			.totalPrice(order.getTotalPrice())
+			.orderStatus(order.getOrderStatus().name())
+			.cancelReason(order.getCancelReason())
+			.successedAt(order.getSuccessedAt())
+			.itemSummary(order.getItemSummary())
+			.build();
+	}
+
+	public List<OrderItemInfoResponse> toOrderItemInfoResponseList(List<OrderItem> orderItems) {
+		return orderItems.stream()
+			.map(orderItem -> OrderItemInfoResponse.builder()
+				.id(orderItem.getId())
+				.optionId(orderItem.getOptionId())
+				.productItemId(orderItem.getProductItemId())
+				.stockId(orderItem.getStockId())
+				.productId(orderItem.getProductId())
+				.productType(orderItem.getProductType().name())
+				.productName(orderItem.getProductName())
+				.brandName(orderItem.getBrandName())
+				.sellerId(orderItem.getSellerId())
+				.productColor(orderItem.getProductColor())
+				.productSize(orderItem.getProductSize())
+				.productPrice(orderItem.getProductPrice())
+				.productAmount(orderItem.getProductAmount())
+				.totalProductPrice(orderItem.getTotalProductPrice())
+				.build())
+			.toList();
 	}
 }
