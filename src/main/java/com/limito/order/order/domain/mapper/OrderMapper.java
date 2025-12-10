@@ -12,6 +12,7 @@ import com.limito.order.order.domain.dto.response.CreateLimitedOrderItemResponse
 import com.limito.order.order.domain.dto.response.CreateLimitedOrderResponseV1;
 import com.limito.order.order.domain.dto.response.CreateResellOrderItemResponseV1;
 import com.limito.order.order.domain.dto.response.CreateResellOrderResponseV1;
+import com.limito.order.order.domain.dto.response.GetOrderForCompanyResponseV1;
 import com.limito.order.order.domain.dto.response.GetOrderForUserResponseV1;
 import com.limito.order.order.domain.dto.response.GetOrdersForCompanyResponseV1;
 import com.limito.order.order.domain.dto.response.GetOrdersForUserResponseV1;
@@ -205,6 +206,13 @@ public class OrderMapper {
 			.build();
 	}
 
+	public GetOrderForCompanyResponseV1 toGetOrderForCompanyResponse(Order order, Long userId) {
+		return GetOrderForCompanyResponseV1.builder()
+			.order(toOrderInfoResponse(order))
+			.orderItems(toOrderItemInfoResponseList(order.getOrderItems(), userId))
+			.build();
+	}
+
 	public OrderInfoResponse toOrderInfoResponse(Order order) {
 		return OrderInfoResponse.builder()
 			.orderId(order.getId())
@@ -222,6 +230,28 @@ public class OrderMapper {
 
 	public List<OrderItemInfoResponse> toOrderItemInfoResponseList(List<OrderItem> orderItems) {
 		return orderItems.stream()
+			.map(orderItem -> OrderItemInfoResponse.builder()
+				.id(orderItem.getId())
+				.optionId(orderItem.getOptionId())
+				.productItemId(orderItem.getProductItemId())
+				.stockId(orderItem.getStockId())
+				.productId(orderItem.getProductId())
+				.productType(orderItem.getProductType().name())
+				.productName(orderItem.getProductName())
+				.brandName(orderItem.getBrandName())
+				.sellerId(orderItem.getSellerId())
+				.productColor(orderItem.getProductColor())
+				.productSize(orderItem.getProductSize())
+				.productPrice(orderItem.getProductPrice())
+				.productAmount(orderItem.getProductAmount())
+				.totalProductPrice(orderItem.getTotalProductPrice())
+				.build())
+			.toList();
+	}
+
+	public List<OrderItemInfoResponse> toOrderItemInfoResponseList(List<OrderItem> orderItems, Long userId) {
+		return orderItems.stream()
+			.filter(orderItem -> orderItem.getSellerId().equals(userId))
 			.map(orderItem -> OrderItemInfoResponse.builder()
 				.id(orderItem.getId())
 				.optionId(orderItem.getOptionId())

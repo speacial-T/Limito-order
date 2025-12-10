@@ -26,6 +26,7 @@ import com.limito.order.order.domain.dto.request.CreateLimitedOrderRequestV1;
 import com.limito.order.order.domain.dto.request.CreateResellOrderRequestV1;
 import com.limito.order.order.domain.dto.response.CreateLimitedOrderResponseV1;
 import com.limito.order.order.domain.dto.response.CreateResellOrderResponseV1;
+import com.limito.order.order.domain.dto.response.GetOrderForCompanyResponseV1;
 import com.limito.order.order.domain.dto.response.GetOrderForUserResponseV1;
 import com.limito.order.order.domain.dto.response.GetOrdersForCompanyResponseV1;
 import com.limito.order.order.domain.dto.response.GetOrdersForUserResponseV1;
@@ -169,7 +170,6 @@ public class OrderServiceV1 {
 		return companyOrders.map(orderMapper::toGetOrdersForCompanyResponse);
 	}
 
-	@Transactional(readOnly = true)
 	public GetOrderForUserResponseV1 getOrderForUser(Long userId, String userRole, UUID orderId) {
 		validateRole(userRole, "USER");
 
@@ -177,6 +177,15 @@ public class OrderServiceV1 {
 			AppException.of(HttpStatus.NOT_FOUND, "주문 정보를 찾을 수 없습니다."));
 
 		return orderMapper.toGetOrderForUserResponse(order);
+	}
+
+	public GetOrderForCompanyResponseV1 getOrderForCompany(Long userId, String userRole, UUID orderId) {
+		validateRole(userRole, "COMPANY");
+
+		Order order = orderRepository.findByIdAndOrderItems_SellerId(orderId, userId).orElseThrow(() ->
+			AppException.of(HttpStatus.NOT_FOUND, "주문 정보를 찾을 수 없습니다."));
+
+		return orderMapper.toGetOrderForCompanyResponse(order, userId);
 	}
 
 	private List<StockReduceRequest> createStockReduceRequests(List<OrderItem> orderItems) {

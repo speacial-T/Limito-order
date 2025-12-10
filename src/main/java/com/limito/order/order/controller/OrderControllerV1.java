@@ -18,6 +18,7 @@ import com.limito.order.order.domain.dto.request.CreateLimitedOrderRequestV1;
 import com.limito.order.order.domain.dto.request.CreateResellOrderRequestV1;
 import com.limito.order.order.domain.dto.response.CreateLimitedOrderResponseV1;
 import com.limito.order.order.domain.dto.response.CreateResellOrderResponseV1;
+import com.limito.order.order.domain.dto.response.GetOrderForCompanyResponseV1;
 import com.limito.order.order.domain.dto.response.GetOrderForUserResponseV1;
 import com.limito.order.order.domain.dto.response.GetOrdersForCompanyResponseV1;
 import com.limito.order.order.domain.dto.response.GetOrdersForUserResponseV1;
@@ -99,6 +100,17 @@ public class OrderControllerV1 {
 		@PathVariable UUID orderId
 	) {
 		GetOrderForUserResponseV1 response = orderService.getOrderForUser(userId, userRole, orderId);
+
+		return ResponseEntity.ok(response);
+	}
+
+	@GetMapping("/company/{orderId}")
+	public ResponseEntity<GetOrderForCompanyResponseV1> getOrderForCompany(
+		@RequestHeader("X-User-Id") Long userId,
+		@RequestHeader("X-User-Role") String userRole,
+		@PathVariable UUID orderId
+	) {
+		GetOrderForCompanyResponseV1 response = orderService.getOrderForCompany(userId, userRole, orderId);
 
 		return ResponseEntity.ok(response);
 	}
