@@ -19,6 +19,7 @@ import com.limito.order.order.domain.dto.request.CreateResellOrderRequestV1;
 import com.limito.order.order.domain.dto.response.CreateLimitedOrderResponseV1;
 import com.limito.order.order.domain.dto.response.CreateResellOrderResponseV1;
 import com.limito.order.order.domain.dto.response.GetOrdersForCompanyResponseV1;
+import com.limito.order.order.domain.dto.response.GetOrdersForUserResponseV1;
 import com.limito.order.order.service.OrderServiceV1;
 
 import jakarta.validation.Valid;
@@ -66,6 +67,17 @@ public class OrderControllerV1 {
 		Long userId = 1111L;
 		CreateResellOrderResponseV1 result = orderService.addResellOrdererData(userId, orderId, ordererRequest);
 		return ResponseEntity.ok(result);
+	}
+
+	@GetMapping("/user")
+	public ResponseEntity<Slice<GetOrdersForUserResponseV1>> getOrdersForUser(
+		@RequestHeader("X-User-Id") Long userId,
+		@RequestHeader("X-User-Role") String userRole,
+		Pageable pageable
+	) {
+		Slice<GetOrdersForUserResponseV1> response = orderService.getOrdersForUser(userId, userRole, pageable);
+
+		return ResponseEntity.ok(response);
 	}
 
 	@GetMapping("/company")
