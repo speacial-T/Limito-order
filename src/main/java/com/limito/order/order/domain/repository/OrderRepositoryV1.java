@@ -40,4 +40,6 @@ public interface OrderRepositoryV1 extends JpaRepository<Order, UUID> {
 	Slice<CompanyOrder> findAllBySellerIdAndOrderStatusNot(Long userId, OrderStatus orderStatus, Pageable pageable);
 
 	Optional<Order> findByIdAndUserIdAndOrderStatusNot(UUID id, Long userId, OrderStatus orderStatus);
+
+	Optional<Order> findByIdAndOrderStatusNotAndOrderItems_SellerId(UUID id, OrderStatus orderStatus, Long userId);
 }
