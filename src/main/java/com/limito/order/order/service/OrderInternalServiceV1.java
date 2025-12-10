@@ -69,7 +69,7 @@ public class OrderInternalServiceV1 {
 			.filter(Objects::nonNull)
 			.toList();
 
-		cartService.deleteResellOrderItem(order.getUserId(), productItemIds);
+		//cartService.deleteLimitedOrderItem(order.getUserId(), productItemIds);
 	}
 
 	// 리셀 주문 완료
@@ -98,7 +98,7 @@ public class OrderInternalServiceV1 {
 			.filter(Objects::nonNull)
 			.toList();
 
-		cartService.deleteResellOrderItem(order.getUserId(), optionIds);
+		//cartService.deleteResellOrderItem(order.getUserId(), optionIds);
 	}
 
 	private List<StockReduceRequest> createStockReduceRequests(List<OrderItem> orderItems) {
