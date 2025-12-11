@@ -3,6 +3,8 @@ package com.limito.order.order.domain.model;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import com.limito.common.audit.BaseEntity;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -10,7 +12,7 @@ import lombok.ToString;
 @ToString
 @Getter
 @EqualsAndHashCode
-public class CompanyOrder {
+public class CompanyOrder extends BaseEntity {
 
 	UUID orderId;
 	String itemSummary;
