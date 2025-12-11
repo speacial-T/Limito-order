@@ -15,6 +15,7 @@ import com.limito.order.cart.service.CartServiceV1;
 import com.limito.order.common.OrderStatus;
 import com.limito.order.common.feignclient.LimitedFeignClient;
 import com.limito.order.common.feignclient.ResellFeignClient;
+import com.limito.order.order.domain.dto.feignclient.limited.CancelReserveStockRequestV1;
 import com.limito.order.order.domain.dto.feignclient.limited.ReduceStockProductRequestV1;
 import com.limito.order.order.domain.dto.feignclient.limited.ReduceStockRequestV1;
 import com.limito.order.order.domain.dto.feignclient.resell.dto.request.StockReduceRequest;
@@ -37,7 +38,7 @@ public class OrderInternalServiceV1 {
 	private final LimitedFeignClient limitedFeignClient;
 	private final CartServiceV1 cartService;
 
-	// 한정판매
+	// 한정판매 주문 완료
 	@Transactional
 	public void limitedOrderUpdate(UUID orderId) {
 		Order order = orderRepository.findById(orderId)
@@ -93,12 +94,46 @@ public class OrderInternalServiceV1 {
 		order.changeStatus(OrderStatus.ORDER_FINISH);
 
 		// 주문 완료 상품 장바구니에서 삭제
-		List<UUID> optionIds = orderItems.stream()
-			.map(OrderItem::getOptionId)
-			.filter(Objects::nonNull)
-			.toList();
+		List<UUID> optionIds = orderItems.stream().map(OrderItem::getOptionId).filter(Objects::nonNull).toList();
 
 		//cartService.deleteResellOrderItem(order.getUserId(), optionIds);
+	}
+
+	// 한정판매 결제 실패
+	public void limitedOrderFail(UUID orderId) {
+		Order order = orderRepository.findById(orderId)
+			.orElseThrow(() -> AppException.of(HttpStatus.NOT_FOUND, "주문을 찾을 수 없습니다."));
+		List<OrderItem> orderItems = order.deliverOrderItems();
+
+		// 임시 재고 예약 취소 요청
+		CancelReserveStockRequestV1 feignRequest = orderMapper.reserveCancelRequest(orderItems);
+		ResponseEntity<Void> feignResponse = limitedFeignClient.cancelReserveStock(feignRequest);
+
+		// 예외처리
+		// if(feignResponse)
+
+		// 주문 삭제
+		order.softDelete();
+		order.changeStatus(OrderStatus.ORDER_FAIL);
+	}
+
+	// 리셀 결제 실패
+	public void resellOrderFail(UUID orderId) {
+		Order order = orderRepository.findById(orderId)
+			.orElseThrow(() -> AppException.of(HttpStatus.NOT_FOUND, "주문을 찾을 수 없습니다."));
+		List<OrderItem> orderItems = order.deliverOrderItems();
+
+		// 임시 재고 예약 취소 요청
+		List<UUID> stockIds = orderMapper.getStockIds(orderItems);
+		// 현서님 exception 수정 되면 변경
+		ResponseEntity<InternalResponse> feignResponse = resellFeignClient.cancelStock(stockIds);
+
+		// 예외처리
+		// if(feignResponse)
+
+		// 주문 삭제
+		order.softDelete();
+		order.changeStatus(OrderStatus.ORDER_FAIL);
 	}
 
 	private List<StockReduceRequest> createStockReduceRequests(List<OrderItem> orderItems) {
