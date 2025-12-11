@@ -7,8 +7,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import com.limito.order.cart.domain.dto.feignclient.GetPurchaseAmountLimitRequestV1;
 import com.limito.order.cart.domain.dto.feignclient.GetPurchaseAmountLimitResponseV1;
+import com.limito.order.order.domain.dto.feignclient.limited.CancelReserveStockRequestV1;
 import com.limito.order.order.domain.dto.feignclient.limited.ReduceStockRequestV1;
 import com.limito.order.order.domain.dto.feignclient.limited.ReserveStockRequestV1;
+import com.limito.order.order.domain.dto.feignclient.limited.RollbackStockRequestV1;
 
 import jakarta.validation.Valid;
 
@@ -25,4 +27,10 @@ public interface LimitedFeignClient {
 
 	@PostMapping("/internal/v1/limited-products/stock/reduce")
 	ResponseEntity<Void> reduceStock(@Valid @RequestBody ReduceStockRequestV1 request);
+
+	@PostMapping("/stock/reserve/cancel")
+	public ResponseEntity<Void> cancelReserveStock(@Valid @RequestBody CancelReserveStockRequestV1 request);
+
+	@PostMapping("/stock/rollback")
+	public ResponseEntity<Void> rollbackStock(@Valid @RequestBody RollbackStockRequestV1 request);
 }
