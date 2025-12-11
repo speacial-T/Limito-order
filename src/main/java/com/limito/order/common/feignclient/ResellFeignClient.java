@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import com.limito.order.order.domain.dto.feignclient.resell.dto.request.StockReduceRequest;
 import com.limito.order.order.domain.dto.feignclient.resell.dto.request.StockRollbackRequest;
-import com.limito.order.order.domain.dto.feignclient.resell.dto.response.InternalResponse;
 
 import jakarta.validation.Valid;
 
@@ -18,17 +17,17 @@ import jakarta.validation.Valid;
 public interface ResellFeignClient {
 	// 임시 재고 예약
 	@PostMapping("/internal/v1/resell-products/stock/reserve")
-	ResponseEntity<InternalResponse> reserveStock(@RequestBody List<UUID> stockIds);
+	ResponseEntity<Void> reserveStock(@RequestBody List<UUID> stockIds);
 
 	// 재고 차감
 	@PostMapping("/internal/v1/resell-products/stock/reduce")
-	ResponseEntity<InternalResponse> reduceStock(@Valid @RequestBody List<StockReduceRequest> request);
+	ResponseEntity<Void> reduceStock(@Valid @RequestBody List<StockReduceRequest> request);
 
 	// 임시 재고 예약 취소
 	@PostMapping("/internal/v1/resell-products/stock/cancel")
-	public ResponseEntity<InternalResponse> cancelStock(@RequestBody List<UUID> stockIds);
+	public ResponseEntity<Void> cancelStock(@RequestBody List<UUID> stockIds);
 
 	// 재고 복원
 	@PostMapping("/internal/v1/resell-products/stock/rollback")
-	public ResponseEntity<Object> rollbackStock(@Valid @RequestBody List<StockRollbackRequest> request);
+	public ResponseEntity<Void> rollbackStock(@Valid @RequestBody List<StockRollbackRequest> request);
 }
