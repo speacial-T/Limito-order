@@ -1,8 +1,10 @@
 package com.limito.order.cart.controller;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -47,7 +49,7 @@ public class CartControllerV1 {
 	}
 
 	// 한정판매 장바구니 조회
-	@GetMapping("limited")
+	@GetMapping("/limited")
 	public ResponseEntity<List<GetCartLimitedResponseV1>> getLimitedCart() {
 		// Todo. userId 헤더에서 추출, 권한 검증
 		Long userId = 1111L;
@@ -56,11 +58,29 @@ public class CartControllerV1 {
 	}
 
 	// 리셀 장바구니 조회
-	@GetMapping("resell")
+	@GetMapping("/resell")
 	public ResponseEntity<List<GetCartResellResponseV1>> getResellCart() {
 		// Todo. userId 헤더에서 추출, 권한 검증
 		Long userId = 1111L;
 		List<GetCartResellResponseV1> results = cartService.getResellCart(userId);
 		return ResponseEntity.ok(results);
+	}
+
+	// 한정판매 장바구니 주문 완료 아이템 삭제
+	@DeleteMapping("/limited-ordered")
+	public ResponseEntity<Void> deleteLimitedOrderItem(@Valid @RequestBody List<UUID> productItemIds) {
+		// Todo. userId 헤더에서 추출, 권한 검증
+		Long userId = 1111L;
+		cartService.deleteLimitedOrderItem(userId, productItemIds);
+		return ResponseEntity.ok(null);
+	}
+
+	// 리셀 장바구니 주문 완료 아이템 삭제
+	@DeleteMapping("/resell-ordered")
+	public ResponseEntity<Void> deleteResellOrderItem(@Valid @RequestBody List<UUID> optionIds) {
+		// Todo. userId 헤더에서 추출, 권한 검증
+		Long userId = 1111L;
+		cartService.deleteResellOrderItem(userId, optionIds);
+		return ResponseEntity.ok(null);
 	}
 }

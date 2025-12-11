@@ -120,6 +120,7 @@ public class CartServiceV1 {
 		return CartMapper.toAddResponse(saved);
 	}
 
+	// 한정판매 장바구니 조회
 	public List<GetCartLimitedResponseV1> getLimitedCart(Long userId) {
 		String key = LIMITED_KEY.formatted(userId);
 		HashOperations<String, String, Object> hashOps = hashOps();
@@ -135,6 +136,7 @@ public class CartServiceV1 {
 
 	}
 
+	// 리셀 장바구니 조회
 	public List<GetCartResellResponseV1> getResellCart(Long userId) {
 		String key = RESELL_KEY.formatted(userId);
 		HashOperations<String, String, Object> hashOps = hashOps();
@@ -166,29 +168,25 @@ public class CartServiceV1 {
 			throw AppException.of(HttpStatus.NO_CONTENT, "장바구니에서 삭제할 상품 아이디가 존재하지 않습니다.");
 		}
 
-		String key = LIMITED_KEY.formatted(userId);
+		String key = RESELL_KEY.formatted(userId);
 		deleteOrderItems(key, optionIds);
 	}
 
 	private void deleteOrderItems(String key, List<UUID> ids) {
 		HashOperations<String, String, Object> hashOps = hashOps();
 
-		// Redis에 실제로 존재하는 field만 모으기 (바로구매는 장바구니 거치지 않음)
-		List<String> existingFields = ids.stream()
+		String[] fields = ids.stream()
 			.map(UUID::toString)
-			.filter(field -> Boolean.TRUE.equals(hashOps.hasKey(key, field)))
-			.toList();
+			.toArray(String[]::new);
 
-		// 장바구니에는 하나도 없을 수도 있음 (예: 장바구니 거치지 않고 바로 주문한 경우)
-		if (existingFields.isEmpty()) {
-			log.info("삭제할 장바구니 아이템이 없습니다.");
-			return;
+		// HDEL cart:limited:{userId} field1 field2 ...
+		Long deletedCount = hashOps.delete(key, (Object[])fields);
+		log.info("주문 완료된 장바구니 아이템 삭제 완료");
+
+		if (!deletedCount.equals((long)ids.size())) {
+			throw AppException.of(HttpStatus.EXPECTATION_FAILED, "주문 완료 아이템 장바구니에서 삭제하기에 실패했습니다.");
 		}
 
-		// 존재하는 field들만 삭제
-		// HDEL cart:limited:{userId} field1 field2 ...
-		hashOps.delete(key, existingFields.toArray(new Object[0]));
-		log.info("주문 완료된 장바구니 아이템 삭제 완료");
 	}
 
 	private ResponseEntity<GetPurchaseAmountLimitResponseV1> getFeignResponse(
