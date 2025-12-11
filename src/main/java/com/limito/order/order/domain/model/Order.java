@@ -110,7 +110,6 @@ public class Order extends BaseEntity {
 
 	public void changeStatus(OrderStatus status) {
 		this.orderStatus = status;
-		this.successedAt = LocalDateTime.now();
 	}
 
 	public void attachOrderer(AddOrdererRequestV1 ordererRequest) {
