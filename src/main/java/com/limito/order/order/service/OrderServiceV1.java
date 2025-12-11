@@ -20,7 +20,6 @@ import com.limito.order.common.feignclient.ResellFeignClient;
 import com.limito.order.order.domain.dto.feignclient.limited.ReserveStockItemRequestV1;
 import com.limito.order.order.domain.dto.feignclient.limited.ReserveStockRequestV1;
 import com.limito.order.order.domain.dto.feignclient.resell.dto.request.StockReduceRequest;
-import com.limito.order.order.domain.dto.feignclient.resell.dto.response.InternalResponse;
 import com.limito.order.order.domain.dto.request.AddOrdererRequestV1;
 import com.limito.order.order.domain.dto.request.CreateLimitedOrderRequestV1;
 import com.limito.order.order.domain.dto.request.CreateResellOrderRequestV1;
@@ -142,7 +141,7 @@ public class OrderServiceV1 {
 
 		// 상품 feign : 임시 재고 예약
 		List<UUID> stockIds = order.getStockIds(order);
-		ResponseEntity<InternalResponse> feignReponse = resellFeignClient.reserveStock(stockIds);
+		ResponseEntity<Void> feignReponse = resellFeignClient.reserveStock(stockIds);
 		if (!feignReponse.getStatusCode().equals(HttpStatus.OK)) {
 			throw AppException.of(HttpStatus.EXPECTATION_FAILED, "리셀 임시 재고 예약에 실패했습니다.");
 		}
