@@ -32,10 +32,10 @@ public interface LimitedFeignClient {
 	ResponseEntity<Void> reduceStock(@Valid @RequestBody ReduceStockRequestV1 request);
 
 	// 임시 재고 예약 취소
-	@PostMapping("/stock/reserve/cancel")
+	@PostMapping("/internal/v1/limited-products/stock/reserve/cancel")
 	public ResponseEntity<Void> cancelReserveStock(@Valid @RequestBody CancelReserveStockRequestV1 request);
 
 	// 재고 복원
-	@PostMapping("/stock/rollback")
+	@PostMapping("/internal/v1/limited-products/stock/rollback")
 	public ResponseEntity<Void> rollbackStock(@Valid @RequestBody RollbackStockRequestV1 request);
 }
