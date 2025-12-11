@@ -17,20 +17,25 @@ import jakarta.validation.Valid;
 @FeignClient(name = "limited-product-service", url = "${feign.limited-product-service.url}")
 public interface LimitedFeignClient {
 
+	// 최대 구매 가능 수량 확인
 	@PostMapping("/internal/v1/limited-products/purchase-amount-limit")
 	ResponseEntity<GetPurchaseAmountLimitResponseV1> getPurchaseAmountLimits(
 		@Valid @RequestBody GetPurchaseAmountLimitRequestV1 request
 	);
 
+	// 임시 재고 예약
 	@PostMapping("/internal/v1/limited-products/stock/reserve")
 	ResponseEntity<Void> reserveStock(@Valid @RequestBody ReserveStockRequestV1 request);
 
+	// 재고 차감
 	@PostMapping("/internal/v1/limited-products/stock/reduce")
 	ResponseEntity<Void> reduceStock(@Valid @RequestBody ReduceStockRequestV1 request);
 
+	// 임시 재고 예약 취소
 	@PostMapping("/stock/reserve/cancel")
 	public ResponseEntity<Void> cancelReserveStock(@Valid @RequestBody CancelReserveStockRequestV1 request);
 
+	// 재고 복원
 	@PostMapping("/stock/rollback")
 	public ResponseEntity<Void> rollbackStock(@Valid @RequestBody RollbackStockRequestV1 request);
 }
