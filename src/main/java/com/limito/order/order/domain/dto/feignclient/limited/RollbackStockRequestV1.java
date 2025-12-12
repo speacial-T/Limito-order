@@ -6,9 +6,11 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 
 @Getter
+@Builder
 @AllArgsConstructor
 public class RollbackStockRequestV1 {
 	@NotNull(message = "상품 목록은 null일 수 없습니다.")
