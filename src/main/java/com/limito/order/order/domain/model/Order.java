@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.limito.common.audit.BaseEntity;
 import com.limito.order.common.OrderStatus;
 import com.limito.order.order.domain.dto.request.AddOrdererRequestV1;
 import com.limito.order.order.domain.dto.request.CreateLimitedOrderRequestV1;
@@ -31,7 +32,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Order {
+public class Order extends BaseEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.UUID)
 	@Column(name = "order_id", columnDefinition = "uuid")
@@ -109,7 +110,6 @@ public class Order {
 
 	public void changeStatus(OrderStatus status) {
 		this.orderStatus = status;
-		this.successedAt = LocalDateTime.now();
 	}
 
 	public void attachOrderer(AddOrdererRequestV1 ordererRequest) {

@@ -2,10 +2,13 @@ package com.limito.order.order.domain.mapper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.stereotype.Component;
 
 import com.limito.order.common.OrderStatus;
+import com.limito.order.order.domain.dto.feignclient.limited.CancelReserveStockRequestV1;
+import com.limito.order.order.domain.dto.feignclient.limited.ItemAmountRequest;
 import com.limito.order.order.domain.dto.request.CreateLimitedOrderRequestV1;
 import com.limito.order.order.domain.dto.request.CreateResellOrderRequestV1;
 import com.limito.order.order.domain.dto.response.CreateLimitedOrderItemResponseV1;
@@ -268,6 +271,22 @@ public class OrderMapper {
 				.productAmount(orderItem.getProductAmount())
 				.totalProductPrice(orderItem.getTotalProductPrice())
 				.build())
+			.toList();
+	}
+
+	public CancelReserveStockRequestV1 reserveCancelRequest(List<OrderItem> orderItems) {
+		List<ItemAmountRequest> items = orderItems.stream()
+			.map(orderItem -> ItemAmountRequest.builder()
+				.limitedProductItemId(orderItem.getProductItemId())
+				.amount(orderItem.getProductAmount())
+				.build())
+			.toList();
+		return new CancelReserveStockRequestV1(items);
+	}
+
+	public List<UUID> getStockIds(List<OrderItem> orderItems) {
+		return orderItems.stream()
+			.map(OrderItem::getStockId)
 			.toList();
 	}
 }
