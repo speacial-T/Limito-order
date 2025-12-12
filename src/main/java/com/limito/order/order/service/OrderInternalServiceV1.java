@@ -18,13 +18,12 @@ import com.limito.order.order.domain.dto.feignclient.limited.ReduceStockProductR
 import com.limito.order.order.domain.dto.feignclient.limited.ReduceStockRequestV1;
 import com.limito.order.order.domain.dto.feignclient.limited.RollbackStockRequestV1;
 import com.limito.order.order.domain.dto.feignclient.resell.dto.request.StockReduceRequest;
+import com.limito.order.order.domain.dto.feignclient.resell.dto.request.StockRollbackRequest;
 import com.limito.order.order.domain.mapper.OrderMapper;
 import com.limito.order.order.domain.model.Order;
 import com.limito.order.order.domain.model.OrderItem;
 import com.limito.order.order.domain.repository.OrderRepositoryV1;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -131,7 +130,7 @@ public class OrderInternalServiceV1 {
 
 	// 한정판매 주문 취소
 	@Transactional
-	public void limitedOrderCancel(@Valid @NotNull(message = "주문 아이디는 필수입니다.") UUID orderId) {
+	public void limitedOrderCancel(UUID orderId) {
 		Order order = orderRepository.findById(orderId)
 			.orElseThrow(() -> AppException.of(HttpStatus.NOT_FOUND, "주문을 찾을 수 없습니다."));
 		List<OrderItem> orderItems = order.deliverOrderItems();
@@ -141,6 +140,24 @@ public class OrderInternalServiceV1 {
 		ResponseEntity<Void> feignResponse = limitedFeignClient.rollbackStock(feignRequest);
 		if (!feignResponse.getStatusCode().equals(HttpStatus.OK)) {
 			throw AppException.of(HttpStatus.EXPECTATION_FAILED, "한정판매 재고 복원 요청에 실패했습니다.");
+		}
+
+		//주문 상태 변경
+		order.changeStatus(OrderStatus.ORDER_CANCEL);
+	}
+
+	// 리셀 주문 취소
+	@Transactional
+	public void resellOrderCancel(UUID orderId) {
+		Order order = orderRepository.findById(orderId)
+			.orElseThrow(() -> AppException.of(HttpStatus.NOT_FOUND, "주문을 찾을 수 없습니다."));
+		List<OrderItem> orderItems = order.deliverOrderItems();
+
+		// 리셀 feign : 재고 복원
+		List<StockRollbackRequest> feignRequest = orderMapper.toStockRollbackRequest(orderItems);
+		ResponseEntity<Void> feignResponse = resellFeignClient.rollbackStock(feignRequest);
+		if (!feignResponse.getStatusCode().equals(HttpStatus.OK)) {
+			throw AppException.of(HttpStatus.EXPECTATION_FAILED, "리셀 재고 복원 요청에 실패했습니다.");
 		}
 
 		//주문 상태 변경
