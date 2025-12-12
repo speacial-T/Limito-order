@@ -53,8 +53,8 @@ public class OrderInternalControllerV1 {
 	// 한정판매 주문 취소
 	@PatchMapping("/{orderId}/cancel/limited")
 	public ResponseEntity<Void> limitedOrderCancel(
-		@Valid @NotNull(message = "주문 아이디는 필수입니다.") @PathVariable UUID orderId) {
-
+		@Valid @NotNull(message = "주문 아이디는 필수입니다.") @PathVariable UUID orderId
+	) {
 		orderInternalService.limitedOrderCancel(orderId);
 		return ResponseEntity.ok().body(null);
 	}
@@ -62,8 +62,8 @@ public class OrderInternalControllerV1 {
 	// 리셀 주문 취소
 	@PatchMapping("/{orderId}/cancel/resell")
 	public ResponseEntity<Void> resellOrderCancel(
-		@Valid @NotNull(message = "주문 아이디는 필수입니다.") @PathVariable UUID orderId) {
-		
+		@Valid @NotNull(message = "주문 아이디는 필수입니다.") @PathVariable UUID orderId
+	) {
 		orderInternalService.resellOrderCancel(orderId);
 		return ResponseEntity.ok().body(null);
 	}
