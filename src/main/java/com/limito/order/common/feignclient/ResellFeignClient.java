@@ -5,11 +5,14 @@ import java.util.UUID;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import com.limito.order.order.domain.dto.feignclient.resell.dto.request.ProductInfosGetRequestV1;
 import com.limito.order.order.domain.dto.feignclient.resell.dto.request.StockReduceRequest;
 import com.limito.order.order.domain.dto.feignclient.resell.dto.request.StockRollbackRequest;
+import com.limito.order.order.domain.dto.feignclient.resell.dto.response.ProductInfosGetResponseV1;
 
 import jakarta.validation.Valid;
 
@@ -30,4 +33,10 @@ public interface ResellFeignClient {
 	// 재고 복원
 	@PostMapping("/internal/v1/resell-products/stock/rollback")
 	public ResponseEntity<Void> rollbackStock(@Valid @RequestBody List<StockRollbackRequest> request);
+
+	// 주문 상품 정보 요청
+	@GetMapping("/productInfo")
+	public ResponseEntity<List<ProductInfosGetResponseV1>> getProductInfos(
+		@RequestBody List<ProductInfosGetRequestV1> request
+	);
 }
