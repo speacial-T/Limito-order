@@ -14,6 +14,7 @@ import com.limito.order.order.domain.dto.feignclient.limited.OptionItemAmountReq
 import com.limito.order.order.domain.dto.feignclient.limited.RollbackStockRequestV1;
 import com.limito.order.order.domain.dto.feignclient.resell.dto.request.StockRollbackRequest;
 import com.limito.order.order.domain.dto.feignclient.limited.ProductOptionItemRequest;
+import com.limito.order.order.domain.dto.feignclient.resell.dto.request.ProductInfosGetRequestV1;
 import com.limito.order.order.domain.dto.request.CreateLimitedOrderItemRequestV1;
 import com.limito.order.order.domain.dto.request.CreateLimitedOrderRequestV1;
 import com.limito.order.order.domain.dto.request.CreateResellOrderRequestV1;
@@ -319,5 +320,14 @@ public class OrderMapper {
 		return GetOrderedProductInfoRequestV1.builder()
 			.products(products)
 			.build();
+	}
+
+	public List<ProductInfosGetRequestV1> toProductInfosGetRequests(List<OrderItem> orderItems) {
+		return orderItems.stream().map(orderItem -> ProductInfosGetRequestV1.builder()
+				.productId(orderItem.getProductId())
+				.optionId(orderItem.getOptionId())
+				.stockId(orderItem.getStockId())
+				.build())
+			.toList();
 	}
 }
