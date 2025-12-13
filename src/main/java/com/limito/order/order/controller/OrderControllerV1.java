@@ -35,12 +35,12 @@ public class OrderControllerV1 {
 
 	// 한정판매 주문서 생성
 	@PostMapping("/limited/order-sheet")
-	public ResponseEntity<CreateLimitedOrderResponseV1> createLimitedOrder(
+	public ResponseEntity<CreateLimitedOrderResponseV1> createLimitedOrderSheet(
 		// @RequestHeader("X-User-Id") Long userId,
 		@Valid @RequestBody CreateLimitedOrderRequestV1 createLimitedOrderRequest) {
 		// Todo. userId 헤더에서 빼오기, 권한검증
 		Long userId = 1111L;
-		CreateLimitedOrderResponseV1 result = orderService.createLimitedOrder(userId, createLimitedOrderRequest);
+		CreateLimitedOrderResponseV1 result = orderService.createLimitedOrderSheet(userId, createLimitedOrderRequest);
 		return ResponseEntity.ok(result);
 	}
 
