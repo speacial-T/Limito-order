@@ -52,7 +52,7 @@ public class OrderItem extends BaseEntity {
 	@Column(name = "product_id")
 	private UUID productId;
 
-	@Column(name = "product_type", nullable = false)
+	@Column(name = "product_type")
 	@Enumerated(EnumType.STRING)
 	private ProductType productType;
 
@@ -101,6 +101,7 @@ public class OrderItem extends BaseEntity {
 	}
 
 	public void attachProductInfo(ProductInfosGetResponseV1 info) {
+		this.productType = ProductType.RESELL;
 		this.productName = info.getProductName();
 		this.brandName = info.getBrandName();
 		this.sellerId = info.getSellerId();
@@ -108,6 +109,6 @@ public class OrderItem extends BaseEntity {
 		this.productSize = info.getProductSize();
 		this.productPrice = info.getProductPrice();
 		// 수량 * 단가로 상품 총 금액 세팅
-		this.totalProductPrice = (long)this.productAmount * this.productPrice;
+		this.totalProductPrice = (long)this.productPrice;
 	}
 }

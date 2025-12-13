@@ -80,6 +80,7 @@ public class OrderServiceV1 {
 		// Todo : 유저 feign : 사용자 기본 배송지 정보 요청
 
 		order.attachSummary(orderItems);
+		order.attachTotalPrice(orderItems);
 
 		// 생성된 주문 엔티티 저장
 		orderRepository.save(order);
@@ -134,7 +135,6 @@ public class OrderServiceV1 {
 
 		List<OrderItem> orderItems = orderMapper.toOrderItemEntity(createResellOrderRequest);
 		order.attachOrderItems(orderItems);
-		order.attachSummary(orderItems);
 
 		// 리셀 주문 상품 정보 요청
 		List<ProductInfosGetRequestV1> feignRequests = orderMapper.toProductInfosGetRequests(orderItems);
@@ -144,6 +144,8 @@ public class OrderServiceV1 {
 		List<ProductInfosGetResponseV1> productInfos = validateResellOrderSheetFeignResponse(feignResponse, orderItems);
 		// 주문 상품 정보 추가
 		attachResellProductInfos(orderItems, productInfos);
+		order.attachSummary(orderItems);
+		order.attachTotalPrice(orderItems);
 
 		// Todo. 유저  : 사용자 정보 요청
 
