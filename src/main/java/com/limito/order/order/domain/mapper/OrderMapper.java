@@ -58,7 +58,6 @@ public class OrderMapper {
 			OrderItem orderItem = OrderItem.builder()
 				.optionId(itemReq.getOptionId())
 				.productItemId(itemReq.getProductItemId())
-				.productType(itemReq.getProductType())
 				.productAmount(itemReq.getProductAmount())
 				.build();
 
@@ -76,7 +75,6 @@ public class OrderMapper {
 				.optionId(itemReq.getOptionId())
 				.stockId(itemReq.getStockId())
 				.productId(itemReq.getProductId())
-				.productType(itemReq.getProductType())
 				.build();
 
 			orderItems.add(orderItem);
@@ -95,6 +93,7 @@ public class OrderMapper {
 			.receiverName(order.getReceiverName())
 			.phoneNumber(order.getPhoneNumber())
 			.deliveryAddress(order.getDeliveryAddress())
+			.orderProductType(order.getOrderProductType())
 			.totalPrice(order.getTotalPrice())
 			.orderStatus(order.getOrderStatus())
 			.successedAt(order.getSuccessedAt())
@@ -138,6 +137,7 @@ public class OrderMapper {
 			.receiverName(order.getReceiverName())
 			.phoneNumber(order.getPhoneNumber())
 			.deliveryAddress(order.getDeliveryAddress())
+			.orderProductType(order.getOrderProductType())
 			.totalPrice(order.getTotalPrice())
 			.orderStatus(order.getOrderStatus())
 			.successedAt(order.getSuccessedAt())
