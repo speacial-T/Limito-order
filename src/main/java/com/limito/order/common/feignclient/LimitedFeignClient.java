@@ -5,7 +5,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.limito.order.cart.domain.dto.feignclient.GetPurchaseAmountLimitRequestV1;
 import com.limito.order.cart.domain.dto.feignclient.GetPurchaseAmountLimitResponseV1;
@@ -47,5 +46,5 @@ public interface LimitedFeignClient {
 	@GetMapping("/internal/v1/limited-products/ordered-products")
 	public ResponseEntity<GetOrderedProductInfoResponseV1> getOrderedProductInfo(
 		@Valid @RequestBody GetOrderedProductInfoRequestV1 request
-	)
+	);
 }
