@@ -5,7 +5,6 @@ import java.util.UUID;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -35,7 +34,7 @@ public interface ResellFeignClient {
 	public ResponseEntity<Void> rollbackStock(@Valid @RequestBody List<StockRollbackRequest> request);
 
 	// 주문 상품 정보 요청
-	@GetMapping("/productInfo")
+	@PostMapping("/internal/v1/resell-products/productInfo")
 	public ResponseEntity<List<ProductInfosGetResponseV1>> getProductInfos(
 		@RequestBody List<ProductInfosGetRequestV1> request
 	);
