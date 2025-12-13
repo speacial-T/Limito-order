@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import com.limito.common.audit.BaseEntity;
 import com.limito.order.common.OrderStatus;
+import com.limito.order.common.ProductType;
 import com.limito.order.order.domain.dto.request.AddOrdererRequestV1;
 import com.limito.order.order.domain.dto.request.CreateLimitedOrderRequestV1;
 import com.limito.order.order.domain.dto.request.CreateResellOrderRequestV1;
@@ -49,6 +50,9 @@ public class Order extends BaseEntity {
 
 	@Column(name = "delivery_address")
 	private String deliveryAddress;
+
+	@Column(name = "order_product_type", nullable = false)
+	private ProductType orderProductType;
 
 	@Column(name = "total_price", nullable = false)
 	private Long totalPrice;

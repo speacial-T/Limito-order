@@ -34,7 +34,7 @@ public class OrderMapper {
 	public Order toOrderEntity(Long userId, CreateLimitedOrderRequestV1 req) {
 		return Order.builder()
 			.userId(userId)
-			.totalPrice(req.getTotalPrice())
+			.orderProductType(req.getOrderProductType())
 			.orderStatus(OrderStatus.ORDER_PENDING)
 			.build();
 	}
@@ -42,7 +42,7 @@ public class OrderMapper {
 	public Order toOrderEntity(Long userId, CreateResellOrderRequestV1 req) {
 		return Order.builder()
 			.userId(userId)
-			.totalPrice(req.getTotalPrice())
+			.orderProductType(req.getOrderProductType())
 			.orderStatus(OrderStatus.ORDER_PENDING)
 			.build();
 	}
@@ -55,14 +55,7 @@ public class OrderMapper {
 				.optionId(itemReq.getOptionId())
 				.productItemId(itemReq.getProductItemId())
 				.productType(itemReq.getProductType())
-				.productName(itemReq.getProductName())
-				.brandName(itemReq.getBrandName())
-				.sellerId(itemReq.getSellerId())
-				.productColor(itemReq.getProductColor())
-				.productSize(itemReq.getProductSize())
-				.productPrice(itemReq.getProductPrice())
 				.productAmount(itemReq.getProductAmount())
-				.totalProductPrice(itemReq.getTotalProductPrice())
 				.build();
 
 			orderItems.add(orderItem);
@@ -80,12 +73,6 @@ public class OrderMapper {
 				.stockId(itemReq.getStockId())
 				.productId(itemReq.getProductId())
 				.productType(itemReq.getProductType())
-				.productName(itemReq.getProductName())
-				.brandName(itemReq.getBrandName())
-				.sellerId(itemReq.getSellerId())
-				.productColor(itemReq.getProductColor())
-				.productSize(itemReq.getProductSize())
-				.productPrice(itemReq.getProductPrice())
 				.build();
 
 			orderItems.add(orderItem);
