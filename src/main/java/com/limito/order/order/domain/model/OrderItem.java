@@ -5,6 +5,7 @@ import java.util.UUID;
 import com.limito.common.audit.BaseEntity;
 import com.limito.order.common.ProductType;
 import com.limito.order.order.domain.dto.feignclient.limited.GetOrderedProductInfoResponseV1;
+import com.limito.order.order.domain.dto.feignclient.resell.dto.response.ProductInfosGetResponseV1;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -88,12 +89,24 @@ public class OrderItem extends BaseEntity {
 	}
 
 	public void attachProductInfo(GetOrderedProductInfoResponseV1.OrderedProductInfo info) {
+		this.productType = ProductType.LIMITED;
 		this.productName = info.getName();
 		this.brandName = info.getBrandName();
 		this.sellerId = info.getSellerId();
 		this.productColor = info.getColor();
 		this.productSize = info.getSize();
 		this.productPrice = info.getPrice();
+		// 수량 * 단가로 상품 총 금액 세팅
+		this.totalProductPrice = (long)this.productAmount * this.productPrice;
+	}
+
+	public void attachProductInfo(ProductInfosGetResponseV1 info) {
+		this.productName = info.getProductName();
+		this.brandName = info.getBrandName();
+		this.sellerId = info.getSellerId();
+		this.productColor = info.getProductColor();
+		this.productSize = info.getProductSize();
+		this.productPrice = info.getProductPrice();
 		// 수량 * 단가로 상품 총 금액 세팅
 		this.totalProductPrice = (long)this.productAmount * this.productPrice;
 	}
