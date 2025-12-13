@@ -21,6 +21,8 @@ import com.limito.order.common.feignclient.ResellFeignClient;
 import com.limito.order.common.feignclient.UserFeignClient;
 import com.limito.order.order.domain.dto.feignclient.limited.GetOrderedProductInfoRequestV1;
 import com.limito.order.order.domain.dto.feignclient.limited.GetOrderedProductInfoResponseV1;
+import com.limito.order.order.domain.dto.feignclient.limited.GetOrderedProductInfoRequestV1;
+import com.limito.order.order.domain.dto.feignclient.limited.GetOrderedProductInfoResponseV1;
 import com.limito.order.order.domain.dto.feignclient.limited.ReserveStockItemRequestV1;
 import com.limito.order.order.domain.dto.feignclient.limited.ReserveStockRequestV1;
 import com.limito.order.order.domain.dto.feignclient.resell.request.ProductInfosGetRequestV1;
@@ -359,5 +361,32 @@ public class OrderServiceV1 {
 
 			orderItem.attachProductInfo(info);
 		}
+	}
+
+	private void attachProductInfos(List<OrderItem> orderItems,
+		List<GetOrderedProductInfoResponseV1.OrderedProductInfo> productInfos) {
+		for (OrderItem orderItem : orderItems) {
+			GetOrderedProductInfoResponseV1.OrderedProductInfo info =
+				findInfoByItemId(productInfos, orderItem.getLimitedProductItemId());
+
+			if (info == null) {
+				throw AppException.of(HttpStatus.EXPECTATION_FAILED,
+					"주문 상품 아이템 정보가 응답에서 누락되었습니다. itemId=" + orderItem.getLimitedProductItemId());
+			}
+
+			orderItem.attachProductInfo(info);
+		}
+	}
+
+	private GetOrderedProductInfoResponseV1.OrderedProductInfo findInfoByItemId(
+		List<GetOrderedProductInfoResponseV1.OrderedProductInfo> productInfos,
+		UUID itemId
+	) {
+		for (GetOrderedProductInfoResponseV1.OrderedProductInfo info : productInfos) {
+			if (info.getLimitedProductItemId().equals(itemId)) {
+				return info;
+			}
+		}
+		return null;
 	}
 }

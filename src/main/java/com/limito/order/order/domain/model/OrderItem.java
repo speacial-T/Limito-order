@@ -6,6 +6,7 @@ import com.limito.common.security.audit.BaseEntity;
 import com.limito.order.common.ProductType;
 import com.limito.order.order.domain.dto.feignclient.limited.GetOrderedProductInfoResponseV1;
 import com.limito.order.order.domain.dto.feignclient.resell.response.ProductInfosGetResponseV1;
+import com.limito.order.order.domain.dto.feignclient.limited.GetOrderedProductInfoResponseV1;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -89,7 +90,6 @@ public class OrderItem extends BaseEntity {
 	}
 
 	public void attachProductInfo(GetOrderedProductInfoResponseV1.OrderedProductInfo info) {
-		this.productType = ProductType.LIMITED;
 		this.productName = info.getName();
 		this.brandName = info.getBrandName();
 		this.sellerId = info.getSellerId();
