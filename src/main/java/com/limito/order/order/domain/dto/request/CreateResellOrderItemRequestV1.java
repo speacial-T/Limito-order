@@ -15,4 +15,6 @@ public class CreateResellOrderItemRequestV1 {
 
 	@NotNull(message = "상품 아이디는 필수입니다.")
 	private UUID productId;
+
+	private int productAmount = 1;
 }
