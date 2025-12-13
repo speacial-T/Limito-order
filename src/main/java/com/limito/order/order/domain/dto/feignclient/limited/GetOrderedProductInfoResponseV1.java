@@ -1,6 +1,7 @@
 package com.limito.order.order.domain.dto.feignclient.limited;
 
 import java.util.List;
+import java.util.UUID;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -13,7 +14,9 @@ public class GetOrderedProductInfoResponseV1 {
 	@Builder
 	@Getter
 	public static class OrderedProductInfo {
-
+		private UUID limitedProductId;
+		private UUID limitedProductOptionId;
+		private UUID limitedProductItemId;
 		private String name;
 		private String brandName;
 		private Long sellerId;

@@ -17,6 +17,8 @@ import com.limito.order.cart.service.CartServiceV1;
 import com.limito.order.common.OrderStatus;
 import com.limito.order.common.feignclient.LimitedFeignClient;
 import com.limito.order.common.feignclient.ResellFeignClient;
+import com.limito.order.order.domain.dto.feignclient.limited.GetOrderedProductInfoRequestV1;
+import com.limito.order.order.domain.dto.feignclient.limited.GetOrderedProductInfoResponseV1;
 import com.limito.order.order.domain.dto.feignclient.limited.ReserveStockItemRequestV1;
 import com.limito.order.order.domain.dto.feignclient.limited.ReserveStockRequestV1;
 import com.limito.order.order.domain.dto.feignclient.resell.dto.request.StockReduceRequest;
@@ -51,11 +53,8 @@ public class OrderServiceV1 {
 
 	// 한정판매 주문서 생성
 	@Transactional
-	public CreateLimitedOrderResponseV1 createLimitedOrder(Long userId,
+	public CreateLimitedOrderResponseV1 createLimitedOrderSheet(Long userId,
 		CreateLimitedOrderRequestV1 createLimitedOrderRequest) {
-
-		// Todo. 합산 가격 검증 (더블 체크)
-
 		// requestDto -> entity 매핑해서 주문 엔티티 생성
 		Order order = orderMapper.toOrderEntity(userId, createLimitedOrderRequest);
 
@@ -64,8 +63,21 @@ public class OrderServiceV1 {
 		// 연관관계 설정
 		order.attachOrderItems(orderItems);
 
-		// itemSummary set 하는 함수 추가하기
-		order.attachSummary(createLimitedOrderRequest);
+		// 한정판매 feign: 상품 정보 요청
+		GetOrderedProductInfoRequestV1 feignRequest = orderMapper.toGetOrderedProductInfoRequest(
+			createLimitedOrderRequest);
+		ResponseEntity<GetOrderedProductInfoResponseV1> feignResponse = limitedFeignClient.getOrderedProductInfo(
+			feignRequest);
+
+		List<GetOrderedProductInfoResponseV1.OrderedProductInfo> productInfos = validateLimitedOrderSheetFeignResponse(
+			feignResponse, orderItems);
+
+		// 주문 상품 정보 추가
+		attachProductInfos(orderItems, productInfos);
+
+		// Todo : 유저 feign : 사용자 기본 배송지 정보 요청
+
+		order.attachSummary(orderItems);
 
 		// 생성된 주문 엔티티 저장
 		orderRepository.save(order);
@@ -209,6 +221,56 @@ public class OrderServiceV1 {
 				.contains(userRole)
 		) {
 			throw AppException.of(HttpStatus.FORBIDDEN, "조회 권한이 없습니다.");
+		}
+	}
+
+	private GetOrderedProductInfoResponseV1.OrderedProductInfo findInfoByItemId(
+		List<GetOrderedProductInfoResponseV1.OrderedProductInfo> productInfos,
+		UUID itemId
+	) {
+		for (GetOrderedProductInfoResponseV1.OrderedProductInfo info : productInfos) {
+			if (info.getLimitedProductItemId().equals(itemId)) {
+				return info;
+			}
+		}
+		return null;
+	}
+
+	private List<GetOrderedProductInfoResponseV1.OrderedProductInfo> validateLimitedOrderSheetFeignResponse(
+		ResponseEntity<GetOrderedProductInfoResponseV1> feignResponse,
+		List<OrderItem> orderItems) {
+		if (!feignResponse.getStatusCode().equals(HttpStatus.OK)) {
+			throw AppException.of(HttpStatus.EXPECTATION_FAILED, "한정판매 주문 상품 정보 요청에 실패했습니다");
+		}
+
+		GetOrderedProductInfoResponseV1 body = feignResponse.getBody();
+		if (body == null || body.getProducts() == null) {
+			throw AppException.of(HttpStatus.EXPECTATION_FAILED, "한정판매 주문 상품 정보 응답이 비어있습니다");
+		}
+
+		List<GetOrderedProductInfoResponseV1.OrderedProductInfo> productInfos = body.getProducts();
+
+		// 요청한 아이템 수와 응답 상품 정보 수가 같은지 검증
+		if (productInfos.size() != orderItems.size()) {
+			throw AppException.of(HttpStatus.EXPECTATION_FAILED,
+				"요청한 주문 상품 수와 조회된 상품 정보 수가 일치하지 않습니다.");
+		}
+
+		return productInfos;
+	}
+
+	private void attachProductInfos(List<OrderItem> orderItems,
+		List<GetOrderedProductInfoResponseV1.OrderedProductInfo> productInfos) {
+		for (OrderItem orderItem : orderItems) {
+			GetOrderedProductInfoResponseV1.OrderedProductInfo info =
+				findInfoByItemId(productInfos, orderItem.getLimitedProductItemId());
+
+			if (info == null) {
+				throw AppException.of(HttpStatus.EXPECTATION_FAILED,
+					"주문 상품 아이템 정보가 응답에서 누락되었습니다. itemId=" + orderItem.getLimitedProductItemId());
+			}
+
+			orderItem.attachProductInfo(info);
 		}
 	}
 }
