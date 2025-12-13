@@ -29,6 +29,9 @@ import com.limito.order.order.domain.dto.feignclient.resell.request.ProductInfos
 import com.limito.order.order.domain.dto.feignclient.resell.request.StockReduceRequest;
 import com.limito.order.order.domain.dto.feignclient.resell.response.ProductInfosGetResponseV1;
 import com.limito.order.order.domain.dto.feignclient.user.OrderedUserInfoResponseV1;
+import com.limito.order.order.domain.dto.feignclient.resell.dto.request.ProductInfosGetRequestV1;
+import com.limito.order.order.domain.dto.feignclient.resell.dto.request.StockReduceRequest;
+import com.limito.order.order.domain.dto.feignclient.resell.dto.response.ProductInfosGetResponseV1;
 import com.limito.order.order.domain.dto.request.AddOrdererRequestV1;
 import com.limito.order.order.domain.dto.request.CreateLimitedOrderRequestV1;
 import com.limito.order.order.domain.dto.request.CreateResellOrderRequestV1;

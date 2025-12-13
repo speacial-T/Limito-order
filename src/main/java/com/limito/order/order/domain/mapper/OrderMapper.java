@@ -335,41 +335,4 @@ public class OrderMapper {
 				.build())
 			.toList();
 	}
-
-	public RollbackStockRequestV1 toRollbackStockRequest(List<OrderItem> orderItems) {
-		List<OptionItemAmountRequest> request = orderItems.stream().map(orderItem -> OptionItemAmountRequest.builder()
-				.limitedProductOptionId(orderItem.getOptionId())
-				.limitedProductItemId(orderItem.getProductItemId())
-				.amount(orderItem.getProductAmount())
-				.build())
-			.toList();
-
-		return RollbackStockRequestV1.builder()
-			.products(request).build();
-	}
-
-	public List<StockRollbackRequest> toStockRollbackRequest(List<OrderItem> orderItems) {
-		return orderItems.stream().map(orderItem -> StockRollbackRequest.builder()
-				.productId(orderItem.getProductId())
-				.optionId(orderItem.getOptionId())
-				.stockId(orderItem.getStockId())
-				.build())
-			.toList();
-	}
-
-	public GetOrderedProductInfoRequestV1 toGetOrderedProductInfoRequest(
-		CreateLimitedOrderRequestV1 createLimitedOrderRequest) {
-		List<CreateLimitedOrderItemRequestV1> orderItemRequests = createLimitedOrderRequest.getItems();
-		List<ProductOptionItemRequest> products = orderItemRequests.stream()
-			.map(createLimitedOrderItemRequestV1 -> ProductOptionItemRequest.builder()
-				.limitedProductId(createLimitedOrderItemRequestV1.getProductId())
-				.limitedProductOptionId(createLimitedOrderItemRequestV1.getOptionId())
-				.limitedProductItemId(createLimitedOrderItemRequestV1.getProductItemId())
-				.build())
-			.toList();
-
-		return GetOrderedProductInfoRequestV1.builder()
-			.products(products)
-			.build();
-	}
 }
