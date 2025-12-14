@@ -90,6 +90,7 @@ public class OrderItem extends BaseEntity {
 	}
 
 	public void attachProductInfo(GetOrderedProductInfoResponseV1.OrderedProductInfo info) {
+		this.productType = ProductType.LIMITED;
 		this.productName = info.getName();
 		this.brandName = info.getBrandName();
 		this.sellerId = info.getSellerId();
