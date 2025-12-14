@@ -2,7 +2,6 @@ package com.limito.order.common.feignclient;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -43,7 +42,7 @@ public interface LimitedFeignClient {
 	public ResponseEntity<Void> rollbackStock(@Valid @RequestBody RollbackStockRequestV1 request);
 
 	// 주문 상품 정보 조회
-	@GetMapping("/internal/v1/limited-products/ordered-products")
+	@PostMapping("/internal/v1/limited-products/ordered-products")
 	public ResponseEntity<GetOrderedProductInfoResponseV1> getOrderedProductInfo(
 		@Valid @RequestBody GetOrderedProductInfoRequestV1 request
 	);

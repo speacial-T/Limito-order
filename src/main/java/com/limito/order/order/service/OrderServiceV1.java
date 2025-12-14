@@ -21,9 +21,9 @@ import com.limito.order.order.domain.dto.feignclient.limited.GetOrderedProductIn
 import com.limito.order.order.domain.dto.feignclient.limited.GetOrderedProductInfoResponseV1;
 import com.limito.order.order.domain.dto.feignclient.limited.ReserveStockItemRequestV1;
 import com.limito.order.order.domain.dto.feignclient.limited.ReserveStockRequestV1;
-import com.limito.order.order.domain.dto.feignclient.resell.dto.request.ProductInfosGetRequestV1;
-import com.limito.order.order.domain.dto.feignclient.resell.dto.request.StockReduceRequest;
-import com.limito.order.order.domain.dto.feignclient.resell.dto.response.ProductInfosGetResponseV1;
+import com.limito.order.order.domain.dto.feignclient.resell.request.ProductInfosGetRequestV1;
+import com.limito.order.order.domain.dto.feignclient.resell.request.StockReduceRequest;
+import com.limito.order.order.domain.dto.feignclient.resell.response.ProductInfosGetResponseV1;
 import com.limito.order.order.domain.dto.request.AddOrdererRequestV1;
 import com.limito.order.order.domain.dto.request.CreateLimitedOrderRequestV1;
 import com.limito.order.order.domain.dto.request.CreateResellOrderRequestV1;
@@ -75,6 +75,7 @@ public class OrderServiceV1 {
 			feignResponse, orderItems);
 
 		// 주문 상품 정보 추가
+		log.info("상품가격 : {}", productInfos.get(0).getPrice());
 		attachLimitedProductInfos(orderItems, productInfos);
 
 		// Todo : 유저 feign : 사용자 기본 배송지 정보 요청

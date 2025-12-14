@@ -5,7 +5,7 @@ import java.util.UUID;
 import com.limito.common.audit.BaseEntity;
 import com.limito.order.common.ProductType;
 import com.limito.order.order.domain.dto.feignclient.limited.GetOrderedProductInfoResponseV1;
-import com.limito.order.order.domain.dto.feignclient.resell.dto.response.ProductInfosGetResponseV1;
+import com.limito.order.order.domain.dto.feignclient.resell.response.ProductInfosGetResponseV1;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

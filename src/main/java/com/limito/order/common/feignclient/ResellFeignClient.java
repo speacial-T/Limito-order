@@ -8,10 +8,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import com.limito.order.order.domain.dto.feignclient.resell.dto.request.ProductInfosGetRequestV1;
-import com.limito.order.order.domain.dto.feignclient.resell.dto.request.StockReduceRequest;
-import com.limito.order.order.domain.dto.feignclient.resell.dto.request.StockRollbackRequest;
-import com.limito.order.order.domain.dto.feignclient.resell.dto.response.ProductInfosGetResponseV1;
+import com.limito.order.order.domain.dto.feignclient.resell.request.ProductInfosGetRequestV1;
+import com.limito.order.order.domain.dto.feignclient.resell.request.StockReduceRequest;
+import com.limito.order.order.domain.dto.feignclient.resell.request.StockRollbackRequest;
+import com.limito.order.order.domain.dto.feignclient.resell.response.ProductInfosGetResponseV1;
 
 import jakarta.validation.Valid;
 
