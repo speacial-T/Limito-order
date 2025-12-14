@@ -3,7 +3,7 @@ package com.limito.order.order.domain.model;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import com.limito.common.audit.BaseEntity;
+import com.limito.common.security.audit.BaseEntity;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

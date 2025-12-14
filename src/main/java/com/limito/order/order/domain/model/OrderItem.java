@@ -2,7 +2,7 @@ package com.limito.order.order.domain.model;
 
 import java.util.UUID;
 
-import com.limito.common.audit.BaseEntity;
+import com.limito.common.security.audit.BaseEntity;
 import com.limito.order.common.ProductType;
 import com.limito.order.order.domain.dto.feignclient.limited.GetOrderedProductInfoResponseV1;
 import com.limito.order.order.domain.dto.feignclient.resell.response.ProductInfosGetResponseV1;

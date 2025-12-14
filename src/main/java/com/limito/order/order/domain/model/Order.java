@@ -8,7 +8,7 @@ import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
 
-import com.limito.common.audit.BaseEntity;
+import com.limito.common.security.audit.BaseEntity;
 import com.limito.order.common.OrderStatus;
 import com.limito.order.common.ProductType;
 import com.limito.order.order.domain.dto.feignclient.user.OrderedUserInfoResponseV1;
