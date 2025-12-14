@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.limito.common.exception.AppException;
+import com.limito.common.security.context.UserContext;
 import com.limito.order.cart.service.CartServiceV1;
 import com.limito.order.common.OrderStatus;
 import com.limito.order.common.feignclient.LimitedFeignClient;
@@ -58,8 +59,10 @@ public class OrderServiceV1 {
 
 	// 한정판매 주문서 생성
 	@Transactional
-	public CreateLimitedOrderResponseV1 createLimitedOrderSheet(Long userId,
+	public CreateLimitedOrderResponseV1 createLimitedOrderSheet(UserContext user,
 		CreateLimitedOrderRequestV1 createLimitedOrderRequest) {
+		Long userId = user.getUserId();
+
 		// requestDto -> entity 매핑해서 주문 엔티티 생성
 		Order order = orderMapper.toOrderEntity(userId, createLimitedOrderRequest);
 
@@ -96,8 +99,9 @@ public class OrderServiceV1 {
 
 	// 한정판매 주문자 정보 추가
 	@Transactional
-	public CreateLimitedOrderResponseV1 addLimitedOrdererData(Long userId, UUID orderId,
+	public CreateLimitedOrderResponseV1 addLimitedOrdererData(UserContext user, UUID orderId,
 		AddOrdererRequestV1 ordererRequest) {
+		Long userId = user.getUserId();
 		Order order = orderRepository.findById(orderId)
 			.orElseThrow(() -> AppException.of(HttpStatus.NOT_FOUND, "주문을 찾을 수 없습니다."));
 
@@ -135,8 +139,10 @@ public class OrderServiceV1 {
 
 	// 리셀 주문서 생성
 	@Transactional
-	public CreateResellOrderResponseV1 createResellOrderSheet(Long userId,
+	public CreateResellOrderResponseV1 createResellOrderSheet(UserContext user,
 		CreateResellOrderRequestV1 createResellOrderRequest) {
+		Long userId = user.getUserId();
+		
 		Order order = orderMapper.toOrderEntity(userId, createResellOrderRequest);
 
 		List<OrderItem> orderItems = orderMapper.toOrderItemEntity(createResellOrderRequest);
@@ -164,8 +170,10 @@ public class OrderServiceV1 {
 
 	// 리셀 주문자 정보 추가
 	@Transactional
-	public CreateResellOrderResponseV1 addResellOrdererData(Long userId, UUID orderId,
+	public CreateResellOrderResponseV1 addResellOrdererData(UserContext user, UUID orderId,
 		AddOrdererRequestV1 ordererRequest) {
+		Long userId = user.getUserId();
+
 		Order order = orderRepository.findById(orderId)
 			.orElseThrow(() -> AppException.of(HttpStatus.NOT_FOUND, "주문을 찾을 수 없습니다."));
 
