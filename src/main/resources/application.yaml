@@ -30,3 +30,5 @@ feign:
     url: http://localhost:19095
   limited-product-service:
     url: http://localhost:19094
+  user-service:
+    url: http://localhost:19092

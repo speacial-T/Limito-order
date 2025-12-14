@@ -3,11 +3,15 @@ package com.limito.order.order.domain.model;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
+
+import org.springframework.http.ResponseEntity;
 
 import com.limito.common.audit.BaseEntity;
 import com.limito.order.common.OrderStatus;
 import com.limito.order.common.ProductType;
+import com.limito.order.order.domain.dto.feignclient.user.OrderedUserInfoResponseV1;
 import com.limito.order.order.domain.dto.request.AddOrdererRequestV1;
 
 import jakarta.persistence.CascadeType;
@@ -106,6 +110,12 @@ public class Order extends BaseEntity {
 		this.receiverName = ordererRequest.getReceiverName();
 		this.phoneNumber = ordererRequest.getPhoneNumber();
 		this.deliveryAddress = ordererRequest.getDeliveryAddress();
+	}
+
+	public void attachOrdererDefault(ResponseEntity<OrderedUserInfoResponseV1> userFeignResponse) {
+		this.receiverName = Objects.requireNonNull(userFeignResponse.getBody()).getReceiverName();
+		this.phoneNumber = Objects.requireNonNull(userFeignResponse.getBody()).getPhoneNumber();
+		this.deliveryAddress = Objects.requireNonNull(userFeignResponse.getBody()).getDeliveryAddress();
 	}
 
 	public void attachSuccess() {

@@ -17,6 +17,7 @@ import com.limito.order.cart.service.CartServiceV1;
 import com.limito.order.common.OrderStatus;
 import com.limito.order.common.feignclient.LimitedFeignClient;
 import com.limito.order.common.feignclient.ResellFeignClient;
+import com.limito.order.common.feignclient.UserFeignClient;
 import com.limito.order.order.domain.dto.feignclient.limited.GetOrderedProductInfoRequestV1;
 import com.limito.order.order.domain.dto.feignclient.limited.GetOrderedProductInfoResponseV1;
 import com.limito.order.order.domain.dto.feignclient.limited.ReserveStockItemRequestV1;
@@ -24,6 +25,7 @@ import com.limito.order.order.domain.dto.feignclient.limited.ReserveStockRequest
 import com.limito.order.order.domain.dto.feignclient.resell.request.ProductInfosGetRequestV1;
 import com.limito.order.order.domain.dto.feignclient.resell.request.StockReduceRequest;
 import com.limito.order.order.domain.dto.feignclient.resell.response.ProductInfosGetResponseV1;
+import com.limito.order.order.domain.dto.feignclient.user.OrderedUserInfoResponseV1;
 import com.limito.order.order.domain.dto.request.AddOrdererRequestV1;
 import com.limito.order.order.domain.dto.request.CreateLimitedOrderRequestV1;
 import com.limito.order.order.domain.dto.request.CreateResellOrderRequestV1;
@@ -51,6 +53,7 @@ public class OrderServiceV1 {
 	private final OrderMapper orderMapper;
 	private final ResellFeignClient resellFeignClient;
 	private final LimitedFeignClient limitedFeignClient;
+	private final UserFeignClient userFeignClient;
 	private final CartServiceV1 cartService;
 
 	// 한정판매 주문서 생성
@@ -78,7 +81,9 @@ public class OrderServiceV1 {
 		log.info("상품가격 : {}", productInfos.get(0).getPrice());
 		attachLimitedProductInfos(orderItems, productInfos);
 
-		// Todo : 유저 feign : 사용자 기본 배송지 정보 요청
+		//유저 feign : 사용자 기본 배송지 정보 요청
+		ResponseEntity<OrderedUserInfoResponseV1> userFeignResponse = userFeignClient.getOrderedUserInfo(userId);
+		order.attachOrdererDefault(userFeignResponse);
 
 		order.attachSummary(orderItems);
 		order.attachTotalPrice(orderItems);
@@ -148,7 +153,9 @@ public class OrderServiceV1 {
 		order.attachSummary(orderItems);
 		order.attachTotalPrice(orderItems);
 
-		// Todo. 유저  : 사용자 정보 요청
+		//유저 feign : 사용자 기본 배송지 정보 요청
+		ResponseEntity<OrderedUserInfoResponseV1> userFeignResponse = userFeignClient.getOrderedUserInfo(userId);
+		order.attachOrdererDefault(userFeignResponse);
 
 		orderRepository.save(order);
 
