@@ -62,6 +62,7 @@ public class OrderServiceV1 {
 	public CreateLimitedOrderResponseV1 createLimitedOrderSheet(UserContext user,
 		CreateLimitedOrderRequestV1 createLimitedOrderRequest) {
 		Long userId = user.getUserId();
+		log.info("userId : {}", userId);
 
 		// requestDto -> entity 매핑해서 주문 엔티티 생성
 		Order order = orderMapper.toOrderEntity(userId, createLimitedOrderRequest);
@@ -142,7 +143,7 @@ public class OrderServiceV1 {
 	public CreateResellOrderResponseV1 createResellOrderSheet(UserContext user,
 		CreateResellOrderRequestV1 createResellOrderRequest) {
 		Long userId = user.getUserId();
-		
+
 		Order order = orderMapper.toOrderEntity(userId, createResellOrderRequest);
 
 		List<OrderItem> orderItems = orderMapper.toOrderItemEntity(createResellOrderRequest);
