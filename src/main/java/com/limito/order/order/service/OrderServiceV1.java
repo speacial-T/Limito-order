@@ -72,6 +72,10 @@ public class OrderServiceV1 {
 		// 연관관계 설정
 		order.attachOrderItems(orderItems);
 
+		//유저 feign : 사용자 기본 배송지 정보 요청
+		ResponseEntity<OrderedUserInfoResponseV1> userFeignResponse = userFeignClient.getOrderedUserInfo(userId);
+		order.attachOrdererDefault(userFeignResponse);
+
 		// 한정판매 feign: 상품 정보 요청
 		GetOrderedProductInfoRequestV1 feignRequest = orderMapper.toGetOrderedProductInfoRequest(
 			createLimitedOrderRequest);
@@ -84,11 +88,6 @@ public class OrderServiceV1 {
 		// 주문 상품 정보 추가
 		log.info("상품가격 : {}", productInfos.get(0).getPrice());
 		attachLimitedProductInfos(orderItems, productInfos);
-
-		//유저 feign : 사용자 기본 배송지 정보 요청
-		ResponseEntity<OrderedUserInfoResponseV1> userFeignResponse = userFeignClient.getOrderedUserInfo(userId);
-		order.attachOrdererDefault(userFeignResponse);
-
 		order.attachSummary(orderItems);
 		order.attachTotalPrice(orderItems);
 
@@ -149,6 +148,10 @@ public class OrderServiceV1 {
 		List<OrderItem> orderItems = orderMapper.toOrderItemEntity(createResellOrderRequest);
 		order.attachOrderItems(orderItems);
 
+		//유저 feign : 사용자 기본 배송지 정보 요청
+		ResponseEntity<OrderedUserInfoResponseV1> userFeignResponse = userFeignClient.getOrderedUserInfo(userId);
+		order.attachOrdererDefault(userFeignResponse);
+
 		// 리셀 주문 상품 정보 요청
 		List<ProductInfosGetRequestV1> feignRequests = orderMapper.toProductInfosGetRequests(orderItems);
 		ResponseEntity<List<ProductInfosGetResponseV1>> feignResponse = resellFeignClient.getProductInfos(
@@ -159,10 +162,6 @@ public class OrderServiceV1 {
 		attachResellProductInfos(orderItems, productInfos);
 		order.attachSummary(orderItems);
 		order.attachTotalPrice(orderItems);
-
-		//유저 feign : 사용자 기본 배송지 정보 요청
-		ResponseEntity<OrderedUserInfoResponseV1> userFeignResponse = userFeignClient.getOrderedUserInfo(userId);
-		order.attachOrdererDefault(userFeignResponse);
 
 		orderRepository.save(order);
 
