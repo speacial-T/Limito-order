@@ -113,7 +113,7 @@ public class OrderMapper {
 	}
 
 	public List<CreateLimitedOrderItemResponseV1> toLimitedOrderItemResponse(Order order) {
-		List<OrderItem> orderItems = order.deliverOrderItems();
+		List<OrderItem> orderItems = order.getOrderItems();
 		List<CreateLimitedOrderItemResponseV1> responses = new ArrayList<>();
 
 		orderItems.forEach(orderItem -> {
@@ -294,7 +294,8 @@ public class OrderMapper {
 	}
 
 	public RollbackStockRequestV1 toRollbackStockRequest(List<OrderItem> orderItems) {
-		List<OptionItemAmountRequest> request = orderItems.stream().map(orderItem -> OptionItemAmountRequest.builder()
+		List<OptionItemAmountRequest> request = orderItems.stream()
+			.map(orderItem -> OptionItemAmountRequest.builder()
 				.limitedProductOptionId(orderItem.getOptionId())
 				.limitedProductItemId(orderItem.getProductItemId())
 				.amount(orderItem.getProductAmount())

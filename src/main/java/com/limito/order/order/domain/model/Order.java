@@ -95,10 +95,6 @@ public class Order extends BaseEntity {
 		}
 	}
 
-	public List<OrderItem> deliverOrderItems() {
-		return this.getOrderItems();
-	}
-
 	public List<UUID> getStockIds(Order order) {
 		List<OrderItem> orderItems = order.getOrderItems();
 		List<UUID> stockIds = new ArrayList<>();

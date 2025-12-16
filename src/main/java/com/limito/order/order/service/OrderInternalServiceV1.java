@@ -45,7 +45,7 @@ public class OrderInternalServiceV1 {
 		// 상품 feign: 재고 차감 요청
 		List<ReduceStockProductRequestV1> reduceProductRequests = new ArrayList<>();
 
-		List<OrderItem> orderItems = order.deliverOrderItems();
+		List<OrderItem> orderItems = order.getOrderItems();
 		for (OrderItem orderItem : orderItems) {
 			ReduceStockProductRequestV1 req = new ReduceStockProductRequestV1(orderItem.getOptionId(),
 				orderItem.getProductItemId(), orderItem.getProductAmount());
@@ -69,7 +69,7 @@ public class OrderInternalServiceV1 {
 
 		Order order = orderRepository.findById(orderId)
 			.orElseThrow(() -> AppException.of(HttpStatus.NOT_FOUND, "주문을 찾을 수 없습니다."));
-		List<OrderItem> orderItems = order.deliverOrderItems();
+		List<OrderItem> orderItems = order.getOrderItems();
 
 		// 상품 feign: 재고 차감 요청
 		// Todo. 예외처리
@@ -89,7 +89,7 @@ public class OrderInternalServiceV1 {
 	public void limitedOrderFail(UUID orderId) {
 		Order order = orderRepository.findById(orderId)
 			.orElseThrow(() -> AppException.of(HttpStatus.NOT_FOUND, "주문을 찾을 수 없습니다."));
-		List<OrderItem> orderItems = order.deliverOrderItems();
+		List<OrderItem> orderItems = order.getOrderItems();
 
 		// 임시 재고 예약 취소 요청
 		CancelReserveStockRequestV1 feignRequest = orderMapper.reserveCancelRequest(orderItems);
@@ -111,7 +111,7 @@ public class OrderInternalServiceV1 {
 	public void resellOrderFail(UUID orderId) {
 		Order order = orderRepository.findById(orderId)
 			.orElseThrow(() -> AppException.of(HttpStatus.NOT_FOUND, "주문을 찾을 수 없습니다."));
-		List<OrderItem> orderItems = order.deliverOrderItems();
+		List<OrderItem> orderItems = order.getOrderItems();
 
 		// 임시 재고 예약 취소 요청
 		List<UUID> stockIds = orderMapper.getStockIds(orderItems);
@@ -133,7 +133,7 @@ public class OrderInternalServiceV1 {
 	public void limitedOrderCancel(UUID orderId) {
 		Order order = orderRepository.findById(orderId)
 			.orElseThrow(() -> AppException.of(HttpStatus.NOT_FOUND, "주문을 찾을 수 없습니다."));
-		List<OrderItem> orderItems = order.deliverOrderItems();
+		List<OrderItem> orderItems = order.getOrderItems();
 
 		// 한정판매 feign : 재고 복원
 		RollbackStockRequestV1 feignRequest = orderMapper.toRollbackStockRequest(orderItems);
@@ -151,7 +151,7 @@ public class OrderInternalServiceV1 {
 	public void resellOrderCancel(UUID orderId) {
 		Order order = orderRepository.findById(orderId)
 			.orElseThrow(() -> AppException.of(HttpStatus.NOT_FOUND, "주문을 찾을 수 없습니다."));
-		List<OrderItem> orderItems = order.deliverOrderItems();
+		List<OrderItem> orderItems = order.getOrderItems();
 
 		// 리셀 feign : 재고 복원
 		List<StockRollbackRequest> feignRequest = orderMapper.toStockRollbackRequest(orderItems);
