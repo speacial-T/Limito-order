@@ -58,7 +58,7 @@ public class OrderControllerV1 {
 
 	// 리셀 주문서 생성
 	@PreAuthorized({UserRole.USER})
-	@PatchMapping("/resell/order-sheet")
+	@PostMapping("/resell/order-sheet")
 	public ResponseEntity<CreateResellOrderResponseV1> createResellOrderSheet(
 		@Valid @RequestBody CreateResellOrderRequestV1 createResellOrderRequest, @CurrentUser UserContext user) {
 		CreateResellOrderResponseV1 result = orderService.createResellOrderSheet(user, createResellOrderRequest);
@@ -67,7 +67,7 @@ public class OrderControllerV1 {
 
 	// 리셀 주문자 정보 추가
 	@PreAuthorized({UserRole.USER})
-	@PostMapping("/resell/orderer-data/{orderId}")
+	@PatchMapping("/resell/orderer-data/{orderId}")
 	public ResponseEntity<CreateResellOrderResponseV1> addResellOrdererData(@PathVariable UUID orderId,
 		@Valid @RequestBody AddOrdererRequestV1 ordererRequest, @CurrentUser UserContext user) {
 		CreateResellOrderResponseV1 result = orderService.addResellOrdererData(user, orderId, ordererRequest);
