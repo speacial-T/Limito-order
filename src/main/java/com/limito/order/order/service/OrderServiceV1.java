@@ -83,7 +83,7 @@ public class OrderServiceV1 {
 		// 주문자 정보 추가
 		order.attachOrderer(ordererRequest);
 
-		List<OrderItem> orderItems = order.deliverOrderItems();
+		List<OrderItem> orderItems = order.getOrderItems();
 
 		// 재고 예약 요청
 		// feign requestDto 생성

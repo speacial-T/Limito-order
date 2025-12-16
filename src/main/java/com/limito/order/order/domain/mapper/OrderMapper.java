@@ -9,6 +9,9 @@ import org.springframework.stereotype.Component;
 import com.limito.order.common.OrderStatus;
 import com.limito.order.order.domain.dto.feignclient.limited.CancelReserveStockRequestV1;
 import com.limito.order.order.domain.dto.feignclient.limited.ItemAmountRequest;
+import com.limito.order.order.domain.dto.feignclient.limited.OptionItemAmountRequest;
+import com.limito.order.order.domain.dto.feignclient.limited.RollbackStockRequestV1;
+import com.limito.order.order.domain.dto.feignclient.resell.dto.request.StockRollbackRequest;
 import com.limito.order.order.domain.dto.request.CreateLimitedOrderRequestV1;
 import com.limito.order.order.domain.dto.request.CreateResellOrderRequestV1;
 import com.limito.order.order.domain.dto.response.CreateLimitedOrderItemResponseV1;
@@ -110,7 +113,7 @@ public class OrderMapper {
 	}
 
 	public List<CreateLimitedOrderItemResponseV1> toLimitedOrderItemResponse(Order order) {
-		List<OrderItem> orderItems = order.deliverOrderItems();
+		List<OrderItem> orderItems = order.getOrderItems();
 		List<CreateLimitedOrderItemResponseV1> responses = new ArrayList<>();
 
 		orderItems.forEach(orderItem -> {
@@ -287,6 +290,28 @@ public class OrderMapper {
 	public List<UUID> getStockIds(List<OrderItem> orderItems) {
 		return orderItems.stream()
 			.map(OrderItem::getStockId)
+			.toList();
+	}
+
+	public RollbackStockRequestV1 toRollbackStockRequest(List<OrderItem> orderItems) {
+		List<OptionItemAmountRequest> request = orderItems.stream()
+			.map(orderItem -> OptionItemAmountRequest.builder()
+				.limitedProductOptionId(orderItem.getOptionId())
+				.limitedProductItemId(orderItem.getProductItemId())
+				.amount(orderItem.getProductAmount())
+				.build())
+			.toList();
+
+		return RollbackStockRequestV1.builder()
+			.products(request).build();
+	}
+
+	public List<StockRollbackRequest> toStockRollbackRequest(List<OrderItem> orderItems) {
+		return orderItems.stream().map(orderItem -> StockRollbackRequest.builder()
+				.productId(orderItem.getProductId())
+				.optionId(orderItem.getOptionId())
+				.stockId(orderItem.getStockId())
+				.build())
 			.toList();
 	}
 }
