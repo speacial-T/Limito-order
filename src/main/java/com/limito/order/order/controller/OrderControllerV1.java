@@ -42,7 +42,9 @@ public class OrderControllerV1 {
 	@PreAuthorized({UserRole.USER})
 	@PostMapping("/limited/order-sheet")
 	public ResponseEntity<CreateLimitedOrderResponseV1> createLimitedOrderSheet(
-		@Valid @RequestBody CreateLimitedOrderRequestV1 createLimitedOrderRequest, @CurrentUser UserContext user) {
+		@Valid @RequestBody CreateLimitedOrderRequestV1 createLimitedOrderRequest,
+		@CurrentUser UserContext user
+	) {
 		CreateLimitedOrderResponseV1 result = orderService.createLimitedOrderSheet(user, createLimitedOrderRequest);
 		return ResponseEntity.ok(result);
 	}
@@ -50,8 +52,11 @@ public class OrderControllerV1 {
 	// 한정판매 주문자 정보 변경
 	@PreAuthorized({UserRole.USER})
 	@PatchMapping("/limited/orderer-data/{orderId}")
-	public ResponseEntity<CreateLimitedOrderResponseV1> addLimitedOrdererData(@PathVariable UUID orderId,
-		@Valid @RequestBody AddOrdererRequestV1 ordererRequest, @CurrentUser UserContext user) {
+	public ResponseEntity<CreateLimitedOrderResponseV1> addLimitedOrdererData(
+		@PathVariable UUID orderId,
+		@Valid @RequestBody AddOrdererRequestV1 ordererRequest,
+		@CurrentUser UserContext user
+	) {
 		CreateLimitedOrderResponseV1 result = orderService.addLimitedOrdererData(user, orderId, ordererRequest);
 		return ResponseEntity.ok(result);
 	}
@@ -60,7 +65,9 @@ public class OrderControllerV1 {
 	@PreAuthorized({UserRole.USER})
 	@PostMapping("/resell/order-sheet")
 	public ResponseEntity<CreateResellOrderResponseV1> createResellOrderSheet(
-		@Valid @RequestBody CreateResellOrderRequestV1 createResellOrderRequest, @CurrentUser UserContext user) {
+		@Valid @RequestBody CreateResellOrderRequestV1 createResellOrderRequest,
+		@CurrentUser UserContext user
+	) {
 		CreateResellOrderResponseV1 result = orderService.createResellOrderSheet(user, createResellOrderRequest);
 		return ResponseEntity.ok(result);
 	}
@@ -68,8 +75,11 @@ public class OrderControllerV1 {
 	// 리셀 주문자 정보 추가
 	@PreAuthorized({UserRole.USER})
 	@PatchMapping("/resell/orderer-data/{orderId}")
-	public ResponseEntity<CreateResellOrderResponseV1> addResellOrdererData(@PathVariable UUID orderId,
-		@Valid @RequestBody AddOrdererRequestV1 ordererRequest, @CurrentUser UserContext user) {
+	public ResponseEntity<CreateResellOrderResponseV1> addResellOrdererData(
+		@PathVariable UUID orderId,
+		@Valid @RequestBody AddOrdererRequestV1 ordererRequest,
+		@CurrentUser UserContext user
+	) {
 		CreateResellOrderResponseV1 result = orderService.addResellOrdererData(user, orderId, ordererRequest);
 		return ResponseEntity.ok(result);
 	}

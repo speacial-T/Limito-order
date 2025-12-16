@@ -59,8 +59,10 @@ public class OrderServiceV1 {
 
 	// 한정판매 주문서 생성
 	@Transactional
-	public CreateLimitedOrderResponseV1 createLimitedOrderSheet(UserContext user,
-		CreateLimitedOrderRequestV1 createLimitedOrderRequest) {
+	public CreateLimitedOrderResponseV1 createLimitedOrderSheet(
+		UserContext user,
+		CreateLimitedOrderRequestV1 createLimitedOrderRequest
+	) {
 		Long userId = user.getUserId();
 		log.info("userId : {}", userId);
 
@@ -99,8 +101,11 @@ public class OrderServiceV1 {
 
 	// 한정판매 주문자 정보 추가
 	@Transactional
-	public CreateLimitedOrderResponseV1 addLimitedOrdererData(UserContext user, UUID orderId,
-		AddOrdererRequestV1 ordererRequest) {
+	public CreateLimitedOrderResponseV1 addLimitedOrdererData(
+		UserContext user,
+		UUID orderId,
+		AddOrdererRequestV1 ordererRequest
+	) {
 		Long userId = user.getUserId();
 		Order order = orderRepository.findById(orderId)
 			.orElseThrow(() -> AppException.of(HttpStatus.NOT_FOUND, "주문을 찾을 수 없습니다."));
@@ -139,8 +144,10 @@ public class OrderServiceV1 {
 
 	// 리셀 주문서 생성
 	@Transactional
-	public CreateResellOrderResponseV1 createResellOrderSheet(UserContext user,
-		CreateResellOrderRequestV1 createResellOrderRequest) {
+	public CreateResellOrderResponseV1 createResellOrderSheet(
+		UserContext user,
+		CreateResellOrderRequestV1 createResellOrderRequest
+	) {
 		Long userId = user.getUserId();
 
 		Order order = orderMapper.toOrderEntity(userId, createResellOrderRequest);
@@ -170,8 +177,11 @@ public class OrderServiceV1 {
 
 	// 리셀 주문자 정보 추가
 	@Transactional
-	public CreateResellOrderResponseV1 addResellOrdererData(UserContext user, UUID orderId,
-		AddOrdererRequestV1 ordererRequest) {
+	public CreateResellOrderResponseV1 addResellOrdererData(
+		UserContext user,
+		UUID orderId,
+		AddOrdererRequestV1 ordererRequest
+	) {
 		Long userId = user.getUserId();
 
 		Order order = orderRepository.findById(orderId)
