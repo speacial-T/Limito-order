@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -84,46 +83,50 @@ public class OrderControllerV1 {
 		return ResponseEntity.ok(result);
 	}
 
+	// 주문 목록 조회 - USER 권한
+	@PreAuthorized({UserRole.USER})
 	@GetMapping("/user")
 	public ResponseEntity<Slice<GetOrdersForUserResponseV1>> getOrdersForUser(
-		@RequestHeader("X-User-Id") Long userId,
-		@RequestHeader("X-User-Role") String userRole,
+		@CurrentUser UserContext user,
 		Pageable pageable
 	) {
-		Slice<GetOrdersForUserResponseV1> response = orderService.getOrdersForUser(userId, userRole, pageable);
+		Slice<GetOrdersForUserResponseV1> response = orderService.getOrdersForUser(user, pageable);
 
 		return ResponseEntity.ok(response);
 	}
 
+	// 주문 목록 조회 - COMPANY 권한
+	@PreAuthorized({UserRole.COMPANY})
 	@GetMapping("/company")
 	public ResponseEntity<Slice<GetOrdersForCompanyResponseV1>> getOrdersForCompany(
-		@RequestHeader("X-User-Id") Long userId,
-		@RequestHeader("X-User-Role") String userRole,
+		@CurrentUser UserContext user,
 		Pageable pageable
 	) {
-		Slice<GetOrdersForCompanyResponseV1> response = orderService.getOrdersForCompany(userId, userRole, pageable);
+		Slice<GetOrdersForCompanyResponseV1> response = orderService.getOrdersForCompany(user, pageable);
 
 		return ResponseEntity.ok(response);
 	}
 
+	// 주문 싱세 조회 - USER 권한
+	@PreAuthorized({UserRole.USER})
 	@GetMapping("/user/{orderId}")
 	public ResponseEntity<GetOrderForUserResponseV1> getOrderForUser(
-		@RequestHeader("X-User-Id") Long userId,
-		@RequestHeader("X-User-Role") String userRole,
+		@CurrentUser UserContext user,
 		@PathVariable UUID orderId
 	) {
-		GetOrderForUserResponseV1 response = orderService.getOrderForUser(userId, userRole, orderId);
+		GetOrderForUserResponseV1 response = orderService.getOrderForUser(user, orderId);
 
 		return ResponseEntity.ok(response);
 	}
 
+	// 주문 상세 조회 - COMPANY 권한
+	@PreAuthorized({UserRole.COMPANY})
 	@GetMapping("/company/{orderId}")
 	public ResponseEntity<GetOrderForCompanyResponseV1> getOrderForCompany(
-		@RequestHeader("X-User-Id") Long userId,
-		@RequestHeader("X-User-Role") String userRole,
+		@CurrentUser UserContext user,
 		@PathVariable UUID orderId
 	) {
-		GetOrderForCompanyResponseV1 response = orderService.getOrderForCompany(userId, userRole, orderId);
+		GetOrderForCompanyResponseV1 response = orderService.getOrderForCompany(user, orderId);
 
 		return ResponseEntity.ok(response);
 	}
