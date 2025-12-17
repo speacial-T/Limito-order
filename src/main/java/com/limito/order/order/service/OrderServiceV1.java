@@ -289,7 +289,8 @@ public class OrderServiceV1 {
 
 	private List<GetOrderedProductInfoResponseV1.OrderedProductInfo> validateLimitedOrderSheetFeignResponse(
 		ResponseEntity<GetOrderedProductInfoResponseV1> feignResponse,
-		List<OrderItem> orderItems) {
+		List<OrderItem> orderItems
+	) {
 		if (!feignResponse.getStatusCode().equals(HttpStatus.OK)) {
 			throw AppException.of(HttpStatus.EXPECTATION_FAILED, "한정판매 주문 상품 정보 요청에 실패했습니다");
 		}
@@ -310,8 +311,10 @@ public class OrderServiceV1 {
 		return productInfos;
 	}
 
-	private void attachLimitedProductInfos(List<OrderItem> orderItems,
-		List<GetOrderedProductInfoResponseV1.OrderedProductInfo> productInfos) {
+	private void attachLimitedProductInfos(
+		List<OrderItem> orderItems,
+		List<GetOrderedProductInfoResponseV1.OrderedProductInfo> productInfos
+	) {
 		for (OrderItem orderItem : orderItems) {
 			GetOrderedProductInfoResponseV1.OrderedProductInfo info =
 				findLimitedInfoByItemId(productInfos, orderItem.getLimitedProductItemId());
@@ -347,7 +350,8 @@ public class OrderServiceV1 {
 	}
 
 	private void attachResellProductInfos(List<OrderItem> orderItems,
-		List<ProductInfosGetResponseV1> productInfos) {
+		List<ProductInfosGetResponseV1> productInfos
+	) {
 		for (OrderItem orderItem : orderItems) {
 			ProductInfosGetResponseV1 info =
 				findResellInfoByItemId(productInfos, orderItem.getStockId());
@@ -362,7 +366,8 @@ public class OrderServiceV1 {
 	}
 
 	private void attachProductInfos(List<OrderItem> orderItems,
-		List<GetOrderedProductInfoResponseV1.OrderedProductInfo> productInfos) {
+		List<GetOrderedProductInfoResponseV1.OrderedProductInfo> productInfos
+	) {
 		for (OrderItem orderItem : orderItems) {
 			GetOrderedProductInfoResponseV1.OrderedProductInfo info =
 				findInfoByItemId(productInfos, orderItem.getLimitedProductItemId());
