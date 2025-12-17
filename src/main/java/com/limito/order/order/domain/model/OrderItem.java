@@ -2,8 +2,10 @@ package com.limito.order.order.domain.model;
 
 import java.util.UUID;
 
-import com.limito.common.audit.BaseEntity;
+import com.limito.common.security.audit.BaseEntity;
 import com.limito.order.common.ProductType;
+import com.limito.order.order.domain.dto.feignclient.limited.GetOrderedProductInfoResponseV1;
+import com.limito.order.order.domain.dto.feignclient.resell.response.ProductInfosGetResponseV1;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -50,7 +52,7 @@ public class OrderItem extends BaseEntity {
 	@Column(name = "product_id")
 	private UUID productId;
 
-	@Column(name = "product_type", nullable = false)
+	@Column(name = "product_type")
 	@Enumerated(EnumType.STRING)
 	private ProductType productType;
 
@@ -80,5 +82,33 @@ public class OrderItem extends BaseEntity {
 
 	public void attachOrder(Order order) {
 		this.order = order;
+	}
+
+	public UUID getLimitedProductItemId() {
+		return this.productItemId;
+	}
+
+	public void attachProductInfo(GetOrderedProductInfoResponseV1.OrderedProductInfo info) {
+		this.productType = ProductType.LIMITED;
+		this.productName = info.getName();
+		this.brandName = info.getBrandName();
+		this.sellerId = info.getSellerId();
+		this.productColor = info.getColor();
+		this.productSize = info.getSize();
+		this.productPrice = info.getPrice();
+		// 수량 * 단가로 상품 총 금액 세팅
+		this.totalProductPrice = (long)this.productAmount * this.productPrice;
+	}
+
+	public void attachProductInfo(ProductInfosGetResponseV1 info) {
+		this.productType = ProductType.RESELL;
+		this.productName = info.getProductName();
+		this.brandName = info.getBrandName();
+		this.sellerId = info.getSellerId();
+		this.productColor = info.getProductColor();
+		this.productSize = info.getProductSize();
+		this.productPrice = info.getProductPrice();
+		// 수량 * 단가로 상품 총 금액 세팅
+		this.totalProductPrice = (long)this.productPrice;
 	}
 }

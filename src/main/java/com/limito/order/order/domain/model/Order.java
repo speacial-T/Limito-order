@@ -3,13 +3,16 @@ package com.limito.order.order.domain.model;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
-import com.limito.common.audit.BaseEntity;
+import org.springframework.http.ResponseEntity;
+
+import com.limito.common.security.audit.BaseEntity;
 import com.limito.order.common.OrderStatus;
+import com.limito.order.common.ProductType;
+import com.limito.order.order.domain.dto.feignclient.user.OrderedUserInfoResponseV1;
 import com.limito.order.order.domain.dto.request.AddOrdererRequestV1;
-import com.limito.order.order.domain.dto.request.CreateLimitedOrderRequestV1;
-import com.limito.order.order.domain.dto.request.CreateResellOrderRequestV1;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -50,7 +53,11 @@ public class Order extends BaseEntity {
 	@Column(name = "delivery_address")
 	private String deliveryAddress;
 
-	@Column(name = "total_price", nullable = false)
+	@Column(name = "order_product_type", nullable = false)
+	@Enumerated(EnumType.STRING)
+	private ProductType orderProductType;
+
+	@Column(name = "total_price")
 	private Long totalPrice;
 
 	@Column(name = "order_status", nullable = false)
@@ -63,7 +70,7 @@ public class Order extends BaseEntity {
 	@Column(name = "successed_at")
 	private LocalDateTime successedAt;
 
-	@Column(name = "item_summary", nullable = false, length = 100)
+	@Column(name = "item_summary", length = 100)
 	private String itemSummary;
 
 	@OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -77,18 +84,9 @@ public class Order extends BaseEntity {
 		});
 	}
 
-	public void attachSummary(CreateLimitedOrderRequestV1 req) {
-		int itemCount = req.getItems().size() - 1;
-		String firstProductName = req.getItems().get(0).getProductName();
-		this.itemSummary = firstProductName + " 외 " + itemCount + "건";
-		if (itemCount == 0) {
-			this.itemSummary = firstProductName;
-		}
-	}
-
-	public void attachSummary(CreateResellOrderRequestV1 req) {
-		int itemCount = req.getItems().size() - 1;
-		String firstProductName = req.getItems().get(0).getProductName();
+	public void attachSummary(List<OrderItem> orderItems) {
+		int itemCount = orderItems.size() - 1;
+		String firstProductName = orderItems.get(0).getProductName();
 		this.itemSummary = firstProductName + " 외 " + itemCount + "건";
 		if (itemCount == 0) {
 			this.itemSummary = firstProductName;
@@ -114,7 +112,21 @@ public class Order extends BaseEntity {
 		this.deliveryAddress = ordererRequest.getDeliveryAddress();
 	}
 
+	public void attachOrdererDefault(ResponseEntity<OrderedUserInfoResponseV1> userFeignResponse) {
+		this.receiverName = Objects.requireNonNull(userFeignResponse.getBody()).getReceiverName();
+		this.phoneNumber = Objects.requireNonNull(userFeignResponse.getBody()).getPhoneNumber();
+		this.deliveryAddress = Objects.requireNonNull(userFeignResponse.getBody()).getDeliveryAddress();
+	}
+
 	public void attachSuccess() {
 		this.successedAt = LocalDateTime.now();
+	}
+
+	public void attachTotalPrice(List<OrderItem> orderItems) {
+		Long sum = 0L;
+		for (OrderItem orderItem : orderItems) {
+			sum += orderItem.getTotalProductPrice();
+		}
+		this.totalPrice = sum;
 	}
 }

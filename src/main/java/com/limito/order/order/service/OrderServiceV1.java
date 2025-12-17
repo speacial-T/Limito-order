@@ -13,13 +13,20 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.limito.common.exception.AppException;
+import com.limito.common.security.context.UserContext;
 import com.limito.order.cart.service.CartServiceV1;
 import com.limito.order.common.OrderStatus;
 import com.limito.order.common.feignclient.LimitedFeignClient;
 import com.limito.order.common.feignclient.ResellFeignClient;
+import com.limito.order.common.feignclient.UserFeignClient;
+import com.limito.order.order.domain.dto.feignclient.limited.GetOrderedProductInfoRequestV1;
+import com.limito.order.order.domain.dto.feignclient.limited.GetOrderedProductInfoResponseV1;
 import com.limito.order.order.domain.dto.feignclient.limited.ReserveStockItemRequestV1;
 import com.limito.order.order.domain.dto.feignclient.limited.ReserveStockRequestV1;
-import com.limito.order.order.domain.dto.feignclient.resell.dto.request.StockReduceRequest;
+import com.limito.order.order.domain.dto.feignclient.resell.request.ProductInfosGetRequestV1;
+import com.limito.order.order.domain.dto.feignclient.resell.request.StockReduceRequest;
+import com.limito.order.order.domain.dto.feignclient.resell.response.ProductInfosGetResponseV1;
+import com.limito.order.order.domain.dto.feignclient.user.OrderedUserInfoResponseV1;
 import com.limito.order.order.domain.dto.request.AddOrdererRequestV1;
 import com.limito.order.order.domain.dto.request.CreateLimitedOrderRequestV1;
 import com.limito.order.order.domain.dto.request.CreateResellOrderRequestV1;
@@ -47,14 +54,17 @@ public class OrderServiceV1 {
 	private final OrderMapper orderMapper;
 	private final ResellFeignClient resellFeignClient;
 	private final LimitedFeignClient limitedFeignClient;
+	private final UserFeignClient userFeignClient;
 	private final CartServiceV1 cartService;
 
 	// 한정판매 주문서 생성
 	@Transactional
-	public CreateLimitedOrderResponseV1 createLimitedOrder(Long userId,
-		CreateLimitedOrderRequestV1 createLimitedOrderRequest) {
-
-		// Todo. 합산 가격 검증 (더블 체크)
+	public CreateLimitedOrderResponseV1 createLimitedOrderSheet(
+		UserContext user,
+		CreateLimitedOrderRequestV1 createLimitedOrderRequest
+	) {
+		Long userId = user.getUserId();
+		log.info("userId : {}", userId);
 
 		// requestDto -> entity 매핑해서 주문 엔티티 생성
 		Order order = orderMapper.toOrderEntity(userId, createLimitedOrderRequest);
@@ -64,8 +74,24 @@ public class OrderServiceV1 {
 		// 연관관계 설정
 		order.attachOrderItems(orderItems);
 
-		// itemSummary set 하는 함수 추가하기
-		order.attachSummary(createLimitedOrderRequest);
+		//유저 feign : 사용자 기본 배송지 정보 요청
+		ResponseEntity<OrderedUserInfoResponseV1> userFeignResponse = userFeignClient.getOrderedUserInfo(userId);
+		order.attachOrdererDefault(userFeignResponse);
+
+		// 한정판매 feign: 상품 정보 요청
+		GetOrderedProductInfoRequestV1 feignRequest = orderMapper.toGetOrderedProductInfoRequest(
+			createLimitedOrderRequest);
+		ResponseEntity<GetOrderedProductInfoResponseV1> feignResponse = limitedFeignClient.getOrderedProductInfo(
+			feignRequest);
+
+		List<GetOrderedProductInfoResponseV1.OrderedProductInfo> productInfos = validateLimitedOrderSheetFeignResponse(
+			feignResponse, orderItems);
+
+		// 주문 상품 정보 추가
+		log.info("상품가격 : {}", productInfos.get(0).getPrice());
+		attachLimitedProductInfos(orderItems, productInfos);
+		order.attachSummary(orderItems);
+		order.attachTotalPrice(orderItems);
 
 		// 생성된 주문 엔티티 저장
 		orderRepository.save(order);
@@ -75,8 +101,12 @@ public class OrderServiceV1 {
 
 	// 한정판매 주문자 정보 추가
 	@Transactional
-	public CreateLimitedOrderResponseV1 addLimitedOrdererData(Long userId, UUID orderId,
-		AddOrdererRequestV1 ordererRequest) {
+	public CreateLimitedOrderResponseV1 addLimitedOrdererData(
+		UserContext user,
+		UUID orderId,
+		AddOrdererRequestV1 ordererRequest
+	) {
+		Long userId = user.getUserId();
 		Order order = orderRepository.findById(orderId)
 			.orElseThrow(() -> AppException.of(HttpStatus.NOT_FOUND, "주문을 찾을 수 없습니다."));
 
@@ -114,15 +144,31 @@ public class OrderServiceV1 {
 
 	// 리셀 주문서 생성
 	@Transactional
-	public CreateResellOrderResponseV1 createResellOrderSheet(Long userId,
-		CreateResellOrderRequestV1 createResellOrderRequest) {
+	public CreateResellOrderResponseV1 createResellOrderSheet(
+		UserContext user,
+		CreateResellOrderRequestV1 createResellOrderRequest
+	) {
+		Long userId = user.getUserId();
 
-		// Todo. 합산 가격 검증 (더블 체크)
 		Order order = orderMapper.toOrderEntity(userId, createResellOrderRequest);
-		order.attachSummary(createResellOrderRequest);
 
 		List<OrderItem> orderItems = orderMapper.toOrderItemEntity(createResellOrderRequest);
 		order.attachOrderItems(orderItems);
+
+		//유저 feign : 사용자 기본 배송지 정보 요청
+		ResponseEntity<OrderedUserInfoResponseV1> userFeignResponse = userFeignClient.getOrderedUserInfo(userId);
+		order.attachOrdererDefault(userFeignResponse);
+
+		// 리셀 주문 상품 정보 요청
+		List<ProductInfosGetRequestV1> feignRequests = orderMapper.toProductInfosGetRequests(orderItems);
+		ResponseEntity<List<ProductInfosGetResponseV1>> feignResponse = resellFeignClient.getProductInfos(
+			feignRequests);
+
+		List<ProductInfosGetResponseV1> productInfos = validateResellOrderSheetFeignResponse(feignResponse, orderItems);
+		// 주문 상품 정보 추가
+		attachResellProductInfos(orderItems, productInfos);
+		order.attachSummary(orderItems);
+		order.attachTotalPrice(orderItems);
 
 		orderRepository.save(order);
 
@@ -131,8 +177,13 @@ public class OrderServiceV1 {
 
 	// 리셀 주문자 정보 추가
 	@Transactional
-	public CreateResellOrderResponseV1 addResellOrdererData(Long userId, UUID orderId,
-		AddOrdererRequestV1 ordererRequest) {
+	public CreateResellOrderResponseV1 addResellOrdererData(
+		UserContext user,
+		UUID orderId,
+		AddOrdererRequestV1 ordererRequest
+	) {
+		Long userId = user.getUserId();
+
 		Order order = orderRepository.findById(orderId)
 			.orElseThrow(() -> AppException.of(HttpStatus.NOT_FOUND, "주문을 찾을 수 없습니다."));
 
@@ -210,5 +261,135 @@ public class OrderServiceV1 {
 		) {
 			throw AppException.of(HttpStatus.FORBIDDEN, "조회 권한이 없습니다.");
 		}
+	}
+
+	private GetOrderedProductInfoResponseV1.OrderedProductInfo findLimitedInfoByItemId(
+		List<GetOrderedProductInfoResponseV1.OrderedProductInfo> productInfos,
+		UUID itemId
+	) {
+		for (GetOrderedProductInfoResponseV1.OrderedProductInfo info : productInfos) {
+			if (info.getLimitedProductItemId().equals(itemId)) {
+				return info;
+			}
+		}
+		return null;
+	}
+
+	private ProductInfosGetResponseV1 findResellInfoByItemId(
+		List<ProductInfosGetResponseV1> productInfos,
+		UUID stockId
+	) {
+		for (ProductInfosGetResponseV1 info : productInfos) {
+			if (info.getStockId().equals(stockId)) {
+				return info;
+			}
+		}
+		return null;
+	}
+
+	private List<GetOrderedProductInfoResponseV1.OrderedProductInfo> validateLimitedOrderSheetFeignResponse(
+		ResponseEntity<GetOrderedProductInfoResponseV1> feignResponse,
+		List<OrderItem> orderItems
+	) {
+		if (!feignResponse.getStatusCode().equals(HttpStatus.OK)) {
+			throw AppException.of(HttpStatus.EXPECTATION_FAILED, "한정판매 주문 상품 정보 요청에 실패했습니다");
+		}
+
+		GetOrderedProductInfoResponseV1 body = feignResponse.getBody();
+		if (body == null || body.getProducts() == null) {
+			throw AppException.of(HttpStatus.EXPECTATION_FAILED, "한정판매 주문 상품 정보 응답이 비어있습니다");
+		}
+
+		List<GetOrderedProductInfoResponseV1.OrderedProductInfo> productInfos = body.getProducts();
+
+		// 요청한 아이템 수와 응답 상품 정보 수가 같은지 검증
+		if (productInfos.size() != orderItems.size()) {
+			throw AppException.of(HttpStatus.EXPECTATION_FAILED,
+				"요청한 주문 상품 수와 조회된 상품 정보 수가 일치하지 않습니다.");
+		}
+
+		return productInfos;
+	}
+
+	private void attachLimitedProductInfos(
+		List<OrderItem> orderItems,
+		List<GetOrderedProductInfoResponseV1.OrderedProductInfo> productInfos
+	) {
+		for (OrderItem orderItem : orderItems) {
+			GetOrderedProductInfoResponseV1.OrderedProductInfo info =
+				findLimitedInfoByItemId(productInfos, orderItem.getLimitedProductItemId());
+
+			if (info == null) {
+				throw AppException.of(HttpStatus.EXPECTATION_FAILED,
+					"주문 상품 아이템 정보가 응답에서 누락되었습니다. itemId=" + orderItem.getLimitedProductItemId());
+			}
+
+			orderItem.attachProductInfo(info);
+		}
+	}
+
+	private List<ProductInfosGetResponseV1> validateResellOrderSheetFeignResponse(
+		ResponseEntity<List<ProductInfosGetResponseV1>> feignResponse,
+		List<OrderItem> orderItems) {
+		if (!feignResponse.getStatusCode().equals(HttpStatus.OK)) {
+			throw AppException.of(HttpStatus.EXPECTATION_FAILED, "리셀 주문 상품 정보 요청에 실패했습니다");
+		}
+
+		List<ProductInfosGetResponseV1> productInfos = feignResponse.getBody();
+		if (productInfos == null) {
+			throw AppException.of(HttpStatus.EXPECTATION_FAILED, "리셀 주문 상품 정보 응답이 비어있습니다");
+		}
+
+		// 요청한 아이템 수와 응답 상품 정보 수가 같은지 검증
+		if (productInfos.size() != orderItems.size()) {
+			throw AppException.of(HttpStatus.EXPECTATION_FAILED,
+				"요청한 주문 상품 수와 조회된 상품 정보 수가 일치하지 않습니다.");
+		}
+
+		return productInfos;
+	}
+
+	private void attachResellProductInfos(List<OrderItem> orderItems,
+		List<ProductInfosGetResponseV1> productInfos
+	) {
+		for (OrderItem orderItem : orderItems) {
+			ProductInfosGetResponseV1 info =
+				findResellInfoByItemId(productInfos, orderItem.getStockId());
+
+			if (info == null) {
+				throw AppException.of(HttpStatus.EXPECTATION_FAILED,
+					"주문 상품 아이템 정보가 응답에서 누락되었습니다. itemId=" + orderItem.getStockId());
+			}
+
+			orderItem.attachProductInfo(info);
+		}
+	}
+
+	private void attachProductInfos(List<OrderItem> orderItems,
+		List<GetOrderedProductInfoResponseV1.OrderedProductInfo> productInfos
+	) {
+		for (OrderItem orderItem : orderItems) {
+			GetOrderedProductInfoResponseV1.OrderedProductInfo info =
+				findInfoByItemId(productInfos, orderItem.getLimitedProductItemId());
+
+			if (info == null) {
+				throw AppException.of(HttpStatus.EXPECTATION_FAILED,
+					"주문 상품 아이템 정보가 응답에서 누락되었습니다. itemId=" + orderItem.getLimitedProductItemId());
+			}
+
+			orderItem.attachProductInfo(info);
+		}
+	}
+
+	private GetOrderedProductInfoResponseV1.OrderedProductInfo findInfoByItemId(
+		List<GetOrderedProductInfoResponseV1.OrderedProductInfo> productInfos,
+		UUID itemId
+	) {
+		for (GetOrderedProductInfoResponseV1.OrderedProductInfo info : productInfos) {
+			if (info.getLimitedProductItemId().equals(itemId)) {
+				return info;
+			}
+		}
+		return null;
 	}
 }

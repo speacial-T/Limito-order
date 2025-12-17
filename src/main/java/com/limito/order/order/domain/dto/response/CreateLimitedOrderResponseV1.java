@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.limito.order.common.OrderStatus;
+import com.limito.order.common.ProductType;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -19,6 +20,7 @@ public class CreateLimitedOrderResponseV1 {
 	private String phoneNumber;
 	private String deliveryAddress;
 
+	private ProductType orderProductType;
 	private Long totalPrice;
 
 	private OrderStatus orderStatus;
