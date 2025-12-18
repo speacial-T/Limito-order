@@ -1,7 +1,6 @@
 package com.limito.order.order.service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -200,8 +199,9 @@ public class OrderServiceV1 {
 		return orderMapper.toResellOrderResponse(order);
 	}
 
-	public Slice<GetOrdersForUserResponseV1> getOrdersForUser(Long userId, String userRole, Pageable pageable) {
-		validateRole(userRole, "USER");
+	// 주문 목록 조회 - USER 권한
+	public Slice<GetOrdersForUserResponseV1> getOrdersForUser(UserContext user, Pageable pageable) {
+		Long userId = user.getUserId();
 
 		Slice<Order> orders = orderRepository.findAllByUserIdAndOrderStatusNotOrderBySuccessedAtDesc(
 			userId,
@@ -211,8 +211,9 @@ public class OrderServiceV1 {
 		return orders.map(orderMapper::toGetOrdersForUserResponse);
 	}
 
-	public Slice<GetOrdersForCompanyResponseV1> getOrdersForCompany(Long userId, String userRole, Pageable pageable) {
-		validateRole(userRole, "COMPANY");
+	// 주문 목록 조회 - COMPANY 권한
+	public Slice<GetOrdersForCompanyResponseV1> getOrdersForCompany(UserContext user, Pageable pageable) {
+		Long userId = user.getUserId();
 
 		Slice<CompanyOrder> companyOrders =
 			orderRepository.findAllBySellerIdAndOrderStatusNot(userId, OrderStatus.ORDER_PENDING, pageable);
@@ -220,8 +221,9 @@ public class OrderServiceV1 {
 		return companyOrders.map(orderMapper::toGetOrdersForCompanyResponse);
 	}
 
-	public GetOrderForUserResponseV1 getOrderForUser(Long userId, String userRole, UUID orderId) {
-		validateRole(userRole, "USER");
+	// 주문 상세 조회 - USER 권한
+	public GetOrderForUserResponseV1 getOrderForUser(UserContext user, UUID orderId) {
+		Long userId = user.getUserId();
 
 		Order order = orderRepository.findByIdAndUserIdAndOrderStatusNot(orderId, userId, OrderStatus.ORDER_PENDING)
 			.orElseThrow(() -> AppException.of(HttpStatus.NOT_FOUND, "주문 정보를 찾을 수 없습니다."));
@@ -229,8 +231,9 @@ public class OrderServiceV1 {
 		return orderMapper.toGetOrderForUserResponse(order);
 	}
 
-	public GetOrderForCompanyResponseV1 getOrderForCompany(Long userId, String userRole, UUID orderId) {
-		validateRole(userRole, "COMPANY");
+	// 주문 상세 조회 - COMPANY 권한
+	public GetOrderForCompanyResponseV1 getOrderForCompany(UserContext user, UUID orderId) {
+		Long userId = user.getUserId();
 
 		Order order = orderRepository
 			.findByIdAndOrderStatusNotAndOrderItems_SellerId(orderId, OrderStatus.ORDER_PENDING, userId)
@@ -251,15 +254,6 @@ public class OrderServiceV1 {
 	private void validateReserveFeign(ResponseEntity<Void> reserveFeignResponse) {
 		if (!HttpStatus.OK.equals(reserveFeignResponse.getStatusCode())) {
 			throw AppException.of(HttpStatus.EXPECTATION_FAILED, "한정판매 임시 재고 예약에 실패했습니다");
-		}
-	}
-
-	private void validateRole(String userRole, String... roles) {
-		if (
-			!Arrays.asList(roles)
-				.contains(userRole)
-		) {
-			throw AppException.of(HttpStatus.FORBIDDEN, "조회 권한이 없습니다.");
 		}
 	}
 
