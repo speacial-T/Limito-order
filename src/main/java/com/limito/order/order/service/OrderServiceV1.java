@@ -105,7 +105,6 @@ public class OrderServiceV1 {
 		UUID orderId,
 		AddOrdererRequestV1 ordererRequest
 	) {
-		Long userId = user.getUserId();
 		Order order = orderRepository.findById(orderId)
 			.orElseThrow(() -> AppException.of(HttpStatus.NOT_FOUND, "주문을 찾을 수 없습니다."));
 
@@ -181,8 +180,6 @@ public class OrderServiceV1 {
 		UUID orderId,
 		AddOrdererRequestV1 ordererRequest
 	) {
-		Long userId = user.getUserId();
-
 		Order order = orderRepository.findById(orderId)
 			.orElseThrow(() -> AppException.of(HttpStatus.NOT_FOUND, "주문을 찾을 수 없습니다."));
 
