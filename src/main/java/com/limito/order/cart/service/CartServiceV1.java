@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.limito.common.exception.AppException;
+import com.limito.common.security.context.UserContext;
 import com.limito.order.cart.domain.dto.feignclient.limited.GetInCartProductInfoResponseV1;
 import com.limito.order.cart.domain.dto.feignclient.limited.GetPurchaseAmountLimitRequestV1;
 import com.limito.order.cart.domain.dto.feignclient.limited.GetPurchaseAmountLimitResponseV1;
@@ -57,7 +58,8 @@ public class CartServiceV1 {
 	 * 3. 장바구니 추가
 	 * 4. 반환
 	 */
-	public AddCartLimitedResponseV1 addLimitedItem(Long userId, AddCartLimitedRequestV1 addLimitedProductReqDto) {
+	public AddCartLimitedResponseV1 addLimitedItem(UserContext user, AddCartLimitedRequestV1 addLimitedProductReqDto) {
+		Long userId = user.getUserId();
 		String key = LIMITED_KEY.formatted(userId);
 		// 필드 : 한정판매는 판매 아이템 아이디, 리셀은 옵션아이디
 		String field = addLimitedProductReqDto.getProductItemId().toString();
@@ -109,8 +111,8 @@ public class CartServiceV1 {
 	}
 
 	// 리셀 장바구니 추가
-	public AddCartResellResponseV1 addResellItem(Long userId, AddCartResellRequestV1 addResellProductReqDto) {
-
+	public AddCartResellResponseV1 addResellItem(UserContext user, AddCartResellRequestV1 addResellProductReqDto) {
+		Long userId = user.getUserId();
 		String key = RESELL_KEY.formatted(userId);
 		String field = addResellProductReqDto.getOptionId().toString();
 
@@ -136,7 +138,8 @@ public class CartServiceV1 {
 	}
 
 	// 한정판매 장바구니 조회
-	public List<GetCartLimitedResponseV1> getLimitedCart(Long userId) {
+	public List<GetCartLimitedResponseV1> getLimitedCart(UserContext user) {
+		Long userId = user.getUserId();
 		String key = LIMITED_KEY.formatted(userId);
 		HashOperations<String, String, Object> hashOps = hashOps();
 
@@ -152,7 +155,8 @@ public class CartServiceV1 {
 	}
 
 	// 리셀 장바구니 조회
-	public List<GetCartResellResponseV1> getResellCart(Long userId) {
+	public List<GetCartResellResponseV1> getResellCart(UserContext user) {
+		Long userId = user.getUserId();
 		String key = RESELL_KEY.formatted(userId);
 		HashOperations<String, String, Object> hashOps = hashOps();
 
@@ -196,21 +200,23 @@ public class CartServiceV1 {
 	}
 
 	// 주문 완료된 한정판매 상품 장바구니 삭제
-	public void deleteLimitedOrderItem(Long userId, List<UUID> productItemIds) {
+	public void deleteLimitedOrderItem(UserContext user, List<UUID> productItemIds) {
 		if (productItemIds == null || productItemIds.isEmpty()) {
 			throw AppException.of(HttpStatus.NO_CONTENT, "장바구니에서 삭제할 상품 아이디가 존재하지 않습니다.");
 		}
 
+		Long userId = user.getUserId();
 		String key = LIMITED_KEY.formatted(userId);
 		deleteOrderItems(key, productItemIds);
 	}
 
 	// 주문 완료된 리셀 상품 장바구니 삭제
-	public void deleteResellOrderItem(Long userId, List<UUID> optionIds) {
+	public void deleteResellOrderItem(UserContext user, List<UUID> optionIds) {
 		if (optionIds == null || optionIds.isEmpty()) {
 			throw AppException.of(HttpStatus.NO_CONTENT, "장바구니에서 삭제할 상품 아이디가 존재하지 않습니다.");
 		}
 
+		Long userId = user.getUserId();
 		String key = RESELL_KEY.formatted(userId);
 		deleteOrderItems(key, optionIds);
 	}
@@ -280,9 +286,5 @@ public class CartServiceV1 {
 			throw AppException.of(HttpStatus.BAD_REQUEST,
 				"최대 구매 가능한 수량을 초과하였습니다. 최대 구매 가능 수량 : " + purchaseAmountLimitCnt + "개");
 		}
-	}
-
-	public ResellFeignClient getResellFeignClient() {
-		return resellFeignClient;
 	}
 }
