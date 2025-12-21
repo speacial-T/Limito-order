@@ -41,8 +41,6 @@ public interface ResellFeignClient {
 	ResponseEntity<Void> rollbackStock(@Valid @RequestBody List<StockRollbackRequest> request);
 
 	// 주문 상품 정보 요청
-	@PostMapping("/internal/v1/resell-products/productInfo")
-	ResponseEntity<List<ProductInfosGetResponseV1>> getProductInfos(
-		@RequestBody List<ProductInfosGetRequestV1> request
-	);
+	@GetMapping("/internal/v1/resell-products/stockInfo")
+	ResponseEntity<List<ProductInfosGetResponseV1>> getStockInfos(@Valid @RequestParam List<UUID> stockIds);
 }

@@ -2,7 +2,9 @@ package com.limito.order.order.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -18,16 +20,16 @@ import com.limito.order.common.OrderStatus;
 import com.limito.order.common.feignclient.LimitedFeignClient;
 import com.limito.order.common.feignclient.ResellFeignClient;
 import com.limito.order.common.feignclient.UserFeignClient;
-import com.limito.order.order.domain.dto.feignclient.limited.GetOrderedProductInfoRequestV1;
 import com.limito.order.order.domain.dto.feignclient.limited.GetOrderedProductInfoResponseV1;
 import com.limito.order.order.domain.dto.feignclient.limited.ReserveStockItemRequestV1;
 import com.limito.order.order.domain.dto.feignclient.limited.ReserveStockRequestV1;
-import com.limito.order.order.domain.dto.feignclient.resell.request.ProductInfosGetRequestV1;
 import com.limito.order.order.domain.dto.feignclient.resell.request.StockReduceRequest;
 import com.limito.order.order.domain.dto.feignclient.resell.response.ProductInfosGetResponseV1;
 import com.limito.order.order.domain.dto.feignclient.user.OrderedUserInfoResponseV1;
 import com.limito.order.order.domain.dto.request.AddOrdererRequestV1;
+import com.limito.order.order.domain.dto.request.CreateLimitedOrderItemRequestV1;
 import com.limito.order.order.domain.dto.request.CreateLimitedOrderRequestV1;
+import com.limito.order.order.domain.dto.request.CreateResellOrderItemRequestV1;
 import com.limito.order.order.domain.dto.request.CreateResellOrderRequestV1;
 import com.limito.order.order.domain.dto.response.CreateLimitedOrderResponseV1;
 import com.limito.order.order.domain.dto.response.CreateResellOrderResponseV1;
@@ -78,10 +80,12 @@ public class OrderServiceV1 {
 		order.attachOrdererDefault(userFeignResponse);
 
 		// 한정판매 feign: 상품 정보 요청
-		GetOrderedProductInfoRequestV1 feignRequest = orderMapper.toGetOrderedProductInfoRequest(
-			createLimitedOrderRequest);
+		List<CreateLimitedOrderItemRequestV1> items = createLimitedOrderRequest.getItems();
+		Set<UUID> productItemIdSet = items.stream()
+			.map(CreateLimitedOrderItemRequestV1::getProductItemId)
+			.collect(Collectors.toSet());
 		ResponseEntity<GetOrderedProductInfoResponseV1> feignResponse = limitedFeignClient.getOrderedProductInfo(
-			feignRequest);
+			productItemIdSet);
 
 		List<GetOrderedProductInfoResponseV1.OrderedProductInfo> productInfos = validateLimitedOrderSheetFeignResponse(
 			feignResponse, orderItems);
@@ -158,9 +162,11 @@ public class OrderServiceV1 {
 		order.attachOrdererDefault(userFeignResponse);
 
 		// 리셀 주문 상품 정보 요청
-		List<ProductInfosGetRequestV1> feignRequests = orderMapper.toProductInfosGetRequests(orderItems);
-		ResponseEntity<List<ProductInfosGetResponseV1>> feignResponse = resellFeignClient.getProductInfos(
-			feignRequests);
+		List<CreateResellOrderItemRequestV1> items = createResellOrderRequest.getItems();
+		List<UUID> stockIds = items.stream()
+			.map(CreateResellOrderItemRequestV1::getStockId)
+			.toList();
+		ResponseEntity<List<ProductInfosGetResponseV1>> feignResponse = resellFeignClient.getStockInfos(stockIds);
 
 		List<ProductInfosGetResponseV1> productInfos = validateResellOrderSheetFeignResponse(feignResponse, orderItems);
 		// 주문 상품 정보 추가
