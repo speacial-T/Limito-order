@@ -43,6 +43,7 @@ public class CartMapper {
 			.thumbnailUrl(domain.getThumbnailUrl())
 			.sellerId(domain.getSellerId())
 			.productStatus(domain.getProductStatus())
+			.isSoldOut(domain.getIsSoldOut())
 			.productType(domain.getProductType())
 			.productAmount(domain.getProductAmount())
 			.build();
