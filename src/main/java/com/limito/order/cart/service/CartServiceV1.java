@@ -1,9 +1,12 @@
 package com.limito.order.cart.service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -15,6 +18,7 @@ import com.limito.common.exception.AppException;
 import com.limito.order.cart.domain.dto.feignclient.limited.GetInCartProductInfoResponseV1;
 import com.limito.order.cart.domain.dto.feignclient.limited.GetPurchaseAmountLimitRequestV1;
 import com.limito.order.cart.domain.dto.feignclient.limited.GetPurchaseAmountLimitResponseV1;
+import com.limito.order.cart.domain.dto.feignclient.resell.OptionInfosGetResponseV1;
 import com.limito.order.cart.domain.dto.limitedproduct.AddCartLimitedRequestV1;
 import com.limito.order.cart.domain.dto.limitedproduct.AddCartLimitedResponseV1;
 import com.limito.order.cart.domain.dto.limitedproduct.GetCartLimitedResponseV1;
@@ -25,6 +29,7 @@ import com.limito.order.cart.domain.mapper.CartMapper;
 import com.limito.order.cart.domain.model.LimitedCacheItem;
 import com.limito.order.cart.domain.model.ResellCacheItem;
 import com.limito.order.common.feignclient.LimitedFeignClient;
+import com.limito.order.common.feignclient.ResellFeignClient;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +43,7 @@ public class CartServiceV1 {
 
 	private final RedisTemplate<String, Object> redisTemplate;
 	private final LimitedFeignClient limitedFeignClient;
+	private final ResellFeignClient resellFeignClient;
 
 	private HashOperations<String, String, Object> hashOps() {
 		return redisTemplate.opsForHash();
@@ -152,13 +158,41 @@ public class CartServiceV1 {
 
 		// HGETALL cart:resell:{userId}
 		Map<String, Object> entries = hashOps.entries(key);
-
-		// 값(value)만 꺼내서 LimitedCacheItem → 응답 DTO로 변환
-		return entries.values().stream()
-			.map(value -> (ResellCacheItem)value)
-			.map(CartMapper::toGetResponse)
+		List<UUID> optionIds = entries.keySet().stream()
+			.map(UUID::fromString)
 			.toList();
 
+		// 리셀 feign client 요청 - 상품 정보
+		ResponseEntity<List<OptionInfosGetResponseV1>> productInfoRes = resellFeignClient.getOptionInfos(optionIds);
+		List<OptionInfosGetResponseV1> productInfos = productInfoRes.getBody();
+		if (productInfos == null) {
+			throw AppException.of(HttpStatus.EXPECTATION_FAILED, "리셀 상품 정보 요청에 실패했습니다.");
+		}
+
+		// 상품 정보  응답 optionId -> 정보 맵으로 변환
+		Map<UUID, OptionInfosGetResponseV1> optionInfoMap = productInfos.stream()
+			.collect(Collectors.toMap(
+				OptionInfosGetResponseV1::getOptionId,
+				info -> info
+			));
+
+		// 아이디 집합 검증 (양쪽이 정확히 같은지)
+		Set<UUID> requestIdSet = new HashSet<>(optionIds);
+		Set<UUID> responseIdSet = optionInfoMap.keySet();
+		if (!requestIdSet.equals(responseIdSet)) {
+			log.error("리셀 상품 정보 요청의 결과가 올바르지 않습니다. requestIds={}, responseIds={}",
+				requestIdSet, responseIdSet);
+			throw AppException.of(HttpStatus.NOT_ACCEPTABLE, "리셀 상품 정보 요청의 결과가 올바르지 않습니다.");
+		}
+
+		return entries.values().stream()
+			.map(value -> (ResellCacheItem)value)
+			.map(cacheItem -> {
+				UUID optionId = cacheItem.getOptionId();
+				OptionInfosGetResponseV1 optionInfo = optionInfoMap.get(optionId);
+				return CartMapper.toGetResponse(cacheItem, optionInfo);
+			})
+			.toList();
 	}
 
 	// 주문 완료된 한정판매 상품 장바구니 삭제
@@ -246,5 +280,9 @@ public class CartServiceV1 {
 			throw AppException.of(HttpStatus.BAD_REQUEST,
 				"최대 구매 가능한 수량을 초과하였습니다. 최대 구매 가능 수량 : " + purchaseAmountLimitCnt + "개");
 		}
+	}
+
+	public ResellFeignClient getResellFeignClient() {
+		return resellFeignClient;
 	}
 }
