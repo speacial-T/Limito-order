@@ -10,9 +10,9 @@ spring:
       port: 6379
       database: 0
   datasource:
-    url: jdbc:postgresql://localhost:5432/limito-db
-    username: postgres
-    password: postgres
+    url: ${DB_USER:jdbc:postgresql://localhost:5432/limito-db}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
   jpa:
     hibernate:
       ddl-auto: update
