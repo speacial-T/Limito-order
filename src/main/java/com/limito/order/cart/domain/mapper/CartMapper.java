@@ -1,6 +1,7 @@
 package com.limito.order.cart.domain.mapper;
 
 import com.limito.order.cart.domain.dto.feignclient.limited.GetInCartProductInfoResponseV1;
+import com.limito.order.cart.domain.dto.feignclient.resell.OptionInfosGetResponseV1;
 import com.limito.order.cart.domain.dto.limitedproduct.AddCartLimitedRequestV1;
 import com.limito.order.cart.domain.dto.limitedproduct.AddCartLimitedResponseV1;
 import com.limito.order.cart.domain.dto.limitedproduct.GetCartLimitedResponseV1;
@@ -69,13 +70,6 @@ public class CartMapper {
 			.optionId(req.getOptionId())
 			.stockId(req.getStockId())
 			.productId(req.getProductId())
-			.productName(req.getProductName())
-			.productColor(req.getProductColor())
-			.productSize(req.getProductSize())
-			.productPrice(req.getProductPrice())
-			.brandName(req.getBrandName())
-			.thumbnailUrl(req.getThumbnailUrl())
-			.sellerId(req.getSellerId())
 			.productType(req.getProductType())
 			.build();
 	}
@@ -85,29 +79,22 @@ public class CartMapper {
 			.optionId(domain.getOptionId())
 			.stockId(domain.getStockId())
 			.productId(domain.getProductId())
-			.productName(domain.getProductName())
-			.productColor(domain.getProductColor())
-			.productSize(domain.getProductSize())
-			.productPrice(domain.getProductPrice())
-			.brandName(domain.getBrandName())
-			.thumbnailUrl(domain.getThumbnailUrl())
-			.sellerId(domain.getSellerId())
 			.productType(domain.getProductType())
 			.build();
 	}
 
-	public static GetCartResellResponseV1 toGetResponse(ResellCacheItem domain) {
+	public static GetCartResellResponseV1 toGetResponse(ResellCacheItem domain, OptionInfosGetResponseV1 optionInfo) {
 		return GetCartResellResponseV1.builder()
 			.optionId(domain.getOptionId())
 			.stockId(domain.getStockId())
 			.productId(domain.getProductId())
-			.productName(domain.getProductName())
-			.productColor(domain.getProductColor())
-			.productSize(domain.getProductSize())
-			.productPrice(domain.getProductPrice())
-			.brandName(domain.getBrandName())
-			.thumbnailUrl(domain.getThumbnailUrl())
-			.sellerId(domain.getSellerId())
+			.productName(optionInfo.getProductName())
+			.productColor(optionInfo.getProductColor())
+			.productSize(optionInfo.getProductSize())
+			.productPrice(optionInfo.getProductPrice())
+			.brandName(optionInfo.getBrandName())
+			.thumbnailUrl(optionInfo.getThumbnailUrl())
+			.sellerId(optionInfo.getSellerId())
 			.productType(domain.getProductType())
 			.build();
 	}

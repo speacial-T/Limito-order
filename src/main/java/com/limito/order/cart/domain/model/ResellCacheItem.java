@@ -17,6 +17,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class ResellCacheItem {
 	private UUID optionId;
+	private UUID stockId;
 	private UUID productId;
 	private ProductType productType;
 }
