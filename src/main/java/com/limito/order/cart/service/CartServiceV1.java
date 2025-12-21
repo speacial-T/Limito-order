@@ -12,8 +12,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.limito.common.exception.AppException;
-import com.limito.order.cart.domain.dto.feignclient.GetPurchaseAmountLimitRequestV1;
-import com.limito.order.cart.domain.dto.feignclient.GetPurchaseAmountLimitResponseV1;
+import com.limito.order.cart.domain.dto.feignclient.limited.GetInCartProductInfoResponseV1;
+import com.limito.order.cart.domain.dto.feignclient.limited.GetPurchaseAmountLimitRequestV1;
+import com.limito.order.cart.domain.dto.feignclient.limited.GetPurchaseAmountLimitResponseV1;
 import com.limito.order.cart.domain.dto.limitedproduct.AddCartLimitedRequestV1;
 import com.limito.order.cart.domain.dto.limitedproduct.AddCartLimitedResponseV1;
 import com.limito.order.cart.domain.dto.limitedproduct.GetCartLimitedResponseV1;
@@ -32,13 +33,11 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class CartServiceV1 {
-
-	private final LimitedFeignClient limitedFeignClient;
-
 	private static final String LIMITED_KEY = "cart:limited:%d";
 	private static final String RESELL_KEY = "cart:resell:%d";
 
 	private final RedisTemplate<String, Object> redisTemplate;
+	private final LimitedFeignClient limitedFeignClient;
 
 	private HashOperations<String, String, Object> hashOps() {
 		return redisTemplate.opsForHash();
@@ -61,8 +60,6 @@ public class CartServiceV1 {
 		HashOperations<String, String, Object> hashOps = hashOps();
 		LimitedCacheItem existing = (LimitedCacheItem)hashOps.get(key, field);
 
-		LimitedCacheItem cacheItem = CartMapper.toDomain(addLimitedProductReqDto);
-
 		// 한정판매 feign client 요청 - 최대 구매 가능 수량
 		ResponseEntity<GetPurchaseAmountLimitResponseV1> feignRes = getFeignResponse(addLimitedProductReqDto);
 
@@ -72,6 +69,18 @@ public class CartServiceV1 {
 		int purchaseAmountLimitCnt = purchaseAmountLimit.getPurchaseAmountLimit();
 		log.info("최대 구매 가능 수량 : {}", purchaseAmountLimitCnt);
 
+		// 한정판매 feign client 요청 - 상품 정보
+		ResponseEntity<GetInCartProductInfoResponseV1> productInfoRes = limitedFeignClient.getInCartProductInfo(
+			limitedProductItemId);
+		GetInCartProductInfoResponseV1 productInfo = productInfoRes.getBody();
+		if (productInfo == null) {
+			throw AppException.of(HttpStatus.EXPECTATION_FAILED, "상품 정보 요청에 실패했습니다");
+		}
+
+		if (productInfo.getIsSoldOut()) {
+			throw AppException.of(HttpStatus.BAD_REQUEST, "픔절된 상품은 장바구니에 추가할 수 없습니다.");
+		}
+		LimitedCacheItem cacheItem = CartMapper.toDomain(addLimitedProductReqDto, productInfo);
 		// 수량 추가
 		if (existing != null) {
 			cacheItem = validateIncreaseAmount(existing, addLimitedProductReqDto, purchaseAmountLimitCnt);
@@ -224,8 +233,12 @@ public class CartServiceV1 {
 		return existing;
 	}
 
-	private void canAddNewProduct(AddCartLimitedRequestV1 addLimitedProductReqDto, LimitedCacheItem cacheItem,
-		UUID limitedProductItemId, int purchaseAmountLimitCnt) {
+	private void canAddNewProduct(
+		AddCartLimitedRequestV1 addLimitedProductReqDto,
+		LimitedCacheItem cacheItem,
+		UUID limitedProductItemId,
+		int purchaseAmountLimitCnt
+	) {
 		boolean canAdd = limitedProductItemId.equals(addLimitedProductReqDto.getProductItemId())
 			&& cacheItem.getProductAmount() <= purchaseAmountLimitCnt; // 여기서 merged 총량 기준으로 보는 것도 가능
 
