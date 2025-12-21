@@ -21,7 +21,7 @@ import jakarta.validation.Valid;
 @FeignClient(name = "resell-product-service", url = "${feign.resell-product-service.url}")
 public interface ResellFeignClient {
 	// 장바구니 추가 상품 정뵤
-	@GetMapping("/optionInfo")
+	@GetMapping("/internal/v1/resell-products/optionInfo")
 	ResponseEntity<List<OptionInfosGetResponseV1>> getOptionInfos(@Valid @RequestParam List<UUID> optionIds);
 
 	// 임시 재고 예약

@@ -32,7 +32,7 @@ public interface LimitedFeignClient {
 	);
 
 	// 장바구니 추가 상품 정보
-	@GetMapping("/in-cart-product/{limitedProductItemId}")
+	@GetMapping("/internal/v1/limited-products/in-cart-product/{limitedProductItemId}")
 	public ResponseEntity<GetInCartProductInfoResponseV1> getInCartProductInfo(
 		@NotNull(message = "아이템 id는 null일 수 없습니다.")
 		@PathVariable UUID limitedProductItemId
