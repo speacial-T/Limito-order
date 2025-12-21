@@ -26,6 +26,7 @@ public class LimitedCacheItem {
 	private String thumbnailUrl;
 	private Long sellerId;
 	private String productStatus;
+	private Boolean isSoldOut;
 	private ProductType productType;
 	private int productAmount;
 }
