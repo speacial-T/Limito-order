@@ -4,6 +4,8 @@ server:
 spring:
   application:
     name: order-service
+  config:
+    import: optional:file:./.env[.properties]
   data:
     redis:
       host: ${REDIS_URL:localhost}
