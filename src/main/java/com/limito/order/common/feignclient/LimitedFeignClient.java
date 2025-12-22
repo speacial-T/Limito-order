@@ -2,18 +2,22 @@ package com.limito.order.common.feignclient;
 
 import java.util.UUID;
 
+import java.util.Set;
+import java.util.UUID;
+
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.limito.order.cart.domain.dto.feignclient.limited.GetInCartProductInfoResponseV1;
 import com.limito.order.cart.domain.dto.feignclient.limited.GetPurchaseAmountLimitRequestV1;
 import com.limito.order.cart.domain.dto.feignclient.limited.GetPurchaseAmountLimitResponseV1;
 import com.limito.order.order.domain.dto.feignclient.limited.CancelReserveStockRequestV1;
-import com.limito.order.order.domain.dto.feignclient.limited.GetOrderedProductInfoRequestV1;
 import com.limito.order.order.domain.dto.feignclient.limited.GetOrderedProductInfoResponseV1;
 import com.limito.order.order.domain.dto.feignclient.limited.ReduceStockRequestV1;
 import com.limito.order.order.domain.dto.feignclient.limited.ReserveStockRequestV1;
@@ -55,8 +59,8 @@ public interface LimitedFeignClient {
 	public ResponseEntity<Void> rollbackStock(@Valid @RequestBody RollbackStockRequestV1 request);
 
 	// 주문 상품 정보 조회
-	@PostMapping("/internal/v1/limited-products/ordered-products")
-	public ResponseEntity<GetOrderedProductInfoResponseV1> getOrderedProductInfo(
-		@Valid @RequestBody GetOrderedProductInfoRequestV1 request
+	@GetMapping("/internal/v1/limited-products/ordered-products")
+	ResponseEntity<GetOrderedProductInfoResponseV1> getOrderedProductInfo(
+		@Valid @RequestParam Set<UUID> productItemIdSet
 	);
 }
