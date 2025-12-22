@@ -10,7 +10,7 @@ spring:
       port: 6379
       database: 0
   datasource:
-    url: ${DB_USER:jdbc:postgresql://localhost:5432/limito-db}
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/limito-db}
     username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD:postgres}
   jpa:
