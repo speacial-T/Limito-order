@@ -5,9 +5,12 @@ import java.util.UUID;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
+import com.limito.order.cart.domain.dto.feignclient.resell.OptionInfosGetResponseV1;
 import com.limito.order.order.domain.dto.feignclient.resell.request.ProductInfosGetRequestV1;
 import com.limito.order.order.domain.dto.feignclient.resell.request.StockReduceRequest;
 import com.limito.order.order.domain.dto.feignclient.resell.request.StockRollbackRequest;
@@ -17,6 +20,10 @@ import jakarta.validation.Valid;
 
 @FeignClient(name = "resell-product-service", url = "${feign.resell-product-service.url}")
 public interface ResellFeignClient {
+	// 장바구니 추가 상품 정뵤
+	@GetMapping("/internal/v1/resell-products/optionInfo")
+	ResponseEntity<List<OptionInfosGetResponseV1>> getOptionInfos(@Valid @RequestParam List<UUID> optionIds);
+
 	// 임시 재고 예약
 	@PostMapping("/internal/v1/resell-products/stock/reserve")
 	ResponseEntity<Void> reserveStock(@RequestBody List<UUID> stockIds);
@@ -27,15 +34,15 @@ public interface ResellFeignClient {
 
 	// 임시 재고 예약 취소
 	@PostMapping("/internal/v1/resell-products/stock/cancel")
-	public ResponseEntity<Void> cancelStock(@RequestBody List<UUID> stockIds);
+	ResponseEntity<Void> cancelStock(@RequestBody List<UUID> stockIds);
 
 	// 재고 복원
 	@PostMapping("/internal/v1/resell-products/stock/rollback")
-	public ResponseEntity<Void> rollbackStock(@Valid @RequestBody List<StockRollbackRequest> request);
+	ResponseEntity<Void> rollbackStock(@Valid @RequestBody List<StockRollbackRequest> request);
 
 	// 주문 상품 정보 요청
 	@PostMapping("/internal/v1/resell-products/productInfo")
-	public ResponseEntity<List<ProductInfosGetResponseV1>> getProductInfos(
+	ResponseEntity<List<ProductInfosGetResponseV1>> getProductInfos(
 		@RequestBody List<ProductInfosGetRequestV1> request
 	);
 }

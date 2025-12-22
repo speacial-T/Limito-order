@@ -1,23 +1,18 @@
-package com.limito.order.cart.domain.model;
+package com.limito.order.cart.domain.dto.feignclient.resell;
 
 import java.util.UUID;
 
 import com.limito.order.common.ProductType;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Getter
-@Setter
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class LimitedCacheItem {
+public class OptionInfosGetResponseV1 {
 	private UUID optionId;
-	private UUID productItemId;
+	private UUID stockId;
+	private UUID productId;
 	private String productName;
 	private String productColor;
 	private String productSize;
@@ -25,8 +20,5 @@ public class LimitedCacheItem {
 	private String brandName;
 	private String thumbnailUrl;
 	private Long sellerId;
-	private String productStatus;
-	private Boolean isSoldOut;
 	private ProductType productType;
-	private int productAmount;
 }

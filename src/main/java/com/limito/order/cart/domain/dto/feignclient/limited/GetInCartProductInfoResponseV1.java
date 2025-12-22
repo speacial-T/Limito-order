@@ -1,19 +1,11 @@
-package com.limito.order.cart.domain.dto.limitedproduct;
-
-import java.util.UUID;
-
-import com.limito.order.common.ProductType;
+package com.limito.order.cart.domain.dto.feignclient.limited;
 
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
-@Setter
 @Builder
-public class AddCartLimitedResponseV1 {
-	private UUID optionId;
-	private UUID productItemId;
+public class GetInCartProductInfoResponseV1 {
 	private String productName;
 	private String productColor;
 	private String productSize;
@@ -23,6 +15,4 @@ public class AddCartLimitedResponseV1 {
 	private Long sellerId;
 	private String productStatus;
 	private Boolean isSoldOut;
-	private ProductType productType;
-	private int productAmount;
 }

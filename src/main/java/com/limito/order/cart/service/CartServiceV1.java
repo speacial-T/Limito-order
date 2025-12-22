@@ -1,9 +1,12 @@
 package com.limito.order.cart.service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -12,8 +15,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.limito.common.exception.AppException;
-import com.limito.order.cart.domain.dto.feignclient.GetPurchaseAmountLimitRequestV1;
-import com.limito.order.cart.domain.dto.feignclient.GetPurchaseAmountLimitResponseV1;
+import com.limito.common.security.context.UserContext;
+import com.limito.order.cart.domain.dto.feignclient.limited.GetInCartProductInfoResponseV1;
+import com.limito.order.cart.domain.dto.feignclient.limited.GetPurchaseAmountLimitRequestV1;
+import com.limito.order.cart.domain.dto.feignclient.limited.GetPurchaseAmountLimitResponseV1;
+import com.limito.order.cart.domain.dto.feignclient.resell.OptionInfosGetResponseV1;
 import com.limito.order.cart.domain.dto.limitedproduct.AddCartLimitedRequestV1;
 import com.limito.order.cart.domain.dto.limitedproduct.AddCartLimitedResponseV1;
 import com.limito.order.cart.domain.dto.limitedproduct.GetCartLimitedResponseV1;
@@ -24,6 +30,7 @@ import com.limito.order.cart.domain.mapper.CartMapper;
 import com.limito.order.cart.domain.model.LimitedCacheItem;
 import com.limito.order.cart.domain.model.ResellCacheItem;
 import com.limito.order.common.feignclient.LimitedFeignClient;
+import com.limito.order.common.feignclient.ResellFeignClient;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,13 +39,12 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class CartServiceV1 {
-
-	private final LimitedFeignClient limitedFeignClient;
-
 	private static final String LIMITED_KEY = "cart:limited:%d";
 	private static final String RESELL_KEY = "cart:resell:%d";
 
 	private final RedisTemplate<String, Object> redisTemplate;
+	private final LimitedFeignClient limitedFeignClient;
+	private final ResellFeignClient resellFeignClient;
 
 	private HashOperations<String, String, Object> hashOps() {
 		return redisTemplate.opsForHash();
@@ -52,7 +58,8 @@ public class CartServiceV1 {
 	 * 3. 장바구니 추가
 	 * 4. 반환
 	 */
-	public AddCartLimitedResponseV1 addLimitedItem(Long userId, AddCartLimitedRequestV1 addLimitedProductReqDto) {
+	public AddCartLimitedResponseV1 addLimitedItem(UserContext user, AddCartLimitedRequestV1 addLimitedProductReqDto) {
+		Long userId = user.getUserId();
 		String key = LIMITED_KEY.formatted(userId);
 		// 필드 : 한정판매는 판매 아이템 아이디, 리셀은 옵션아이디
 		String field = addLimitedProductReqDto.getProductItemId().toString();
@@ -60,8 +67,6 @@ public class CartServiceV1 {
 		// 기존 장바구니에 있는 상품과 동일한 상품을 추가하는 경우 - 수량 추가
 		HashOperations<String, String, Object> hashOps = hashOps();
 		LimitedCacheItem existing = (LimitedCacheItem)hashOps.get(key, field);
-
-		LimitedCacheItem cacheItem = CartMapper.toDomain(addLimitedProductReqDto);
 
 		// 한정판매 feign client 요청 - 최대 구매 가능 수량
 		ResponseEntity<GetPurchaseAmountLimitResponseV1> feignRes = getFeignResponse(addLimitedProductReqDto);
@@ -72,6 +77,18 @@ public class CartServiceV1 {
 		int purchaseAmountLimitCnt = purchaseAmountLimit.getPurchaseAmountLimit();
 		log.info("최대 구매 가능 수량 : {}", purchaseAmountLimitCnt);
 
+		// 한정판매 feign client 요청 - 상품 정보
+		ResponseEntity<GetInCartProductInfoResponseV1> productInfoRes = limitedFeignClient.getInCartProductInfo(
+			limitedProductItemId);
+		GetInCartProductInfoResponseV1 productInfo = productInfoRes.getBody();
+		if (productInfo == null) {
+			throw AppException.of(HttpStatus.EXPECTATION_FAILED, "상품 정보 요청에 실패했습니다");
+		}
+
+		if (productInfo.getIsSoldOut()) {
+			throw AppException.of(HttpStatus.BAD_REQUEST, "픔절된 상품은 장바구니에 추가할 수 없습니다.");
+		}
+		LimitedCacheItem cacheItem = CartMapper.toDomain(addLimitedProductReqDto, productInfo);
 		// 수량 추가
 		if (existing != null) {
 			cacheItem = validateIncreaseAmount(existing, addLimitedProductReqDto, purchaseAmountLimitCnt);
@@ -94,8 +111,8 @@ public class CartServiceV1 {
 	}
 
 	// 리셀 장바구니 추가
-	public AddCartResellResponseV1 addResellItem(Long userId, AddCartResellRequestV1 addResellProductReqDto) {
-
+	public AddCartResellResponseV1 addResellItem(UserContext user, AddCartResellRequestV1 addResellProductReqDto) {
+		Long userId = user.getUserId();
 		String key = RESELL_KEY.formatted(userId);
 		String field = addResellProductReqDto.getOptionId().toString();
 
@@ -121,7 +138,8 @@ public class CartServiceV1 {
 	}
 
 	// 한정판매 장바구니 조회
-	public List<GetCartLimitedResponseV1> getLimitedCart(Long userId) {
+	public List<GetCartLimitedResponseV1> getLimitedCart(UserContext user) {
+		Long userId = user.getUserId();
 		String key = LIMITED_KEY.formatted(userId);
 		HashOperations<String, String, Object> hashOps = hashOps();
 
@@ -137,37 +155,68 @@ public class CartServiceV1 {
 	}
 
 	// 리셀 장바구니 조회
-	public List<GetCartResellResponseV1> getResellCart(Long userId) {
+	public List<GetCartResellResponseV1> getResellCart(UserContext user) {
+		Long userId = user.getUserId();
 		String key = RESELL_KEY.formatted(userId);
 		HashOperations<String, String, Object> hashOps = hashOps();
 
 		// HGETALL cart:resell:{userId}
 		Map<String, Object> entries = hashOps.entries(key);
-
-		// 값(value)만 꺼내서 LimitedCacheItem → 응답 DTO로 변환
-		return entries.values().stream()
-			.map(value -> (ResellCacheItem)value)
-			.map(CartMapper::toGetResponse)
+		List<UUID> optionIds = entries.keySet().stream()
+			.map(UUID::fromString)
 			.toList();
 
+		// 리셀 feign client 요청 - 상품 정보
+		ResponseEntity<List<OptionInfosGetResponseV1>> productInfoRes = resellFeignClient.getOptionInfos(optionIds);
+		List<OptionInfosGetResponseV1> productInfos = productInfoRes.getBody();
+		if (productInfos == null) {
+			throw AppException.of(HttpStatus.EXPECTATION_FAILED, "리셀 상품 정보 요청에 실패했습니다.");
+		}
+
+		// 상품 정보  응답 optionId -> 정보 맵으로 변환
+		Map<UUID, OptionInfosGetResponseV1> optionInfoMap = productInfos.stream()
+			.collect(Collectors.toMap(
+				OptionInfosGetResponseV1::getOptionId,
+				info -> info
+			));
+
+		// 아이디 집합 검증 (양쪽이 정확히 같은지)
+		Set<UUID> requestIdSet = new HashSet<>(optionIds);
+		Set<UUID> responseIdSet = optionInfoMap.keySet();
+		if (!requestIdSet.equals(responseIdSet)) {
+			log.error("리셀 상품 정보 요청의 결과가 올바르지 않습니다. requestIds={}, responseIds={}",
+				requestIdSet, responseIdSet);
+			throw AppException.of(HttpStatus.NOT_ACCEPTABLE, "리셀 상품 정보 요청의 결과가 올바르지 않습니다.");
+		}
+
+		return entries.values().stream()
+			.map(value -> (ResellCacheItem)value)
+			.map(cacheItem -> {
+				UUID optionId = cacheItem.getOptionId();
+				OptionInfosGetResponseV1 optionInfo = optionInfoMap.get(optionId);
+				return CartMapper.toGetResponse(cacheItem, optionInfo);
+			})
+			.toList();
 	}
 
 	// 주문 완료된 한정판매 상품 장바구니 삭제
-	public void deleteLimitedOrderItem(Long userId, List<UUID> productItemIds) {
+	public void deleteLimitedOrderItem(UserContext user, List<UUID> productItemIds) {
 		if (productItemIds == null || productItemIds.isEmpty()) {
 			throw AppException.of(HttpStatus.NO_CONTENT, "장바구니에서 삭제할 상품 아이디가 존재하지 않습니다.");
 		}
 
+		Long userId = user.getUserId();
 		String key = LIMITED_KEY.formatted(userId);
 		deleteOrderItems(key, productItemIds);
 	}
 
 	// 주문 완료된 리셀 상품 장바구니 삭제
-	public void deleteResellOrderItem(Long userId, List<UUID> optionIds) {
+	public void deleteResellOrderItem(UserContext user, List<UUID> optionIds) {
 		if (optionIds == null || optionIds.isEmpty()) {
 			throw AppException.of(HttpStatus.NO_CONTENT, "장바구니에서 삭제할 상품 아이디가 존재하지 않습니다.");
 		}
 
+		Long userId = user.getUserId();
 		String key = RESELL_KEY.formatted(userId);
 		deleteOrderItems(key, optionIds);
 	}
@@ -224,8 +273,12 @@ public class CartServiceV1 {
 		return existing;
 	}
 
-	private void canAddNewProduct(AddCartLimitedRequestV1 addLimitedProductReqDto, LimitedCacheItem cacheItem,
-		UUID limitedProductItemId, int purchaseAmountLimitCnt) {
+	private void canAddNewProduct(
+		AddCartLimitedRequestV1 addLimitedProductReqDto,
+		LimitedCacheItem cacheItem,
+		UUID limitedProductItemId,
+		int purchaseAmountLimitCnt
+	) {
 		boolean canAdd = limitedProductItemId.equals(addLimitedProductReqDto.getProductItemId())
 			&& cacheItem.getProductAmount() <= purchaseAmountLimitCnt; // 여기서 merged 총량 기준으로 보는 것도 가능
 

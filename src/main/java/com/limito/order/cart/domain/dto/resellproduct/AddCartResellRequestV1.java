@@ -4,9 +4,7 @@ import java.util.UUID;
 
 import com.limito.order.common.ProductType;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,28 +19,6 @@ public class AddCartResellRequestV1 {
 
 	@NotNull(message = "상품 아이디는 필수입니다.")
 	private UUID productId;
-
-	@NotBlank(message = "상품 이름은 필수입니다.")
-	private String productName;
-
-	@NotBlank(message = "상품 색상은 필수입니다.")
-	private String productColor;
-
-	@NotBlank(message = "상품 사이즈는 필수입니다.")
-	private String productSize;
-
-	@NotNull(message = "상품 가격은 필수입니다.")
-	@Positive
-	private int productPrice;
-
-	@NotBlank(message = "브랜드명은 필수입니다.")
-	private String brandName;
-
-	@NotBlank(message = "대표 이미지 url은 필수입니다.")
-	private String thumbnailUrl;
-
-	@NotNull(message = "판매자 아이디는 필수입니다.")
-	private Long sellerId;
 
 	@NotNull(message = "상품 타입은 필수입니다.")
 	private ProductType productType;
