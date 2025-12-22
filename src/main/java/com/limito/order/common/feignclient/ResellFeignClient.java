@@ -11,14 +11,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.limito.order.cart.domain.dto.feignclient.resell.OptionInfosGetResponseV1;
-import com.limito.order.order.domain.dto.feignclient.resell.request.ProductInfosGetRequestV1;
 import com.limito.order.order.domain.dto.feignclient.resell.request.StockReduceRequest;
 import com.limito.order.order.domain.dto.feignclient.resell.request.StockRollbackRequest;
 import com.limito.order.order.domain.dto.feignclient.resell.response.ProductInfosGetResponseV1;
 
 import jakarta.validation.Valid;
 
-@FeignClient(name = "resell-product-service", url = "${feign.resell-product-service.url}")
+@FeignClient(name = "resell-product-service")
 public interface ResellFeignClient {
 	// 장바구니 추가 상품 정뵤
 	@GetMapping("/internal/v1/resell-products/optionInfo")
