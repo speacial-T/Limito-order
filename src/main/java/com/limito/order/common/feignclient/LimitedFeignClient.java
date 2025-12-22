@@ -1,7 +1,5 @@
 package com.limito.order.common.feignclient;
 
-import java.util.UUID;
-
 import java.util.Set;
 import java.util.UUID;
 
@@ -9,7 +7,6 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -26,7 +23,7 @@ import com.limito.order.order.domain.dto.feignclient.limited.RollbackStockReques
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
-@FeignClient(name = "limited-product-service", url = "${feign.limited-product-service.url}")
+@FeignClient(name = "limited-product-service")
 public interface LimitedFeignClient {
 
 	// 최대 구매 가능 수량 확인
